@@ -1,0 +1,81 @@
+ |  /           |             
+ ' /   __| _` | __|  _ \   __|
+ . \  |   (   | |   (   |\__ \ 
+_|\_\_|  \__,_|\__|\___/ ____/
+           Multi-Physics 3.3.11311
+Importing    KratosDEMApplication
+
+     KRATOS |  _ \| ____|  \/  |  _ \ __ _  ___| | __      
+            | | | |  _| | |\/| | |_) / _` |/ __| |/ /      
+            | |_| | |___| |  | |  __/ (_| | (__|   <       
+            |____/|_____|_|  |_|_|   \__,_|\___|_|\_\      
+
+Initializing DEMApplication...
+Running under OpenMP........
+  [Reading Nodes    : 3 nodes read]
+  [Reading Elements : 3 elements read] [Type: SphericParticle3D]
+  [Total Lines Read : 36]
+  [Reading Nodes    : 4 nodes read]
+  [Total Lines Read : 47]
+  [Total Lines Read : 1]
+  [Total Lines Read : 5]
+DOFs for the DEM solution added correctly
+DOFs for the DEM solution added correctly
+DOFs for the DEM solution added correctly
+Initializing Problem....
+[ "3balls" ] 
+[ Opened for IO: .node, .prop, .elem, .cond, .init  ]
+/home/maceli/Kratos_Examples/DEM/SIMPHONY/3balls.gid/3balls_Graphs
+Initialization Complete
+
+Main loop starting...
+Total number of TIME STEPs expected in the calculation: 99999
+
+*******************  PRINTING RESULTS FOR GID  ***************************
+                        (3 elements)
+                        (3 nodes)
+
+*******************  PRINTING RESULTS FOR GID  ***************************
+                        (3 elements)
+                        (3 nodes)
+
+*******************  PRINTING RESULTS FOR GID  ***************************
+                        (3 elements)
+                        (3 nodes)
+
+*******************  PRINTING RESULTS FOR GID  ***************************
+                        (3 elements)
+                        (3 nodes)
+
+*******************  PRINTING RESULTS FOR GID  ***************************
+                        (3 elements)
+                        (3 nodes)
+
+*******************  PRINTING RESULTS FOR GID  ***************************
+                        (3 elements)
+                        (3 nodes)
+
+*******************  PRINTING RESULTS FOR GID  ***************************
+                        (3 elements)
+                        (3 nodes)
+
+Real time calculation: 10.0001039505
+Simulation time: 0.711349999999
+Percentage Completed:  71.13571 %
+Time Step: 71135
+
+*******************  PRINTING RESULTS FOR GID  ***************************
+                        (3 elements)
+                        (3 nodes)
+
+*******************  PRINTING RESULTS FOR GID  ***************************
+                        (3 elements)
+                        (3 nodes)
+
+Calculation ends at instant: 1423483488.39
+Calculation ends at processing time instant: 14.06
+Elapsed processing time: 13.99
+Elapsed real time: 14.022261858
+ANALYSIS COMPLETED
+
+KRATOS TERMINATED CORRECTLY
