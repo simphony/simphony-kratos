@@ -153,7 +153,7 @@ class KratosWrapper(KratosWrapper):
                     {condition.Id:condition_uuid}
                 )
 
-    def __importKratosNodes(self,src,dst):
+    def __importKratosNodes(self,src,dst,entitylist=None):
         """ Parses all simphony points to kratos nodes
 
         Iterates over all points in the simphony mesh ( src ) and
@@ -163,7 +163,7 @@ class KratosWrapper(KratosWrapper):
 
         """
         
-        for point in src.iter_points():
+        for point in src.iter_points(entitylist):
 
             if point.uuid not in self.uuid_to_id_node_map.keys():
                 self.uuid_to_id_node_map.update(
@@ -180,7 +180,7 @@ class KratosWrapper(KratosWrapper):
                 point.coordinates[1],
                 point.coordinates[2])
 
-    def __importKratosElements(self,src,dst):
+    def __importKratosElements(self,src,dst,entitylist=None):
         """ Parses all simphony cells to kratos elements
 
         Iterates over all cells in the simphony mesh (src) and
@@ -193,7 +193,7 @@ class KratosWrapper(KratosWrapper):
 
         properties = Properties(0)
         
-        for element in src.iter_cells():
+        for element in src.iter_cells(entitylist):
 
             if element.uuid not in self.uuid_to_id_element_map.keys():
                 self.uuid_to_id_element_map.update(
@@ -204,13 +204,15 @@ class KratosWrapper(KratosWrapper):
 
             element_id = self.uuid_to_id_element_map[element.uuid]
 
+            __importKratosNodes(src,dst,element.points)
+
             dst.CreateNewElement(
                 "SphericContinuumParticle3D",
                 element_id,
-                [self.uuid_to_id_node_map[element.points[0]]],
+                [self.uuid_to_id_node_map[p] for p in condition.points],
                 properties)
 
-    def __importKratosConditions(self,src,dst):
+    def __importKratosConditions(self,src,dst,entitylist=None):
         """ Parses all simphony faces to kratos conditions
 
         Iterates over all faces in the simphony mesh (src) and
@@ -223,7 +225,7 @@ class KratosWrapper(KratosWrapper):
 
         properties = Properties(0)
 
-        for condition in src.iter_faces():
+        for condition in src.iter_faces(entitylist):
 
             if condition.uuid not in self.uuid_to_id_condition_map.keys():
                 self.uuid_to_id_condition_map.update(
@@ -234,10 +236,12 @@ class KratosWrapper(KratosWrapper):
 
             condition_id = self.uuid_to_id_condition_map[condition.uuid]
 
+            __importKratosNodes(src,dst,condition.points)
+
             dst.CreateNewCondition(
-                "XXXXXXXX",
+                "RigidFace3D3N",
                 condition_id,
-                [self.uuid_to_id_node_map[condition.points[0]]],
+                [self.uuid_to_id_node_map[p] for p in condition.points],
                 properties)
 
     def initialize(self):
@@ -267,8 +271,8 @@ class KratosWrapper(KratosWrapper):
         step = 0
 
         # Import the data to Kratos
-        self.spheres_model_part = self.importMesh(self.meshes["Fluid"],"DEMParticles")
-        # self.rigid_face_model_part = self.importMesh(self.meshes["Structure"],"Structure")
+        self.__importKratosElements(self.meshes["Fluid"],self.spheres_model_part)
+        self.__importKratosConditions(self.meshes["Rigid"],self.rigid_face_model_part)
 
          # Create solver
         self.solver = SolverStrategy.ExplicitStrategy(
@@ -303,5 +307,5 @@ class KratosWrapper(KratosWrapper):
         self.solver.Solve()
 
         # Export data back to SimPhoNy
-        self.meshes["Fluid"] = self.exportMesh(self.spheres_model_part)
-        # self.meshes["Structure"] = self.exportMesh(self.rigid_face_model_part)
+        self.__exportKratosElements(self.spheres_model_part,self.meshes["Fluid"])
+        self.__exportKratosConditions(self.rigid_face_model_part,self.meshes["Rigid"])
