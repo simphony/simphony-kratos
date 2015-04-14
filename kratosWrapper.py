@@ -37,44 +37,67 @@ class KratosWrapper(object):
         self.uuid_to_id_condition_map = {}
 
         # Containers
-        self.particleContainers = {}
+        self.pcs = {}
         self.meshes = {}
         self.lattices = {}
 
         # Id's stuff
         self.free_id = 0
 
+        # Simphony
+        self.CM = DataContainer()
+        self.SP = DataContainer()
+        self.BC = DataContainer()
+
         # Initialization
         self.initialize()
 
-    def __addNodalVariablesToModelpart(self,model_part):
+    def __addNodalVariablesToModelpart(self):
         pass
 
-    def __exportKratosNodes(self,src,dst):
+    def __exportKratosNodes(self,src,dst,entitylist=None,data=None):
         pass
 
-    def __exportKratosElements(self,src,dst):
+    def __exportKratosElements(self,src,dst,entitylist=None,data=None):
         pass
 
-    def __exportKratosConditions(self,src,dst):
+    def __exportKratosConditions(self,src,dst,entitylist=None,data=None):
         pass
 
-    def __importKratosNodes(self,src,dst):
+    def __importKratosNodes(self,src,dst,entitylist=None,data=None):
         pass
 
-    def __importKratosElements(self,src,dst):
+    def __importKratosElements(self,src,dst,entitylist=None,data=None):
         pass
 
-    def __importKratosConditions(self,src,dst):
+    def __importKratosConditions(self,src,dst,entitylist=None,data=None):
         pass
 
-    def exportMesh(self,mesh):
-        simphony_mesh = SimphonyMesh()
+    def read_modelpart(self,filename):
+        pass
 
-        self.__exportKratosNodes(mesh,simphony_mesh)
-        self.__exportKratosElements(mesh,simphony_mesh)
-        self.__exportKratosConditions(mesh,simphony_mesh)
+    def write_modelpart(self,filename):
+        pass
 
+    def add_pc(self,src):
+        self.pcs[src.name] = src
+
+    def add_mesh(self,src):
+        self.meshes[src.name] = src
+
+    def add_lattice(self,src):
+        self.lattices[src.name] = src
+
+    def get_pc(self,name):
+        return self.pcs[name]
+
+    def get_mesh(self,name):
+        return self.meshes[name]
+
+    def get_lattice(self,name):
+        return self.lattices[name]
+
+    def updateForwardDicc(self):
         if not self.uuid_to_id_node_map:
             self.uuid_to_id_node_map = {v: k for k, v in self.id_to_uuid_node_map.items()}
         if not self.uuid_to_id_element_map:
@@ -82,25 +105,13 @@ class KratosWrapper(object):
         if not self.uuid_to_id_condition_map:
             self.uuid_to_id_condition_map = {v: k for k, v in self.id_to_uuid_condition_map.items()}
 
-        return simphony_mesh
-
-    def importMesh(self,mesh,name):
-        model_part = ModelPart(name)
-
-        self.__importKratosNodes(mesh,model_part)
-        self.__importKratosElements(mesh,model_part)
-        self.__importKratosConditions(mesh,model_part)
-
-        self.__addNodalVariablesToModelpart(model_part)
-
+    def updateBackwardDicc(self):
         if not self.id_to_uuid_node_map:
             self.id_to_uuid_node_map = {v: k for k, v in self.uuid_to_id_node_map.items()}
         if not self.id_to_uuid_element_map:
             self.id_to_uuid_element_map = {v: k for k, v in self.uuid_to_id_element_map.items()}
         if not self.id_to_uuid_condition_map:
             self.id_to_uuid_condition_map = {v: k for k, v in self.uuid_to_id_condition_map.items()}
-
-        return model_part
 
     def initialize(self):
         pass
