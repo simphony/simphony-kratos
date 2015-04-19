@@ -18,6 +18,8 @@ from simphony.cuds.mesh import Cell as SCell
 from wrappers.kratosWrapper import KratosWrapper
 
 # Kratos Imports
+import ProjectParameters
+
 from KratosMultiphysics import *
 from KratosMultiphysics.IncompressibleFluidApplication import *
 from KratosMultiphysics.FluidDynamicsApplication import *
@@ -97,25 +99,29 @@ class CFDWrapper(KratosWrapper):
 
         """
 
+        if "REACTION" in ProjectParameters.nodal_results:
+            self.fluid_model_part.AddNodalSolutionStepVariable(REACTION)
+        if "DISTANCE" in ProjectParameters.nodal_results:
+            self.fluid_model_part.AddNodalSolutionStepVariable(DISTANCE)
+
     # Small kernels to get ( kratos to simp) and set ( simp to kratos)
     # entity data 
 
     def __getSolutionStepVariable1D(self, data, entity, variable):
         pair = variables_dictionary[variable]
-        data.update(
-            pair[0]: 
-            entity.GetSolutionStepValue(pair[1])
-        )
+        data.update({
+            pair[0]: entity.GetSolutionStepValue(pair[1])
+        })
 
     def __getSolutionStepVariable3D(self, data, entity, variable):
         pair = variables_dictionary[variable]
-        data.update(
+        data.update({
             pair[0]: [
                 entity.GetSolutionStepValue(pair[2]), 
                 entity.GetSolutionStepValue(pair[3]), 
                 entity.GetSolutionStepValue(pair[4])
             ]
-        )
+        })
 
     def __setSolutionStepVariable1D(self, data, entity, variable):
         pair = variables_dictionary[variable]
@@ -280,8 +286,60 @@ class CFDWrapper(KratosWrapper):
         This adds partial support for the future FileIO
         """
 
-        # f = open(filename, 'r')
-        pass
+        mesh = self.get_mesh("Model")
+        tmp = ModelPart("TemporalModelpart")
+
+        f = open(filename, 'r')
+
+        for l in f:
+            if "Begin Nodes" in l:
+                read_nodes = 1
+                continue
+        
+            if "End Nodes" in l:
+                read_nodes = 0
+                continue
+
+            if "Begin Elements" in l:
+                read_elements = 1
+
+            if "End Elements" in l:
+                read_elements = 0
+
+            if "Begin Conditions" in l:
+                read_conditions = 1
+
+            if "End Conditions" in l:
+                read_conditions = 0
+                  
+            if read_nodes == 1:
+                node_info = l.split(" ")
+
+                node = tmp.CreateNewNode(
+                    node_info[0],
+                    node_info[1],
+                    node_info[2],
+                    node_info[3])
+
+            if read_elements == 1:
+                elem_info = l.split(" ")
+
+                elem = tmp.CreateNewElement(
+                    "FractionalStep3D",
+                    elem_info[0],
+                    [elem_info[1], elem_info[2], elem_info[3]],
+                    self.element_properties
+                )
+
+            if read_conditions == 1:
+                cndt_info = l.split(" ")
+
+                cndt = tmp.CreateNewCondition(
+                    "WallCondition3D",
+                    cndt_info[0],
+                    [cndt_info[1], cndt_info[2], cndt_info[3]],
+                    self.element_properties
+                )
 
     def write_modelpart(self, filename):
         """ Writes a Kratos formated modelpart
@@ -289,7 +347,7 @@ class CFDWrapper(KratosWrapper):
         This adds partial support for the future FileIO
         """
 
-        pmesh = self.get_mesh("Particles")
+        mesh = self.get_mesh("Model")
 
         f = open(filename, 'w')
 
@@ -300,19 +358,19 @@ class CFDWrapper(KratosWrapper):
 
         # Properties ( out shared values )
         f.write('Begin Properties 1\n')
-        f.write('PARTICLE_DENSITY {}\n'.format(pmesh.data[PARTICLE_DENSITY]))
-        f.write('YOUNG_MODULUS {}\n'.format(pmesh.data[YOUNG_MODULUS]))
-        f.write('POISSON_RATIO {}\n'.format(pmesh.data[POISSON_RATIO]))
-        f.write('PARTICLE_FRICTION {}\n'.format(pmesh.data[PARTICLE_FRICTION]))
-        f.write('PARTICLE_COHESION {}\n'.format(pmesh.data[PARTICLE_COHESION]))
+        f.write('PARTICLE_DENSITY {}\n'.format(mesh.data[PARTICLE_DENSITY]))
+        f.write('YOUNG_MODULUS {}\n'.format(mesh.data[YOUNG_MODULUS]))
+        f.write('POISSON_RATIO {}\n'.format(mesh.data[POISSON_RATIO]))
+        f.write('PARTICLE_FRICTION {}\n'.format(mesh.data[PARTICLE_FRICTION]))
+        f.write('PARTICLE_COHESION {}\n'.format(mesh.data[PARTICLE_COHESION]))
         f.write('LN_OF_RESTITUTION_COEFF {}\n'.format(
-            pmesh.data[LN_OF_RESTITUTION_COEFF]))
-        f.write('PARTICLE_MATERIAL {}\n'.format(pmesh.data[PARTICLE_MATERIAL]))
-        f.write('ROLLING_FRICTION {}\n'.format(pmesh.data[ROLLING_FRICTION]))
+            mesh.data[LN_OF_RESTITUTION_COEFF]))
+        f.write('PARTICLE_MATERIAL {}\n'.format(mesh.data[PARTICLE_MATERIAL]))
+        f.write('ROLLING_FRICTION {}\n'.format(mesh.data[ROLLING_FRICTION]))
         f.write('DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME {}\n'.format(
-            pmesh.data[DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME]))
+            mesh.data[DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME]))
         f.write('DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME {}\n'.format(
-            pmesh.data[DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME]))
+            mesh.data[DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME]))
         f.write('End Properties\n\n')
 
         # Nodes
@@ -364,6 +422,11 @@ class CFDWrapper(KratosWrapper):
             execute Kratos' CFD solver
         """
 
+        self.fluid_model_part = ModelPart("")
+
+        self.SolverSettings = ProjectParameters.FluidSolverConfiguration
+        self.solver_module = import_solver(self.SolverSettings)
+
         pass
 
     def initializeTimeStep(self):
@@ -372,11 +435,9 @@ class CFDWrapper(KratosWrapper):
     def run(self):
         """ Run a step of the wrapper """
 
-        newSphereMp = ModelPart("")
-        newRigidbMp = ModelPart("")
+        newFluidMp = ModelPart("")
 
-        self.spheres_model_part = newSphereMp
-        self.rigid_face_model_part = newRigidbMp
+        self.fluid_model_part = newSphereMp
 
         newSphereMp.Properties.append(self.element_properties)
         newRigidbMp.Properties.append(self.condition_properties)
@@ -385,13 +446,8 @@ class CFDWrapper(KratosWrapper):
 
         # Import the into Kratos
         self.__importKratosElements(
-            self.get_mesh("Particles"),
+            self.get_mesh("Model"),
             newSphereMp
-        )
-
-        self.__importKratosConditions(
-            self.get_mesh("Particles"),
-            newRigidbMp
         )
 
         self.updateBackwardDicc()
@@ -399,8 +455,6 @@ class CFDWrapper(KratosWrapper):
         # self.setConditionData()
 
         self.initializeTimeStep()
-
-        print("NON: {}".format(self.solver.model_part.NumberOfNodes(0)))
 
         # Not sure what to do here :S
         newSphereMp.ProcessInfo[TIME] = self.time
@@ -411,13 +465,13 @@ class CFDWrapper(KratosWrapper):
         newRigidbMp.ProcessInfo[DELTA_TIME] = 0.5  # NYI
         newRigidbMp.ProcessInfo[TIME_STEPS] = self.step
 
-        substeps = 3
+        substeps = 1
 
         # Solve
         for n in xrange(0, substeps):
             self.solver.Solve()
 
-        new_mesh = SMesh(name="Particles")
+        new_mesh = SMesh(name="Model")
 
         # Add the problem data
         self.setMeshData(new_mesh)
@@ -428,28 +482,10 @@ class CFDWrapper(KratosWrapper):
             new_mesh
         )
 
-        self.__exportKratosConditions(
-            self.rigid_face_model_part,
-            new_mesh
-        )
-
-        if (self.step % 5) == 0:
-            self.demio.PrintResults(
-                self.mixed_model_part,
-                self.spheres_model_part,
-                self.rigid_face_model_part,
-                self.cluster_model_part,
-                self.contact_model_part,
-                self.mapping_model_part, self.time
-            )
-
-        for p in self.spheres_model_part.Nodes:
-            print(p.GetSolutionStepValue(DISPLACEMENT))
-
         self.add_mesh(new_mesh)
         self.updateForwardDicc()
 
-        self.time += self.spheres_model_part.ProcessInfo.GetValue(DELTA_TIME)
+        self.time += self.fluid_model_part.ProcessInfo.GetValue(DELTA_TIME)
         self.step += 1
 
     def finalizeTimeStep(self):
