@@ -42,7 +42,7 @@ class KratosWrapper(object):
         self.lattices = {}
 
         # Id's stuff
-        self.free_id = 0
+        self.free_id = 1
 
         # Simphony
         self.CM = DataContainer()
