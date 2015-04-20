@@ -35,4 +35,4 @@ setup(
         'simphony.engine': ['kratos = simkratos']},
     packages=find_packages(),
     install_requires=["simphony >= 0.1.1"]
-    )
+)
