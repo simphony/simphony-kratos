@@ -32,7 +32,8 @@ CFDWrapper = CFDengine.CFDWrapper()
 CFDWrapper.CM[CUBA.TIME_STEP] = 0.01
 CFDWrapper.CM[CUBA.NUMBER_OF_TIME_STEPS] = 1000
 
-# New script according to the code suggested by Adham 
+# This should be used for test proposes only since
+# is not api compliant
 mesh = CFDWrapper.read_modelpart("CFD_exampleFluid")
  
 CFDWrapper.setMeshData(mesh)
