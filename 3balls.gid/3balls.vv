@@ -1,0 +1,37 @@
+BeginZE /home/maceli/Kratos_Examples/DEM/SIMPHONY/3balls.gid/3balls.vv
+   x -1.65159344673156738 2.70916533470153809
+   y 1.91555333137512207 -1.86148083209991455
+   z -6.22600936889648438 5.40782737731933594
+   e 5
+   v 0.486781055564017628 0.121667080743312228 0.0896175090199292645
+   r 0.860354594039253961
+   m 0.954331636428833008 -0.0357552096247673035 0.296601861715316772 0 0.272656142711639404 0.51002579927444458 -0.815801620483398438 0 -0.122105449438095093 0.859415650367736816 0.496482640504837036 0 0 0 0 1
+   c 0.5 0.5 0.409090906381607056
+   pd 0
+   pno 0
+   pfo 0
+   pf 4
+   pv 0
+   NowUse 0
+   DrawingType 0
+   LightVector -80.12969970703125 51.6778984069824219 122.165000915527344 0
+   OGLShadow(UseShadows) 0
+   OGLShadow(RenderMode) RenderNice
+   OGLShadow(ShadowBias) -0.002
+   OGLShadow(AmbientShadows) 1
+   OGLShadow(UseFBO) 0
+   OGLShadow(FBOSize) 2048
+   OGLShadow(DimmedLightFactor) 0.02
+   OGLStereo(UseStereo) 0
+   OGLStereo(RelativeEyeDistance) 1
+   OGLStereo(FlipEyes) 0
+   OGLStereo(StereoMode) AnaglyphColors
+   OGLStereo(EyeDistance) 0.075
+   OGLStereo(LeftEyeDistance) 1 0 0 1
+   OGLStereo(RightEyeDistance) 0 1 1 1
+EndZE /home/maceli/Kratos_Examples/DEM/SIMPHONY/3balls.gid/3balls.vv
+
+BeginMirror
+   Mirror 0 Angle 0.0 AngleFake -15.0 SizeFactor 2.0 HeightOffset 0.25 Color #d9e5f24d Backlight Off EdgeStyle No Type Scene DrawMode Mirror
+EndMirror
+
