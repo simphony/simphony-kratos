@@ -39,7 +39,7 @@ mesh = CFDWrapper.read_modelpart("CFD_exampleFluid")
 CFDWrapper.setMeshData(mesh)
 CFDWrapper.add_mesh(mesh)
 
-for i in xrange(0,1000):
+for i in xrange(0,10):
     lastTime = CFDWrapper.run()
     print("Finished Step {}".format(i))
 
