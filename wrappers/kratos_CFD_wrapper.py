@@ -516,8 +516,13 @@ class CFDWrapper(KratosWrapper):
 
         # Import the into Kratos
         self.__importKratosElements(
-            self.get_mesh("Model"),
-            newFluidMp
+           self.get_mesh("Model"),
+           newFluidMp
+        )
+
+        self.__importKratosConditions(
+           self.get_mesh("Model"),
+           newFluidMp
         )
 
         newFluidMp.Properties.append(self.element_properties)
