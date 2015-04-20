@@ -1,0 +1,37 @@
+BeginZE /home/roigcarlos/Git/simphony-kratos/CFD_example.gid/CFD_example.vv
+   x -0.284441083669662476 3.52405095100402832
+   y 0.860526978969573975 -1.66904520988464355
+   z -15 15
+   e 5
+   v -0.107876673565942299 -0.0928407525239442477 0.0851906470349598766
+   r 0.986146932068897808
+   m 0.968246281147003174 -0.147990286350250244 -0.201489418745040894 0 0.188051700592041016 0.962210357189178467 0.196946173906326294 0 0.164729073643684387 -0.228582829236984253 0.959486424922943115 0 0 0 0 1
+   c 0 0 0
+   pd 0
+   pno 0
+   pfo 0
+   pf 4
+   pv 0
+   NowUse 1
+   DrawingType 0
+   LightVector 90 90 150 0
+   OGLShadow(UseShadows) 0
+   OGLShadow(RenderMode) RenderNice
+   OGLShadow(ShadowBias) -0.002
+   OGLShadow(AmbientShadows) 1
+   OGLShadow(UseFBO) 0
+   OGLShadow(FBOSize) 0
+   OGLShadow(DimmedLightFactor) 0.02
+   OGLStereo(UseStereo) 0
+   OGLStereo(RelativeEyeDistance) 1
+   OGLStereo(FlipEyes) 0
+   OGLStereo(StereoMode) AnaglyphColors
+   OGLStereo(EyeDistance) 0.075
+   OGLStereo(LeftEyeDistance) 1 0 0 1
+   OGLStereo(RightEyeDistance) 0 1 1 1
+EndZE /home/roigcarlos/Git/simphony-kratos/CFD_example.gid/CFD_example.vv
+
+BeginMirror
+   Mirror 0 Angle 0.0 AngleFake -15.0 SizeFactor 2.0 HeightOffset 0.25 Color #d9e5f24d Backlight Off EdgeStyle No Type Scene DrawMode Mirror
+EndMirror
+

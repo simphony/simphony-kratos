@@ -511,11 +511,15 @@ class CFDWrapper(KratosWrapper):
 
         self.__addNodalVariablesToModelpart()
 
-        # model_part_io_fluid = ModelPartIO("CDF-exampleFluid")
+        # model_part_io_fluid = ModelPartIO("CFD_exampleFluid")
         # model_part_io_fluid.ReadModelPart(self.fluid_model_part)
 
         # Import the into Kratos
         self.__importKratosElements(
+            self.get_mesh("Model"),
+            newFluidMp
+        )
+        self.__importKratosConditions(
             self.get_mesh("Model"),
             newFluidMp
         )
