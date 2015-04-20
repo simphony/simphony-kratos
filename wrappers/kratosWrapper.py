@@ -87,8 +87,8 @@ class KratosWrapper(object):
         pair = self.variables_dictionary[variable]
         for i in xrange(0, 3):
             entity.SetSolutionStepValue(
-                pair[2+i],
-                data[pair[0]][0+i]
+                pair[2 + i],
+                data[pair[0]][0 + i]
             )
 
     def __getNodalData(self, data, node):
