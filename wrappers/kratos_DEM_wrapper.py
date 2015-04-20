@@ -33,6 +33,41 @@ class DEMPackWrapper(KratosWrapper):
         self.time = 0
         self.step = 0
 
+        # The dictionary defines the relation between CUBA and
+        # kratos variables
+
+        self.variables_dictionary = {
+            "RADIUS": [
+                CUBA.RADIUS,
+                RADIUS
+            ],
+            "NODAL_MASS": [
+                CUBA.NODAL_MASS,
+                NODAL_MASS
+            ],
+            "VELOCITY": [
+                CUBA.VELOCITY,
+                VELOCITY,
+                VELOCITY_X,
+                VELOCITY_Y,
+                VELOCITY_Z
+            ],
+            "DISPLACEMENT": [
+                CUBA.DISPLACEMENT,
+                DISPLACEMENT,
+                DISPLACEMENT_X,
+                DISPLACEMENT_Y,
+                DISPLACEMENT_Z
+            ],
+            "TOTAL_FORCES": [
+                CUBA.TOTAL_FORCES,
+                TOTAL_FORCES,
+                TOTAL_FORCES_X,
+                TOTAL_FORCES_Y,
+                TOTAL_FORCES_Z
+            ]
+        }
+
     def __addNodalVariablesToModelpart(self):
         """ Adds the DEMPack nodal variables
 
@@ -69,7 +104,7 @@ class DEMPackWrapper(KratosWrapper):
             DEM_parameters
         )
 
-    def __getNodalData(self, node):
+    def __getNodalData(self, data, node):
         """ Extracts the node data
 
         Extracts the node data and puts in ina format readeable
@@ -77,32 +112,25 @@ class DEMPackWrapper(KratosWrapper):
 
         """
 
-        data = {
-            CUBA.RADIUS: node.GetSolutionStepValue(RADIUS),
-            CUBA.NODAL_MASS: node.GetSolutionStepValue(NODAL_MASS),
-            CUBA.VELOCITY:  [
-                node.GetSolutionStepValue(VELOCITY_X),
-                node.GetSolutionStepValue(VELOCITY_Y),
-                node.GetSolutionStepValue(VELOCITY_Z)
-            ],
-            CUBA.DISPLACEMENT:  [
-                node.GetSolutionStepValue(DISPLACEMENT_X),
-                node.GetSolutionStepValue(DISPLACEMENT_Y),
-                node.GetSolutionStepValue(DISPLACEMENT_Z)
-            ],
-            CUBA.DELTA_DISPLACEMENT:  [
-                node.GetSolutionStepValue(DELTA_DISPLACEMENT_X),
-                node.GetSolutionStepValue(DELTA_DISPLACEMENT_Y),
-                node.GetSolutionStepValue(DELTA_DISPLACEMENT_Z)
-            ],
-            CUBA.TOTAL_FORCES:  [
-                node.GetSolutionStepValue(TOTAL_FORCES_X),
-                node.GetSolutionStepValue(TOTAL_FORCES_Y),
-                node.GetSolutionStepValue(TOTAL_FORCES_Z)
-            ]
-        }
+        self.__getSolutionStepVariable1D(data,node,"RADIUS")
+        self.__getSolutionStepVariable1D(data,node,"NODAL_MASS")
+        self.__getSolutionStepVariable3D(data,node,"VELOCITY")
+        self.__getSolutionStepVariable3D(data,node,"DISPLACEMENT")
+        self.__getSolutionStepVariable3D(data,node,"TOTAL_FORCES")
 
-        return data
+    def __setNodalData(self, data, node):
+        """ Assembles the point data
+
+        Assembles the point data and puts in ina format readeable
+        by the Kratos ModelPart
+
+        """
+
+        self.__setSolutionStepVariable1D(data,node,"RADIUS")
+        self.__setSolutionStepVariable1D(data,node,"NODAL_MASS")
+        self.__setSolutionStepVariable3D(data,node,"VELOCITY")
+        self.__setSolutionStepVariable3D(data,node,"DISPLACEMENT")
+        self.__setSolutionStepVariable3D(data,node,"TOTAL_FORCES")
 
     def __exportKratosElements(self, src, dst, entitylist=None):
         """ Parses all kratos elements to simphony cells
@@ -123,7 +151,9 @@ class DEMPackWrapper(KratosWrapper):
 
             for node in element.GetNodes():
 
-                data = self.__getNodalData(node)
+                data = {}
+
+                self.__getNodalData(data, node)
 
                 point = SPoint(
                     coordinates=(node.X, node.Y, node.Z),
@@ -214,69 +244,15 @@ class DEMPackWrapper(KratosWrapper):
 
                 node_id = self.uuid_to_id_node_map[point.uid]
 
+                data = point.data
+
                 node = dst.CreateNewNode(
                     node_id,
                     point.coordinates[0],
                     point.coordinates[1],
                     point.coordinates[2])
 
-                node.SetSolutionStepValue(
-                    RADIUS,
-                    point.data[CUBA.RADIUS]
-                )
-                node.SetSolutionStepValue(
-                    NODAL_MASS,
-                    point.data[CUBA.NODAL_MASS]
-                )
-                node.SetSolutionStepValue(
-                    VELOCITY_X,
-                    point.data[CUBA.VELOCITY][0]
-                )
-                node.SetSolutionStepValue(
-                    VELOCITY_Y,
-                    point.data[CUBA.VELOCITY][1]
-                )
-                node.SetSolutionStepValue(
-                    VELOCITY_Z,
-                    point.data[CUBA.VELOCITY][2]
-                )
-                node.SetSolutionStepValue(
-                    DISPLACEMENT_X,
-                    point.data[CUBA.DISPLACEMENT][0]
-                )
-                node.SetSolutionStepValue(
-                    DISPLACEMENT_Y,
-                    point.data[CUBA.DISPLACEMENT][1]
-                )
-                node.SetSolutionStepValue(
-                    DISPLACEMENT_Z,
-                    point.data[CUBA.DISPLACEMENT][2]
-                )
-                node.SetSolutionStepValue(
-                    DELTA_DISPLACEMENT_X,
-                    point.data[CUBA.DELTA_DISPLACEMENT][0]
-                )
-                node.SetSolutionStepValue(
-                    DELTA_DISPLACEMENT_Y,
-                    point.data[CUBA.DELTA_DISPLACEMENT][1]
-                )
-                node.SetSolutionStepValue(
-                    DELTA_DISPLACEMENT_Z,
-                    point.data[CUBA.DELTA_DISPLACEMENT][2]
-                )
-                node.SetSolutionStepValue(
-                    TOTAL_FORCES_X,
-                    point.data[CUBA.TOTAL_FORCES][0]
-                )
-                node.SetSolutionStepValue(
-                    TOTAL_FORCES_Y,
-                    point.data[CUBA.TOTAL_FORCES][1]
-                )
-                node.SetSolutionStepValue(
-                    TOTAL_FORCES_Z,
-                    point.data[CUBA.TOTAL_FORCES][2]
-                )
-                # FALTA ANGULAR VELOCITY
+                self.__setNodalData(data, node)
 
             dst.CreateNewElement(
                 "SphericParticle3D",

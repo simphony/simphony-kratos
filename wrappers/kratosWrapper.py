@@ -55,6 +55,46 @@ class KratosWrapper(object):
     def __addNodalVariablesToModelpart(self):
         pass
 
+    # Small kernels to get ( kratos to simp) and set ( simp to kratos)
+    # entity data 
+
+    def getSolutionStepVariable1D(self, data, entity, variable):
+        pair = self.variables_dictionary[variable]
+        data.update({
+            pair[0]: entity.GetSolutionStepValue(pair[1])
+        })
+
+    def getSolutionStepVariable3D(self, data, entity, variable):
+        pair = self.variables_dictionary[variable]
+        data.update({
+            pair[0]: [
+                entity.GetSolutionStepValue(pair[2]), 
+                entity.GetSolutionStepValue(pair[3]), 
+                entity.GetSolutionStepValue(pair[4])
+            ]
+        })
+
+    def setSolutionStepVariable1D(self, data, entity, variable):
+        pair = self.variables_dictionary[variable]
+        entity.SetSolutionStepValue(
+            pair[1],
+            data[pair[0]]
+        )
+
+    def setSolutionStepVariable3D(self, data, entity, variable):
+        pair = self.variables_dictionary[variable]
+        for i in xrange(0,3):
+            entity.SetSolutionStepValue(
+                pair[2+i],
+                data[pair[0]][0+i]
+            )
+
+    def __getNodalData(self, data, node):
+        pass
+
+    def __setNodalData(self, data, node):
+        pass
+
     def __exportKratosNodes(self,src,dst,entitylist=None,data=None):
         pass
 
