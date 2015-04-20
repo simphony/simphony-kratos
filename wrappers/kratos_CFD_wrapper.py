@@ -26,8 +26,6 @@ from KratosMultiphysics.FluidDynamicsApplication import *
 from KratosMultiphysics.ExternalSolversApplication import *
 from KratosMultiphysics.MeshingApplication import *
 
-# TBD: Which solver?
-# import vms_fractional_step_solver as solver
 
 class CFDWrapper(KratosWrapper):
 
@@ -66,33 +64,33 @@ class CFDWrapper(KratosWrapper):
                 DISPLACEMENT_Y,
                 DISPLACEMENT_Z
             ],
-            "VISCOSITY" : [
+            "VISCOSITY": [
                 CUBA.VISCOSITY,
                 VISCOSITY
             ],
-            "DENSITY" : [
+            "DENSITY": [
                 CUBA.DENSITY,
                 DENSITY
             ],
-            "BODY_FORCE" : [
+            "BODY_FORCE": [
                 CUBA.BODY_FORCE,
                 BODY_FORCE
             ],
-            "FLAG_VARIABLE" : [
+            "FLAG_VARIABLE": [
                 CUBA.FLAG_VARIABLE,
                 FLAG_VARIABLE
             ],
-            "IS_STRUCTURE" : [
-                CUBA.IS_STRUCTURE, 
+            "IS_STRUCTURE": [
+                CUBA.IS_STRUCTURE,
                 IS_STRUCTURE
             ],
-            "IS_SLIP" : [
-                CUBA.IS_SLIP, 
+            "IS_SLIP": [
+                CUBA.IS_SLIP,
                 IS_SLIP
             ]
         }
 
-    def __addNodalVariablesToModelpart(self,modelPart):
+    def __addNodalVariablesToModelpart(self, modelPart):
         """ Adds the Kratos CFD nodal variables
 
         Adds the Kratos CFD nodal variables to the particle and
@@ -118,18 +116,18 @@ class CFDWrapper(KratosWrapper):
 
         """
 
-        self.getSolutionStepVariable1D(data,node,"PRESSURE")
-        self.getSolutionStepVariable3D(data,node,"VELOCITY")
+        self.getSolutionStepVariable1D(data, node, "PRESSURE")
+        self.getSolutionStepVariable3D(data, node, "VELOCITY")
         if "REACTION" in ProjectParameters.nodal_results:
-            self.getSolutionStepVariable1D(data,node,"REACTION")
+            self.getSolutionStepVariable1D(data, node, "REACTION")
         if "DISTANCE" in ProjectParameters.nodal_results:
-            self.getSolutionStepVariable1D(data,node,"DISTANCE")
-        self.getSolutionStepVariable3D(data,node,"DISPLACEMENT")
-        self.getSolutionStepVariable1D(data,node,"VISCOSITY")
-        self.getSolutionStepVariable1D(data,node,"DENSITY")
-        self.getSolutionStepVariable1D(data,node,"BODY_FORCE")
-        self.getSolutionStepVariable1D(data,node,"FLAG_VARIABLE")
-        self.getSolutionStepVariable1D(data,node,"IS_STRUCTURE")
+            self.getSolutionStepVariable1D(data, node, "DISTANCE")
+        self.getSolutionStepVariable3D(data, node, "DISPLACEMENT")
+        self.getSolutionStepVariable1D(data, node, "VISCOSITY")
+        self.getSolutionStepVariable1D(data, node, "DENSITY")
+        self.getSolutionStepVariable1D(data, node, "BODY_FORCE")
+        self.getSolutionStepVariable1D(data, node, "FLAG_VARIABLE")
+        self.getSolutionStepVariable1D(data, node, "IS_STRUCTURE")
 
         data.update({CUBA.IMPOSED_PRES: node.IsFixed(PRESSURE)})
         data.update({CUBA.IMPOSED_VEL: node.IsFixed(VELOCITY_X)})
@@ -142,18 +140,18 @@ class CFDWrapper(KratosWrapper):
 
         """
 
-        self.setSolutionStepVariable1D(data,node,"PRESSURE")
-        self.setSolutionStepVariable3D(data,node,"VELOCITY")
+        self.setSolutionStepVariable1D(data, node, "PRESSURE")
+        self.setSolutionStepVariable3D(data, node, "VELOCITY")
         if "REACTION" in ProjectParameters.nodal_results:
-            self.setSolutionStepVariable1D(data,node,"REACTION")
+            self.setSolutionStepVariable1D(data, node, "REACTION")
         if "DISTANCE" in ProjectParameters.nodal_results:
-            self.setSolutionStepVariable1D(data,node,"DISTANCE")
-        self.setSolutionStepVariable3D(data,node,"DISPLACEMENT")
-        self.setSolutionStepVariable1D(data,node,"VISCOSITY")
-        self.setSolutionStepVariable1D(data,node,"DENSITY")
-        self.setSolutionStepVariable1D(data,node,"BODY_FORCE")
-        self.setSolutionStepVariable1D(data,node,"FLAG_VARIABLE")
-        self.setSolutionStepVariable1D(data,node,"IS_STRUCTURE")
+            self.setSolutionStepVariable1D(data, node, "DISTANCE")
+        self.setSolutionStepVariable3D(data, node, "DISPLACEMENT")
+        self.setSolutionStepVariable1D(data, node, "VISCOSITY")
+        self.setSolutionStepVariable1D(data, node, "DENSITY")
+        self.setSolutionStepVariable1D(data, node, "BODY_FORCE")
+        self.setSolutionStepVariable1D(data, node, "FLAG_VARIABLE")
+        self.setSolutionStepVariable1D(data, node, "IS_STRUCTURE")
 
     # export
 
@@ -194,8 +192,8 @@ class CFDWrapper(KratosWrapper):
                 element_uid = self.id_to_uuid_element_map[element.Id]
 
             point_list = [
-                self.id_to_uuid_node_map[point.Id]
-                for point in element.GetNodes()
+                self.id_to_uuid_node_map[pointl.Id]
+                for pointl in element.GetNodes()
             ]
 
             cell = SCell(
@@ -214,8 +212,8 @@ class CFDWrapper(KratosWrapper):
                 condition_uid = self.id_to_uuid_condition_map[condition.Id]
 
             point_list = [
-                self.id_to_uuid_node_map[point.Id]
-                for point in condition.GetNodes()
+                self.id_to_uuid_node_map[pointl.Id]
+                for pointl in condition.GetNodes()
             ]
 
             face = SFace(
@@ -227,7 +225,7 @@ class CFDWrapper(KratosWrapper):
 
             self.id_to_uuid_condition_map[condition.Id] = fid
 
-        for i in xrange(1,src.NumberOfMeshes()):
+        for i in xrange(1, src.NumberOfMeshes()):
 
             mesh = src.GetMesh(i)
             prop = src.GetProperties()[i]
@@ -245,8 +243,6 @@ class CFDWrapper(KratosWrapper):
 
                 p.data = data
                 dst.update_point(p)
-
-
 
     def __exportKratosElements(self, src, dst, entitylist=None):
         """ Parses all kratos elements to simphony cells
@@ -275,8 +271,8 @@ class CFDWrapper(KratosWrapper):
         for element in src.GetElements():
 
             point_list = [
-                self.id_to_uuid_node_map[point.Id]
-                for point in element.GetNodes()
+                self.id_to_uuid_node_map[pointl.Id]
+                for pointl in element.GetNodes()
             ]
 
             cell = SCell(
@@ -286,7 +282,7 @@ class CFDWrapper(KratosWrapper):
 
             dst.add_cell(cell)
 
-        for i in xrange(1,src.NumberOfMeshes()):
+        for i in xrange(1, src.NumberOfMeshes()):
 
             mesh = src.GetMesh(i)
             prop = src.GetProperties()[i]
@@ -447,7 +443,6 @@ class CFDWrapper(KratosWrapper):
 
         return new_mesh
 
-
     def write_modelpart(self, filename):
         """ Writes a Kratos formated modelpart
 
@@ -559,13 +554,13 @@ class CFDWrapper(KratosWrapper):
 
         # Import the into Kratos
         self.__importKratosElements(
-           self.get_mesh("Model"),
-           newFluidMp
+            self.get_mesh("Model"),
+            newFluidMp
         )
 
         self.__importKratosConditions(
-           self.get_mesh("Model"),
-           newFluidMp
+            self.get_mesh("Model"),
+            newFluidMp
         )
         self.__importKratosConditions(
             self.get_mesh("Model"),
@@ -577,7 +572,10 @@ class CFDWrapper(KratosWrapper):
         self.SolverSettings = ProjectParameters.FluidSolverConfiguration
         self.solver_module = import_solver(self.SolverSettings)
 
-        self.solver_module.AddVariables(self.fluid_model_part, self.SolverSettings)
+        self.solver_module.AddVariables(
+            self.fluid_model_part,
+            self.SolverSettings
+        )
 
         self.updateBackwardDicc()
         self.setElementData()
@@ -606,9 +604,9 @@ class CFDWrapper(KratosWrapper):
         substeps = 2
 
         Dt = ProjectParameters.Dt
-        Nsteps = ProjectParameters.nsteps
-        final_time = ProjectParameters.max_time
-        output_time = ProjectParameters.output_time
+        # Nsteps = ProjectParameters.nsteps
+        # final_time = ProjectParameters.max_time
+        # output_time = ProjectParameters.output_time
 
         self.fluid_model_part.CloneTimeStep(self.time)
         self.time = self.time + Dt
