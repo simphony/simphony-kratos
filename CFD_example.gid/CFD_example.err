@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "KratosOpenMP.py", line 18, in <module>
-    from KratosMultiphysics import *
-  File "/home/roigcarlos/GiDx64/gid12.0.5x64/./problemtypes/kratos.gid/Kratos/kratos.gid/kratos/KratosMultiphysics/__init__.py", line 13, in <module>
-    from Kratos import *
-ImportError: /home/roigcarlos/kratos/kratos/libs/Kratos.so: undefined symbol: _ZN6Kratos10IDENTIFIERE
