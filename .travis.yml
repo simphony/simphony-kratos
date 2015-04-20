@@ -6,4 +6,4 @@ install:
   - python setup.py develop
 
 script:
-  - flake8 --exclude=CFD_example.gid,3balls.gid .
+  - flake8 --exclude=CFD_example.gid,3balls.gid --ignore=F401,F403 .
