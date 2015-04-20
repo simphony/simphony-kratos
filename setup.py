@@ -28,7 +28,8 @@ setup(
     name='simkratos',
     version=VERSION,
     author='SimPhoNy, EU FP7 Project (Nr. 604005) www.simphony-project.eu',
-    description='The Kratos-CFD and Kratos-DEMPack wrappers for the SimPhoNy framework',
+    description='The Kratos-CFD and Kratos-DEMPack wrappers\
+                 for the SimPhoNy framework',
     long_description=README_TEXT,
     entry_points={
         'simphony.engine': ['kratos = simkratos']},
