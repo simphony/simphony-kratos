@@ -112,11 +112,11 @@ class DEMPackWrapper(KratosWrapper):
 
         """
 
-        self.__getSolutionStepVariable1D(data,node,"RADIUS")
-        self.__getSolutionStepVariable1D(data,node,"NODAL_MASS")
-        self.__getSolutionStepVariable3D(data,node,"VELOCITY")
-        self.__getSolutionStepVariable3D(data,node,"DISPLACEMENT")
-        self.__getSolutionStepVariable3D(data,node,"TOTAL_FORCES")
+        self.__getSolutionStepVariable1D(data, node, "RADIUS")
+        self.__getSolutionStepVariable1D(data, node, "NODAL_MASS")
+        self.__getSolutionStepVariable3D(data, node, "VELOCITY")
+        self.__getSolutionStepVariable3D(data, node, "DISPLACEMENT")
+        self.__getSolutionStepVariable3D(data, node, "TOTAL_FORCES")
 
     def __setNodalData(self, data, node):
         """ Assembles the point data
@@ -126,11 +126,11 @@ class DEMPackWrapper(KratosWrapper):
 
         """
 
-        self.__setSolutionStepVariable1D(data,node,"RADIUS")
-        self.__setSolutionStepVariable1D(data,node,"NODAL_MASS")
-        self.__setSolutionStepVariable3D(data,node,"VELOCITY")
-        self.__setSolutionStepVariable3D(data,node,"DISPLACEMENT")
-        self.__setSolutionStepVariable3D(data,node,"TOTAL_FORCES")
+        self.__setSolutionStepVariable1D(data, node, "RADIUS")
+        self.__setSolutionStepVariable1D(data, node, "NODAL_MASS")
+        self.__setSolutionStepVariable3D(data, node, "VELOCITY")
+        self.__setSolutionStepVariable3D(data, node, "DISPLACEMENT")
+        self.__setSolutionStepVariable3D(data, node, "TOTAL_FORCES")
 
     def __exportKratosElements(self, src, dst, entitylist=None):
         """ Parses all kratos elements to simphony cells
