@@ -15,7 +15,7 @@ simphony-kratos is hosted on github: https://github.com/simphony/simphony-kratos
 Requirements
 ------------
 
-- `somphony-common`_ > 0.1.1
+- somphony-common > 0.1.1
 
 Installation
 ------------
