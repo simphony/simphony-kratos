@@ -30,8 +30,10 @@ class DEMPackWrapper(KratosWrapper):
 
     def __init__(self):
         KratosWrapper.__init__(self)
+
         self.time = 0
         self.step = 0
+        self.substeps = 0
 
         # The dictionary defines the relation between CUBA and
         # kratos variables
@@ -68,7 +70,7 @@ class DEMPackWrapper(KratosWrapper):
             ]
         }
 
-    def __addNodalVariablesToModelpart(self):
+    def addNodalVariablesToModelpart(self):
         """ Adds the DEMPack nodal variables
 
         Adds the DEMPack nodal variables to the particle and
@@ -104,7 +106,7 @@ class DEMPackWrapper(KratosWrapper):
             DEM_parameters
         )
 
-    def __getNodalData(self, data, node):
+    def getNodalData(self, data, node):
         """ Extracts the node data
 
         Extracts the node data and puts in ina format readeable
@@ -118,7 +120,7 @@ class DEMPackWrapper(KratosWrapper):
         self.__getSolutionStepVariable3D(data, node, "DISPLACEMENT")
         self.__getSolutionStepVariable3D(data, node, "TOTAL_FORCES")
 
-    def __setNodalData(self, data, node):
+    def setNodalData(self, data, node):
         """ Assembles the point data
 
         Assembles the point data and puts in ina format readeable
@@ -132,7 +134,7 @@ class DEMPackWrapper(KratosWrapper):
         self.__setSolutionStepVariable3D(data, node, "DISPLACEMENT")
         self.__setSolutionStepVariable3D(data, node, "TOTAL_FORCES")
 
-    def __exportKratosElements(self, src, dst, entitylist=None):
+    def exportKratosElements(self, src, dst):
         """ Parses all kratos elements to simphony cells
 
         Iterates over all nodes in the kratos mesh (src) and
@@ -171,7 +173,7 @@ class DEMPackWrapper(KratosWrapper):
 
             dst.add_cell(cell)
 
-    def __exportKratosConditions(self, src, dst, entitylist=None):
+    def exportKratosConditions(self, src, dst):
         """ Parses all kratos conditions to simphony faces
 
         Iterates over all nodes in the kratos mesh ( src ) and
@@ -211,7 +213,7 @@ class DEMPackWrapper(KratosWrapper):
 
             dst.add_face(face)
 
-    def __importKratosElements(self, src, dst, entitylist=None):
+    def importKratosElements(self, src, dst):
         """ Parses all simphony cells to kratos elements
 
         Iterates over all cells in the simphony mesh (src) and
@@ -222,7 +224,7 @@ class DEMPackWrapper(KratosWrapper):
 
         """
 
-        for element in src.iter_cells(entitylist):
+        for element in src.iter_cells():
 
             if element.uid not in self.uuid_to_id_element_map.keys():
                 self.uuid_to_id_element_map.update(
@@ -260,7 +262,7 @@ class DEMPackWrapper(KratosWrapper):
                 [self.uuid_to_id_node_map[p] for p in element.points],
                 self.element_properties)
 
-    def __importKratosConditions(self, src, dst, entitylist=None):
+    def importKratosConditions(self, src, dst):
         """ Parses all simphony faces to kratos conditions
 
         Iterates over all faces in the simphony mesh (src) and
@@ -271,7 +273,7 @@ class DEMPackWrapper(KratosWrapper):
 
         """
 
-        for condition in src.iter_faces(entitylist):
+        for condition in src.iter_faces():
 
             if condition.uid not in self.uuid_to_id_condition_map.keys():
                 self.uuid_to_id_condition_map.update(
@@ -349,7 +351,7 @@ class DEMPackWrapper(KratosWrapper):
 
         # Nodes
         f.write('Begin Nodes\n')
-        for point in src.iter_points(entitylist=None):
+        for point in src.iter_points():
             f.write('{} {} {} {}\n').format(
                 self.uuid_to_id_point_map[point.id],
                 point.coordinates[0],
@@ -359,7 +361,7 @@ class DEMPackWrapper(KratosWrapper):
         f.write('End Nodes\n\n')
 
         f.write('Begin Elements SphericParticle3D')
-        for element in src.iter_cells(entitylist=None):
+        for element in src.iter_cells():
             f.write('{} {} {}\n').format(
                 self.uuid_to_id_point_map[elemet.id],
                 self.uuid_to_id_point_map[element.points[0]],
@@ -368,7 +370,7 @@ class DEMPackWrapper(KratosWrapper):
         f.write('End Elements\n\n')
 
         f.write('Begin NodalData RADIUS')
-        for point in src.iter_points(entitylist=None):
+        for point in src.iter_points():
             f.write('{} {} {} {}\n').format(
                 self.uuid_to_id_point_map[point.id],
                 0,
@@ -479,36 +481,6 @@ class DEMPackWrapper(KratosWrapper):
         self.elemNodeData = {CUBA.RADIUS: RADIUS}
         self.condNodeData = {}
 
-        # Initialize GiD-IO
-        self.demio.AddGlobalVariables()
-        self.demio.AddSpheresVariables()
-        self.demio.AddFEMBoundaryVariables()
-        self.demio.AddClusterVariables()
-        self.demio.AddContactVariables()
-        #
-        self.demio.AddMpiVariables()
-        self.demio.EnableMpiVariables()
-
-        self.demio.Configure(
-            DEM_parameters.problem_name,
-            DEM_parameters.OutputFileType,
-            DEM_parameters.Multifile,
-            DEM_parameters.ContactMeshOption
-        )
-
-        self.demio.SetOutputName(
-            DEM_parameters.problem_name
-        )
-
-        self.demio.InitializeMesh(
-            self.mixed_model_part,
-            self.spheres_model_part,
-            self.rigid_face_model_part,
-            self.cluster_model_part,
-            self.contact_model_part,
-            self.mapping_model_part
-        )
-
     def initializeTimeStep(self):
 
         SolverStrategy.AddDofs(self.spheres_model_part)
@@ -543,15 +515,15 @@ class DEMPackWrapper(KratosWrapper):
         newSphereMp.Properties.append(self.element_properties)
         newRigidbMp.Properties.append(self.condition_properties)
 
-        self.__addNodalVariablesToModelpart()
+        self.addNodalVariablesToModelpart()
 
         # Import the into Kratos
-        self.__importKratosElements(
+        self.importKratosElements(
             self.get_mesh("Particles"),
             newSphereMp
         )
 
-        self.__importKratosConditions(
+        self.importKratosConditions(
             self.get_mesh("Particles"),
             newRigidbMp
         )
@@ -562,16 +534,14 @@ class DEMPackWrapper(KratosWrapper):
 
         self.initializeTimeStep()
 
-        print("NON: {}".format(self.solver.model_part.NumberOfNodes(0)))
-
         # Not sure what to do here :S
-        newSphereMp.ProcessInfo[TIME] = self.time
-        newSphereMp.ProcessInfo[DELTA_TIME] = 0.5  # NYI
-        newSphereMp.ProcessInfo[TIME_STEPS] = self.step
+        newSphereMp.ProcessInfo[TIME] = self.CM[CUBA.TIME]
+        newSphereMp.ProcessInfo[DELTA_TIME] = self.CM[CUBA.TIME_STEP]
+        newSphereMp.ProcessInfo[TIME_STEPS] = self.CM[CUBA.STEP]
 
-        newRigidbMp.ProcessInfo[TIME] = self.time
-        newRigidbMp.ProcessInfo[DELTA_TIME] = 0.5  # NYI
-        newRigidbMp.ProcessInfo[TIME_STEPS] = self.step
+        newRigidbMp.ProcessInfo[TIME] = self.CM[CUBA.TIME]
+        newRigidbMp.ProcessInfo[DELTA_TIME] = self.CM[CUBA.TIME_STEP]
+        newRigidbMp.ProcessInfo[TIME_STEPS] = self.CM[CUBA.STEP]
 
         substeps = 3
 
@@ -585,34 +555,21 @@ class DEMPackWrapper(KratosWrapper):
         self.setMeshData(new_mesh)
 
         # Export data back to SimPhoNy
-        self.__exportKratosElements(
+        self.exportKratosElements(
             self.spheres_model_part,
             new_mesh
         )
 
-        self.__exportKratosConditions(
+        self.exportKratosConditions(
             self.rigid_face_model_part,
             new_mesh
         )
 
-        if (self.step % 5) == 0:
-            self.demio.PrintResults(
-                self.mixed_model_part,
-                self.spheres_model_part,
-                self.rigid_face_model_part,
-                self.cluster_model_part,
-                self.contact_model_part,
-                self.mapping_model_part, self.time
-            )
-
-        for p in self.spheres_model_part.Nodes:
-            print(p.GetSolutionStepValue(DISPLACEMENT))
-
         self.add_mesh(new_mesh)
         self.updateForwardDicc()
 
-        self.time += self.spheres_model_part.ProcessInfo.GetValue(DELTA_TIME)
-        self.step += 1
+        self.CM[CUBA.TIME] += self.CM[CUBA.TIME_STEP]
+        self.CM[CUBA.STEP] += 1
 
     def finalizeTimeStep(self):
         pass

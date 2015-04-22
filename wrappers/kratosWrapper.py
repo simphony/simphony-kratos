@@ -14,17 +14,11 @@ from __future__ import print_function, absolute_import, division
 from simphony.core.cuba import CUBA
 from simphony.core.data_container import DataContainer
 
-from simphony.cuds.mesh import Mesh as SimphonyMesh
-from simphony.cuds.mesh import Point as SimphonyPoint
-from simphony.cuds.mesh import Edge as SimphonyEdge
-from simphony.cuds.mesh import Face as SimphonyFace
-from simphony.cuds.mesh import Cell as SimphonyCell
-
 # Kratos Imports
 from KratosMultiphysics import *
 
 # Uuid and other dependences
-from uuid import *
+from uuid import UUID
 
 
 class KratosWrapper(object):
@@ -54,7 +48,7 @@ class KratosWrapper(object):
         # Initialization
         self.initialize()
 
-    def __addNodalVariablesToModelpart(self):
+    def addNodalVariablesToModelpart(self):
         pass
 
     # Small kernels to get ( kratos to simp) and set ( simp to kratos)
@@ -91,28 +85,28 @@ class KratosWrapper(object):
                 data[pair[0]][0 + i]
             )
 
-    def __getNodalData(self, data, node):
+    def getNodalData(self, data, node):
         pass
 
-    def __setNodalData(self, data, node):
+    def setNodalData(self, data, node):
         pass
 
-    def __exportKratosNodes(self, src, dst, entitylist=None, data=None):
+    def exportKratosNodes(self, src, dst):
         pass
 
-    def __exportKratosElements(self, src, dst, entitylist=None, data=None):
+    def exportKratosElements(self, src, dst):
         pass
 
-    def __exportKratosConditions(self, src, dst, entitylist=None, data=None):
+    def exportKratosConditions(self, src, dst):
         pass
 
-    def __importKratosNodes(self, src, dst, entitylist=None, data=None):
+    def importKratosNodes(self, src, dst):
         pass
 
-    def __importKratosElements(self, src, dst, entitylist=None, data=None):
+    def importKratosElements(self, src, dst):
         pass
 
-    def __importKratosConditions(self, src, dst, entitylist=None, data=None):
+    def importKratosConditions(self, src, dst):
         pass
 
     def read_modelpart(self, filename):

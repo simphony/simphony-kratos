@@ -29,8 +29,8 @@ from wrappers import kratos_CFD_wrapper as CFDengine
 # Definition of the DEMengine
 CFDWrapper = CFDengine.CFDWrapper()
  
-CFDWrapper.CM[CUBA.TIME_STEP] = 0.01
-CFDWrapper.CM[CUBA.NUMBER_OF_TIME_STEPS] = 1000
+CFDWrapper.CM[CUBA.TIME_STEP] = 0.001
+CFDWrapper.CM[CUBA.NUMBER_OF_TIME_STEPS] = 51
 
 # This should be used for test proposes only since
 # is not api compliant
@@ -39,7 +39,7 @@ mesh = CFDWrapper.read_modelpart("CFD_exampleFluid")
 CFDWrapper.setMeshData(mesh)
 CFDWrapper.add_mesh(mesh)
 
-for i in xrange(0,10):
+for i in xrange(0,CFDWrapper.CM[CUBA.NUMBER_OF_TIME_STEPS]):
     lastTime = CFDWrapper.run()
     print("Finished Step {}".format(i))
 

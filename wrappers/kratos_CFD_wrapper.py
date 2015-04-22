@@ -31,8 +31,10 @@ class CFDWrapper(KratosWrapper):
 
     def __init__(self):
         KratosWrapper.__init__(self)
+
         self.time = 0
         self.step = 0
+        self.substeps = 1
 
         # The dictionary defines the relation between CUBA and
         # kratos variables
@@ -90,7 +92,7 @@ class CFDWrapper(KratosWrapper):
             ]
         }
 
-    def __addNodalVariablesToModelpart(self, modelPart):
+    def addNodalVariablesToModelpart(self, modelPart):
         """ Adds the Kratos CFD nodal variables
 
         Adds the Kratos CFD nodal variables to the particle and
@@ -108,10 +110,10 @@ class CFDWrapper(KratosWrapper):
 
     # gets data for the nodes
 
-    def __getNodalData(self, data, node):
+    def getNodalData(self, data, node):
         """ Extracts the node data
 
-        Extracts the node data and puts in ina format readeable
+        Extracts the node data and puts in ina format readable
         by the Simphony DataContainer
 
         """
@@ -132,10 +134,10 @@ class CFDWrapper(KratosWrapper):
         data.update({CUBA.IMPOSED_PRES: node.IsFixed(PRESSURE)})
         data.update({CUBA.IMPOSED_VEL: node.IsFixed(VELOCITY_X)})
 
-    def __setNodalData(self, data, node):
+    def setNodalData(self, data, node):
         """ Assembles the point data
 
-        Assembles the point data and puts in ina format readeable
+        Assembles the point data and puts in ina format readable
         by the Kratos ModelPart
 
         """
@@ -155,13 +157,13 @@ class CFDWrapper(KratosWrapper):
 
     # export
 
-    def __exportKratosElements2(self, src, dst, entitylist=None):
-        """ Parses all kratos elements to simphony cells
+    def exportKratosNodes(self, src, dst):
+        """ Parses all kratos nodes to simphony points
 
         Iterates over all nodes in the kratos mesh (src) and
-        converts them to simphony cells (dst). While doing this operation
-        any point that has not currently mapped will have his uuid
-        added in the 'id_map' of the weapper
+        converts them to simphony points (dst). While doing this operation
+        any node/point that has not currently been mapped will have his uuid
+        added in the 'id_map' of the wrapper
 
         """
 
@@ -169,7 +171,7 @@ class CFDWrapper(KratosWrapper):
 
             data = {}
 
-            self.__getNodalData(data, node)
+            self.getNodalData(data, node)
 
             point_uid = None
             if node.Id in self.id_to_uuid_node_map:
@@ -184,6 +186,16 @@ class CFDWrapper(KratosWrapper):
             pid = dst.add_point(point)
 
             self.id_to_uuid_node_map[node.Id] = pid
+
+    def exportKratosElements(self, src, dst):
+        """ Parses all kratos elements to simphony cells
+
+        Iterates over all elements in the kratos mesh (src) and
+        converts them to simphony cells (dst). While doing this operation
+        any element/cell that has not currently been mapped will have his uuid
+        added in the 'id_map' of the wrapper
+
+        """
 
         for element in src.GetElements():
 
@@ -205,103 +217,15 @@ class CFDWrapper(KratosWrapper):
 
             self.id_to_uuid_element_map[element.Id] = cid
 
-        for condition in src.GetConditions():
+    def exportKratosConditions(self, src, dst):
+        """ Parses all kratos conditions to simphony faces
 
-            condition_uid = None
-            if condition.Id in self.id_to_uuid_condition_map:
-                condition_uid = self.id_to_uuid_condition_map[condition.Id]
-
-            point_list = [
-                self.id_to_uuid_node_map[pointl.Id]
-                for pointl in condition.GetNodes()
-            ]
-
-            face = SFace(
-                points=point_list,
-                uid=condition_uid
-            )
-
-            fid = dst.add_face(face)
-
-            self.id_to_uuid_condition_map[condition.Id] = fid
-
-        for i in xrange(1, src.NumberOfMeshes()):
-
-            mesh = src.GetMesh(i)
-            prop = src.GetProperties()[i]
-
-            nodelist = [self.id_to_uuid_node_map[n.Id] for n in mesh.Nodes]
-
-            for p in dst.iter_points(nodelist):
-                data = p.data
-
-                if prop.GetValue(IMPOSED_PRESSURE) == 1:
-                    data[CUBA.IMPOSED_PRES] = 1
-
-                if prop.GetValue(IMPOSED_VELOCITY_X) == 1:
-                    data[CUBA.IMPOSED_VEL] = 1
-
-                p.data = data
-                dst.update_point(p)
-
-    def __exportKratosElements(self, src, dst, entitylist=None):
-        """ Parses all kratos elements to simphony cells
-
-        Iterates over all nodes in the kratos mesh (src) and
-        converts them to simphony cells (dst). While doing this operation
-        any point that has not currently mapped will have his uuid
-        added in the 'id_map' of the weapper
+        Iterates over all conditions in the kratos mesh (src) and
+        converts them to simphony faces (dst). While doing this operation
+        any condition/face that has not currently been mapped will have 
+        his uuid added in the 'id_map' of the wrapper
 
         """
-
-        for node in src.GetNodes():
-
-            data = {}
-
-            self.__getNodalData(data, node)
-
-            point = SPoint(
-                coordinates=(node.X, node.Y, node.Z),
-                data=DataContainer(data),
-                uid=self.id_to_uuid_node_map[node.Id]
-            )
-
-            dst.add_point(point)
-
-        for element in src.GetElements():
-
-            point_list = [
-                self.id_to_uuid_node_map[pointl.Id]
-                for pointl in element.GetNodes()
-            ]
-
-            cell = SCell(
-                points=point_list,
-                uid=self.id_to_uuid_element_map[element.Id]
-            )
-
-            dst.add_cell(cell)
-
-        for i in xrange(1, src.NumberOfMeshes()):
-
-            mesh = src.GetMesh(i)
-            prop = src.GetProperties()[i]
-
-            nodelist = [self.id_to_uuid_node_map[n.Id] for n in mesh.Nodes]
-
-            for p in dst.iter_points(nodelist):
-                data = p.data
-
-                if prop.GetValue(IMPOSED_PRESSURE) == 1:
-                    data[CUBA.IMPOSED_PRES] = 1
-
-                if prop.GetValue(IMPOSED_VELOCITY_X) == 1:
-                    data[CUBA.IMPOSED_VEL] = 1
-
-                p.data = data
-                dst.update_point(p)
-
-    def __exportKratosConditions(self, src, dst, entitylist=None):
 
         for condition in src.GetConditions():
 
@@ -323,29 +247,42 @@ class CFDWrapper(KratosWrapper):
 
             self.id_to_uuid_condition_map[condition.Id] = fid
 
+    def exportKratosDof(self, src, dst):
+        """ Sets the Dof information for the appropiate points
+
+        Iterates over all points in the simphony mesh and adds the Kratos
+        DoF information in order to be able to recover it at the begining
+        of the iteration.
+
+        """
+
+        for i in xrange(1, src.NumberOfMeshes()):
+
+            mesh = src.GetMesh(i)
+            prop = src.GetProperties()[i]
+
+            nodelist = [self.id_to_uuid_node_map[n.Id] for n in mesh.Nodes]
+
+            for p in dst.iter_points(nodelist):
+
+                data = p.data
+
+                if prop.GetValue(IMPOSED_PRESSURE) == 1:
+                    data[CUBA.IMPOSED_PRES] = 1
+
+                if prop.GetValue(IMPOSED_VELOCITY_X) == 1:
+                    data[CUBA.IMPOSED_VEL] = 1
+
+                p.data = data
+                dst.update_point(p)
+
     # import
 
-    def __importFixDof(self, src, dst, entitylist=None):
+    def importKratosNodes(self, src, dst):
+        """ Parses all simphony points to kratos nodes
 
-        for point in src.iter_points():
-
-            node_id = self.uuid_to_id_node_map[point.uid]
-
-            node = dst.GetNodes()[node_id]
-
-            if point.data[CUBA.IMPOSED_VEL] == 1:
-                node.Fix(VELOCITY_X)
-                node.Fix(VELOCITY_Y)
-                node.Fix(VELOCITY_Z)
-
-            if point.data[CUBA.IMPOSED_PRES] == 1:
-                node.Fix(PRESSURE)
-
-    def __importKratosElements(self, src, dst, entitylist=None):
-        """ Parses all simphony cells to kratos elements
-
-        Iterates over all cells in the simphony mesh (src) and
-        converts them to kratos SphericContinuumParticle3D elements (dst).
+        Iterates over all points in the simphony mesh (src) and
+        converts them to kratos nodes (dst).
         While doing this operation any point/node pair that has not
         currently mapped will have  his uuid added in the 'id_map'
         of the wrapper
@@ -371,9 +308,20 @@ class CFDWrapper(KratosWrapper):
                 point.coordinates[1],
                 point.coordinates[2])
 
-            self.__setNodalData(data, node)
+            self.setNodalData(data, node)
 
-        for element in src.iter_cells(entitylist):
+    def importKratosElements(self, src, dst):
+        """ Parses all simphony cells to kratos elements
+
+        Iterates over all cells in the simphony mesh (src) and
+        converts them to kratos FractionalStep3D elements (dst).
+        While doing this operation any cell/element pair that has not
+        currently mapped will have  his uuid added in the 'id_map'
+        of the wrapper
+
+        """
+
+        for element in src.iter_cells():
 
             if element.uid not in self.uuid_to_id_element_map.keys():
                 self.uuid_to_id_element_map.update(
@@ -390,8 +338,18 @@ class CFDWrapper(KratosWrapper):
                 [self.uuid_to_id_node_map[p] for p in element.points],
                 self.element_properties)
 
-    def __importKratosConditions(self, src, dst, entitylist=None):
-        for condition in src.iter_faces(entitylist):
+    def importKratosConditions(self, src, dst):
+        """ Parses all simphony faces to kratos conditions
+
+        Iterates over all faces in the simphony mesh (src) and
+        converts them to kratos WallCondition3D conditions (dst).
+        While doing this operation any face/condition pair that has not
+        currently mapped will have  his uuid added in the 'id_map'
+        of the wrapper
+
+        """
+
+        for condition in src.iter_faces():
 
             if condition.uid not in self.uuid_to_id_condition_map.keys():
                 self.uuid_to_id_condition_map.update(
@@ -408,6 +366,28 @@ class CFDWrapper(KratosWrapper):
                 [self.uuid_to_id_node_map[p] for p in condition.points],
                 self.element_properties)
 
+    def importKratosDof(self, src, dst):
+        """ Fix the Dof for the appropiate nodes
+
+        Iterates over all nodes in the kratos mesh and fix its DoF
+        according with the information of the SimPhoNy mesh.
+
+        """
+
+        for point in src.iter_points():
+
+            node_id = self.uuid_to_id_node_map[point.uid]
+
+            node = dst.GetNodes()[node_id]
+
+            if point.data[CUBA.IMPOSED_VEL] == 1:
+                node.Fix(VELOCITY_X)
+                node.Fix(VELOCITY_Y)
+                node.Fix(VELOCITY_Z)
+
+            if point.data[CUBA.IMPOSED_PRES] == 1:
+                node.Fix(PRESSURE)
+
     # FileIO
 
     def read_modelpart(self, filename):
@@ -419,7 +399,7 @@ class CFDWrapper(KratosWrapper):
         new_mesh = SMesh(name="Model")
         self.fluid_model_part = ModelPart("FluidPart")
 
-        self.__addNodalVariablesToModelpart(self.fluid_model_part)
+        self.addNodalVariablesToModelpart(self.fluid_model_part)
 
         model_part_io_fluid = ModelPartIO(filename)
         model_part_io_fluid.ReadModelPart(self.fluid_model_part)
@@ -430,7 +410,19 @@ class CFDWrapper(KratosWrapper):
         self.setMeshData(new_mesh)
 
         # Export data back to SimPhoNy
-        self.__exportKratosElements2(
+        self.exportKratosNodes(
+            self.fluid_model_part,
+            new_mesh
+        )
+        self.exportKratosElements(
+            self.fluid_model_part,
+            new_mesh
+        )
+        self.exportKratosConditions(
+            self.fluid_model_part,
+            new_mesh
+        )
+        self.exportKratosDof(
             self.fluid_model_part,
             new_mesh
         )
@@ -438,8 +430,10 @@ class CFDWrapper(KratosWrapper):
         # Reset the dictionaries
         self.uuid_to_id_node_map = {}
         self.uuid_to_id_element_map = {}
+        self.uuid_to_id_condition_map = {}
         self.id_to_uuid_node_map = {}
         self.id_to_uuid_element_map = {}
+        self.id_to_uuid_condition_map = {}
 
         return new_mesh
 
@@ -477,7 +471,7 @@ class CFDWrapper(KratosWrapper):
 
         # Nodes
         f.write('Begin Nodes\n')
-        for point in src.iter_points(entitylist=None):
+        for point in src.iter_points():
             f.write('{} {} {} {}\n').format(
                 self.uuid_to_id_point_map[point.id],
                 point.coordinates[0],
@@ -487,7 +481,7 @@ class CFDWrapper(KratosWrapper):
         f.write('End Nodes\n\n')
 
         f.write('Begin Elements FractionalStep2D')
-        for element in src.iter_cells(entitylist=None):
+        for element in src.iter_cells():
             f.write('{} {} {}\n').format(
                 self.uuid_to_id_point_map[elemet.id],
                 self.uuid_to_id_point_map[element.points[0]],
@@ -496,7 +490,7 @@ class CFDWrapper(KratosWrapper):
         f.write('End Elements\n\n')
 
         f.write('Begin NodalData RADIUS')
-        for point in src.iter_points(entitylist=None):
+        for point in src.iter_points():
             f.write('{} {} {} {}\n').format(
                 self.uuid_to_id_point_map[point.id],
                 0,
@@ -547,27 +541,23 @@ class CFDWrapper(KratosWrapper):
 
         self.fluid_model_part = newFluidMp
 
-        self.__addNodalVariablesToModelpart(self.fluid_model_part)
-
-        # model_part_io_fluid = ModelPartIO("CFD_exampleFluid")
-        # model_part_io_fluid.ReadModelPart(self.fluid_model_part)
+        self.addNodalVariablesToModelpart(self.fluid_model_part)
 
         # Import the into Kratos
-        self.__importKratosElements(
+        self.importKratosNodes(
             self.get_mesh("Model"),
-            newFluidMp
+            self.fluid_model_part
+        )
+        self.importKratosElements(
+            self.get_mesh("Model"),
+            self.fluid_model_part
+        )
+        self.importKratosConditions(
+            self.get_mesh("Model"),
+            self.fluid_model_part
         )
 
-        self.__importKratosConditions(
-            self.get_mesh("Model"),
-            newFluidMp
-        )
-        self.__importKratosConditions(
-            self.get_mesh("Model"),
-            newFluidMp
-        )
-
-        newFluidMp.Properties.append(self.element_properties)
+        self.fluid_model_part.Properties.append(self.element_properties)
 
         self.SolverSettings = ProjectParameters.FluidSolverConfiguration
         self.solver_module = import_solver(self.SolverSettings)
@@ -585,9 +575,9 @@ class CFDWrapper(KratosWrapper):
 
         self.solver_module.AddDofs(self.fluid_model_part, self.SolverSettings)
 
-        self.__importFixDof(
+        self.importKratosDof(
             self.get_mesh("Model"),
-            newFluidMp
+            self.fluid_model_part
         )
 
         # copy Y_WALL
@@ -601,13 +591,15 @@ class CFDWrapper(KratosWrapper):
 
         self.solver.Initialize()
 
-        substeps = 2
-
-        Dt = ProjectParameters.Dt
+        Dt = self.CM[CUBA.TIME_STEP] 
         # Nsteps = ProjectParameters.nsteps
         # final_time = ProjectParameters.max_time
         # output_time = ProjectParameters.output_time
 
+
+
+        self.fluid_model_part.ProcessInfo.SetValue(DELTA_TIME,Dt)
+
         self.fluid_model_part.CloneTimeStep(self.time)
         self.time = self.time + Dt
         self.fluid_model_part.CloneTimeStep(self.time)
@@ -615,13 +607,10 @@ class CFDWrapper(KratosWrapper):
         self.fluid_model_part.CloneTimeStep(self.time)
         self.time = self.time + Dt
 
-        for n in xrange(0, substeps):
+        for n in xrange(0, self.substeps):
             self.fluid_model_part.CloneTimeStep(self.time)
             self.solver.Solve()
             self.time = self.time + Dt
-
-        for n in self.fluid_model_part.Nodes:
-            print(n.IsFixed(VELOCITY_X))
 
         new_mesh = SMesh(name="Model")
 
@@ -629,20 +618,25 @@ class CFDWrapper(KratosWrapper):
         self.setMeshData(new_mesh)
 
         # Export data back to SimPhoNy
-        self.__exportKratosElements(
+        self.exportKratosNodes(
             self.fluid_model_part,
             new_mesh
         )
-        self.__exportKratosConditions(
+        self.exportKratosElements(
+            self.fluid_model_part,
+            new_mesh
+        )
+        self.exportKratosConditions(
+            self.fluid_model_part,
+            new_mesh
+        )
+        self.exportKratosDof(
             self.fluid_model_part,
             new_mesh
         )
 
         self.add_mesh(new_mesh)
         self.updateForwardDicc()
-
-        self.time += self.fluid_model_part.ProcessInfo.GetValue(DELTA_TIME)
-        self.step += 1
 
     def finalizeTimeStep(self):
         pass
