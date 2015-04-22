@@ -11,14 +11,12 @@ in order to import or export models from KratosMultiphysics
 from __future__ import print_function, absolute_import, division
 
 # Simphony Imports
-from simphony.core.cuba import CUBA
 from simphony.core.data_container import DataContainer
 
 # Kratos Imports
 from KratosMultiphysics import *
 
 # Uuid and other dependences
-from uuid import UUID
 
 
 class KratosWrapper(object):
