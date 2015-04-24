@@ -46,11 +46,51 @@ class KratosWrapper(object):
         # Initialization
         self.initialize()
 
+    # ABCModelingEngine Implementation
+
+    def add_particle_container(self, src):
+        self.pcs[src.name] = src
+
+    def add_mesh(self, src):
+        self.meshes[src.name] = src
+
+    def add_lattice(self, src):
+        self.lattices[src.name] = src
+
+    def delete_particle_container(self, name):
+        self.pcs.remove(name)
+
+    def delete_mesh(self, name):
+        self.meshes.remove(name)
+
+    def delete_lattice(self, name):
+        self.lattices.remove(name)
+
+    def get_particle_container(self, name):
+        return self.pcs[name]
+
+    def get_mesh(self, name):
+        return self.meshes[name]
+
+    def get_lattice(self, name):
+        return self.lattices[name]
+
+    def iter_particle_containers(self):
+        for pc in self.pcs
+            yield pc
+
+    def iter_meshes(self):
+        for mesh in self.meshes
+            yield mesh
+
+    def iter_lattices(self):
+        for latt in self.lattices
+            yield latt
+
+    # KratosWrapper Internal
+
     def addNodalVariablesToModelpart(self):
         pass
-
-    # Small kernels to get ( kratos to simp) and set ( simp to kratos)
-    # entity data
 
     def getSolutionStepVariable1D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
@@ -98,6 +138,9 @@ class KratosWrapper(object):
     def exportKratosConditions(self, src, dst):
         pass
 
+    def exportKratosDof(self, src, dst):
+        pass
+
     def importKratosNodes(self, src, dst):
         pass
 
@@ -107,29 +150,14 @@ class KratosWrapper(object):
     def importKratosConditions(self, src, dst):
         pass
 
+    def importKratosDof(self, src, dst):
+        pass
+
     def read_modelpart(self, filename):
         pass
 
     def write_modelpart(self, filename):
         pass
-
-    def add_pc(self, src):
-        self.pcs[src.name] = src
-
-    def add_mesh(self, src):
-        self.meshes[src.name] = src
-
-    def add_lattice(self, src):
-        self.lattices[src.name] = src
-
-    def get_pc(self, name):
-        return self.pcs[name]
-
-    def get_mesh(self, name):
-        return self.meshes[name]
-
-    def get_lattice(self, name):
-        return self.lattices[name]
 
     def updateForwardDicc(self):
         if not self.uuid_to_id_node_map:
