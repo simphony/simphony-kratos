@@ -222,7 +222,7 @@ class CFDWrapper(KratosWrapper):
 
         Iterates over all conditions in the kratos mesh (src) and
         converts them to simphony faces (dst). While doing this operation
-        any condition/face that has not currently been mapped will have 
+        any condition/face that has not currently been mapped will have
         his uuid added in the 'id_map' of the wrapper
 
         """
@@ -591,14 +591,12 @@ class CFDWrapper(KratosWrapper):
 
         self.solver.Initialize()
 
-        Dt = self.CM[CUBA.TIME_STEP] 
+        Dt = self.CM[CUBA.TIME_STEP]
         # Nsteps = ProjectParameters.nsteps
         # final_time = ProjectParameters.max_time
         # output_time = ProjectParameters.output_time
 
-
-
-        self.fluid_model_part.ProcessInfo.SetValue(DELTA_TIME,Dt)
+        self.fluid_model_part.ProcessInfo.SetValue(DELTA_TIME, Dt)
 
         self.fluid_model_part.CloneTimeStep(self.time)
         self.time = self.time + Dt
