@@ -76,15 +76,15 @@ class KratosWrapper(object):
         return self.lattices[name]
 
     def iter_particle_containers(self):
-        for pc in self.pcs
+        for pc in self.pcs:
             yield pc
 
     def iter_meshes(self):
-        for mesh in self.meshes
+        for mesh in self.meshes:
             yield mesh
 
     def iter_lattices(self):
-        for latt in self.lattices
+        for latt in self.lattices:
             yield latt
 
     # KratosWrapper Internal
