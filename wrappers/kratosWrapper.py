@@ -11,20 +11,12 @@ in order to import or export models from KratosMultiphysics
 from __future__ import print_function, absolute_import, division
 
 # Simphony Imports
-from simphony.core.cuba import CUBA
 from simphony.core.data_container import DataContainer
-
-from simphony.cuds.mesh import Mesh as SimphonyMesh
-from simphony.cuds.mesh import Point as SimphonyPoint
-from simphony.cuds.mesh import Edge as SimphonyEdge
-from simphony.cuds.mesh import Face as SimphonyFace
-from simphony.cuds.mesh import Cell as SimphonyCell
 
 # Kratos Imports
 # from KratosMultiphysics import *
 
 # Uuid and other dependences
-from uuid import *
 
 
 class KratosWrapper(object):
@@ -53,7 +45,7 @@ class KratosWrapper(object):
 
         # Initialization
         self.initialize()
-        
+
     # ABCModelingEngine Implementation
 
     def add_particles(self, src):
@@ -66,13 +58,13 @@ class KratosWrapper(object):
         self.lattices[src.name] = src
 
     def delete_particles(self, name):
-        self.pcs.remove(name)
+        del self.pcs[name]
 
     def delete_mesh(self, name):
-        self.meshes.remove(name)
+        del self.meshes[name]
 
     def delete_lattice(self, name):
-        self.lattices.remove(name)
+        del self.lattices[name]
 
     def get_particles(self, name):
         return self.pcs[name]
@@ -99,9 +91,6 @@ class KratosWrapper(object):
 
     def addNodalVariablesToModelpart(self):
         pass
-
-    # Small kernels to get ( kratos to simp) and set ( simp to kratos)
-    # entity data
 
     def getSolutionStepVariable1D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
@@ -134,28 +123,34 @@ class KratosWrapper(object):
                 data[pair[0]][0 + i]
             )
 
-    def __getNodalData(self, data, node):
+    def getNodalData(self, data, node):
         pass
 
-    def __setNodalData(self, data, node):
+    def setNodalData(self, data, node):
         pass
 
-    def __exportKratosNodes(self, src, dst, entitylist=None, data=None):
+    def exportKratosNodes(self, src, dst):
         pass
 
-    def __exportKratosElements(self, src, dst, entitylist=None, data=None):
+    def exportKratosElements(self, src, dst):
         pass
 
-    def __exportKratosConditions(self, src, dst, entitylist=None, data=None):
+    def exportKratosConditions(self, src, dst):
         pass
 
-    def __importKratosNodes(self, src, dst, entitylist=None, data=None):
+    def exportKratosDof(self, src, dst):
         pass
 
-    def __importKratosElements(self, src, dst, entitylist=None, data=None):
+    def importKratosNodes(self, src, dst):
         pass
 
-    def __importKratosConditions(self, src, dst, entitylist=None, data=None):
+    def importKratosElements(self, src, dst):
+        pass
+
+    def importKratosConditions(self, src, dst):
+        pass
+
+    def importKratosDof(self, src, dst):
         pass
 
     def read_modelpart(self, filename):
@@ -163,24 +158,6 @@ class KratosWrapper(object):
 
     def write_modelpart(self, filename):
         pass
-
-    def add_pc(self, src):
-        self.pcs[src.name] = src
-
-    def add_mesh(self, src):
-        self.meshes[src.name] = src
-
-    def add_lattice(self, src):
-        self.lattices[src.name] = src
-
-    def get_pc(self, name):
-        return self.pcs[name]
-
-    def get_mesh(self, name):
-        return self.meshes[name]
-
-    def get_lattice(self, name):
-        return self.lattices[name]
 
     def updateForwardDicc(self):
         if not self.uuid_to_id_node_map:
