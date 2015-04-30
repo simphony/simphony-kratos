@@ -21,7 +21,7 @@ from simphony.cuds.mesh import Face as SimphonyFace
 from simphony.cuds.mesh import Cell as SimphonyCell
 
 # Kratos Imports
-from KratosMultiphysics import *
+# from KratosMultiphysics import *
 
 # Uuid and other dependences
 from uuid import *
@@ -53,8 +53,51 @@ class KratosWrapper(object):
 
         # Initialization
         self.initialize()
+        
+    # ABCModelingEngine Implementation
 
-    def __addNodalVariablesToModelpart(self):
+    def add_particles(self, src):
+        self.pcs[src.name] = src
+
+    def add_mesh(self, src):
+        self.meshes[src.name] = src
+
+    def add_lattice(self, src):
+        self.lattices[src.name] = src
+
+    def delete_particles(self, name):
+        self.pcs.remove(name)
+
+    def delete_mesh(self, name):
+        self.meshes.remove(name)
+
+    def delete_lattice(self, name):
+        self.lattices.remove(name)
+
+    def get_particles(self, name):
+        return self.pcs[name]
+
+    def get_mesh(self, name):
+        return self.meshes[name]
+
+    def get_lattice(self, name):
+        return self.lattices[name]
+
+    def iter_particles(self):
+        for pc in self.pcs:
+            yield pc
+
+    def iter_meshes(self):
+        for mesh in self.meshes:
+            yield mesh
+
+    def iter_lattices(self):
+        for latt in self.lattices:
+            yield latt
+
+    # KratosWrapper Internal
+
+    def addNodalVariablesToModelpart(self):
         pass
 
     # Small kernels to get ( kratos to simp) and set ( simp to kratos)
