@@ -32,6 +32,16 @@ CFDWrapper = CFDengine.CFDWrapper()
 CFDWrapper.CM[CUBA.TIME_STEP] = 0.001
 CFDWrapper.CM[CUBA.NUMBER_OF_TIME_STEPS] = 51
 
+CFDWrapper.BC[CUBA.VELOCITY] = {'inlet': (1.0, 0.0, 0.0),
+                                'outlet': 'zeroGradient',
+                                'wall': (0.0, 0.0, 0.0),
+                                'frontAndBack': 'empty'}
+
+CFDWrapper.BC[CUBA.PRESSURE] = {'inlet': 'zeroGradient',
+                                'outlet': 0.0,
+                                'wall': 'zeroGradient',
+                                'frontAndBack': 'empty'}
+
 # This should be used for test proposes only since
 # is not api compliant
 mesh = CFDWrapper.read_modelpart("CFD_exampleFluid")
