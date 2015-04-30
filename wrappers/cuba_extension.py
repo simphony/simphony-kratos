@@ -10,7 +10,7 @@ class CUBAExtension(Enum):
     """ Provisional CUBA keywords specific for Kratos
 
     These are additional CUBA-Keywords for Kratos-CFD and
-    Kratos-DEMPack that are not included in simphony-common yet. 
+    Kratos-DEMPack that are not included in simphony-common yet.
     The proposed description for these new CUBA keywords is:
 
     - description: Mass of the node
