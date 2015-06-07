@@ -8,6 +8,7 @@ kratosWrapper class.
 import unittest
 
 from simphony.cuds.mesh import Mesh, Point, Edge, Face, Cell
+from simphony.core.data_container import DataContainer
 
 from wrappers.kratosWrapper import KratosWrapper
 
@@ -169,8 +170,6 @@ class TestKratosWrapper(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             wrapper.add_particles(DataContainer())
 
-        pass
-
     def test_get_particles(self):
         """ Test if a particle container can be get from the wrapper
 
@@ -179,8 +178,6 @@ class TestKratosWrapper(unittest.TestCase):
         wrapper = KratosWrapper()
         with self.assertRaises(NotImplementedError):
             wrapper.get_particles('')
-
-        pass
 
     def test_delete_particles(self):
         """ Test if a particle container can be deleted from the wrapper
@@ -191,8 +188,6 @@ class TestKratosWrapper(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             wrapper.delete_particles('')
 
-        pass
-
     def test_iter_particles(self):
         """ Test if particle containers can be iterated.
 
@@ -201,8 +196,6 @@ class TestKratosWrapper(unittest.TestCase):
         wrapper = KratosWrapper()
         with self.assertRaises(NotImplementedError):
             wrapper.iter_particles()
-
-        pass
 
     def test_add_lattice(self):
         """ Test if a lattice can be added to the wrapper
@@ -213,8 +206,6 @@ class TestKratosWrapper(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             wrapper.add_lattice(DataContainer())
 
-        pass
-
     def test_get_lattice(self):
         """ Test if a lattice can be get from the wrapper
 
@@ -223,8 +214,6 @@ class TestKratosWrapper(unittest.TestCase):
         wrapper = KratosWrapper()
         with self.assertRaises(NotImplementedError):
             wrapper.get_lattice('')
-
-        pass
 
     def test_delete_lattice(self):
         """ Test if a lattice can be deleted from the wrapper
@@ -235,8 +224,7 @@ class TestKratosWrapper(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             wrapper.delete_lattice('')
 
-        pass
-
+        
     def test_iter_lattices(self):
         """ Test if lattices can be iterated.
 
@@ -245,8 +233,6 @@ class TestKratosWrapper(unittest.TestCase):
         wrapper = KratosWrapper()
         with self.assertRaises(NotImplementedError):
             wrapper.iter_lattices()
-
-        pass
 
     def test_run_cfd(self):
         """ Test the execution of one step of the simulation
