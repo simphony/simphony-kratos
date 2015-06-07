@@ -4,6 +4,11 @@ python:
 install:
   - pip install -r dev_requirements.txt
   - python setup.py develop
+  - wget https://web.cimne.upc.edu/users/croig/data/kratos-4.4.11030-linux-64.tgz -O /tmp/kratos.tar.gz
+  - tar -xzvf /tmp/kratos.tar.gz
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD:/kratos.gid/Kratos/kratos.gid/kratos/libs
+  - export PYTHONPATH=$PYTHONPATH:$PWD:/kratos.gid/Kratos/kratos.gid/kratos/
+  - export PATH=$PATH:$PWD:/kratos.gid/Kratos/kratos.gid/kratos/
 
 script:
   - flake8 --exclude=use_cases --ignore=F403 .
