@@ -48,44 +48,50 @@ class KratosWrapper(object):
 
     # ABCModelingEngine Implementation
 
-    def add_particles(self, src):
-        self.pcs[src.name] = src
+    def add_particles(self, particle_container):
+        message = 'NumerrinWrapper does not handle particle container'
+        raise NotImplementedError(message)
 
     def add_mesh(self, src):
         self.meshes[src.name] = src
 
-    def add_lattice(self, src):
-        self.lattices[src.name] = src
+    def add_lattice(self, lattice):
+        message = 'NumerrinWrapper does not handle lattice'
+        raise NotImplementedError(message)
 
     def delete_particles(self, name):
-        del self.pcs[name]
+        message = 'NumerrinWrapper does not handle particle container'
+        raise NotImplementedError(message)
 
     def delete_mesh(self, name):
         del self.meshes[name]
 
     def delete_lattice(self, name):
-        del self.lattices[name]
+        message = 'NumerrinWrapper does not handle lattice'
+        raise NotImplementedError(message)
 
     def get_particles(self, name):
-        return self.pcs[name]
+        message = 'NumerrinWrapper does not handle particle container'
+        raise NotImplementedError(message)
 
     def get_mesh(self, name):
         return self.meshes[name]
 
     def get_lattice(self, name):
-        return self.lattices[name]
+        message = 'NumerrinWrapper does not handle lattice'
+        raise NotImplementedError(message)
 
-    def iter_particles(self):
-        for pc in self.pcs:
-            yield pc
+    def iter_particles(self, names=None):
+        message = 'NumerrinWrapper does not handle particle container'
+        raise NotImplementedError(message)
 
     def iter_meshes(self):
         for mesh in self.meshes:
             yield mesh
 
-    def iter_lattices(self):
-        for latt in self.lattices:
-            yield latt
+    def iter_lattices(self, names=None):
+        message = 'NumerrinWrapper does not handle lattice'
+        raise NotImplementedError(message)
 
     # KratosWrapper Internal
 
