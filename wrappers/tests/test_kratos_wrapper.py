@@ -224,7 +224,6 @@ class TestKratosWrapper(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             wrapper.delete_lattice('')
 
-        
     def test_iter_lattices(self):
         """ Test if lattices can be iterated.
 
