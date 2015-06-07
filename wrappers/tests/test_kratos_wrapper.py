@@ -165,12 +165,20 @@ class TestKratosWrapper(unittest.TestCase):
 
         """
 
+        wrapper = KratosWrapper()
+        with self.assertRaises(NotImplementedError):
+            wrapper.add_particles(DataContainer())
+
         pass
 
     def test_get_particles(self):
         """ Test if a particle container can be get from the wrapper
 
         """
+
+        wrapper = KratosWrapper()
+        with self.assertRaises(NotImplementedError):
+            wrapper.get_particles('')
 
         pass
 
@@ -179,12 +187,20 @@ class TestKratosWrapper(unittest.TestCase):
 
         """
 
+        wrapper = KratosWrapper()
+        with self.assertRaises(NotImplementedError):
+            wrapper.delete_particles('')
+
         pass
 
     def test_iter_particles(self):
         """ Test if particle containers can be iterated.
 
         """
+
+        wrapper = KratosWrapper()
+        with self.assertRaises(NotImplementedError):
+            wrapper.iter_particles()
 
         pass
 
@@ -193,12 +209,20 @@ class TestKratosWrapper(unittest.TestCase):
 
         """
 
+        wrapper = KratosWrapper()
+        with self.assertRaises(NotImplementedError):
+            wrapper.add_lattice(DataContainer())
+
         pass
 
     def test_get_lattice(self):
         """ Test if a lattice can be get from the wrapper
 
         """
+
+        wrapper = KratosWrapper()
+        with self.assertRaises(NotImplementedError):
+            wrapper.get_lattice('')
 
         pass
 
@@ -207,6 +231,10 @@ class TestKratosWrapper(unittest.TestCase):
 
         """
 
+        wrapper = KratosWrapper()
+        with self.assertRaises(NotImplementedError):
+            wrapper.delete_lattice('')
+
         pass
 
     def test_iter_lattices(self):
@@ -214,9 +242,20 @@ class TestKratosWrapper(unittest.TestCase):
 
         """
 
+        wrapper = KratosWrapper()
+        with self.assertRaises(NotImplementedError):
+            wrapper.iter_lattices()
+
         pass
 
-    def test_run(self):
+    def test_run_cfd(self):
+        """ Test the execution of one step of the simulation
+
+        """
+
+        pass
+
+    def test_run_dem(self):
         """ Test the execution of one step of the simulation
 
         """
