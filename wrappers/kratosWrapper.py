@@ -100,14 +100,14 @@ class KratosWrapper(object):
 
     def getSolutionStepVariable1D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
-        if(pair[0] not None):
+        if(pair[0] is not None):
             data.update({
                 pair[0]: entity.GetSolutionStepValue(pair[1])
             })
 
     def getSolutionStepVariable3D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
-        if(pair[0] not None):
+        if(pair[0] is not None):
             data.update({
                 pair[0]: [
                     entity.GetSolutionStepValue(pair[2]),
@@ -118,7 +118,7 @@ class KratosWrapper(object):
 
     def setSolutionStepVariable1D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
-        if(pair[0] not None):
+        if(pair[0] is not None):
             entity.SetSolutionStepValue(
                 pair[1],
                 data[pair[0]]
@@ -126,7 +126,7 @@ class KratosWrapper(object):
 
     def setSolutionStepVariable3D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
-        if(pair[0] not None):
+        if(pair[0] is not None):
             for i in xrange(0, 3):
                 entity.SetSolutionStepValue(
                     pair[2 + i],
