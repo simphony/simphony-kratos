@@ -49,40 +49,40 @@ class KratosWrapper(object):
     # ABCModelingEngine Implementation
 
     def add_particles(self, particle_container):
-        message = 'NumerrinWrapper does not handle particle container'
+        message = 'KratosWrapper does not handle particle container'
         raise NotImplementedError(message)
 
     def add_mesh(self, src):
         self.meshes[src.name] = src
 
     def add_lattice(self, lattice):
-        message = 'NumerrinWrapper does not handle lattice'
+        message = 'KratosWrapper does not handle lattice'
         raise NotImplementedError(message)
 
     def delete_particles(self, name):
-        message = 'NumerrinWrapper does not handle particle container'
+        message = 'KratosWrapper does not handle particle container'
         raise NotImplementedError(message)
 
     def delete_mesh(self, name):
         del self.meshes[name]
 
     def delete_lattice(self, name):
-        message = 'NumerrinWrapper does not handle lattice'
+        message = 'KratosWrapper does not handle lattice'
         raise NotImplementedError(message)
 
     def get_particles(self, name):
-        message = 'NumerrinWrapper does not handle particle container'
+        message = 'KratosWrapper does not handle particle container'
         raise NotImplementedError(message)
 
     def get_mesh(self, name):
         return self.meshes[name]
 
     def get_lattice(self, name):
-        message = 'NumerrinWrapper does not handle lattice'
+        message = 'KratosWrapper does not handle lattice'
         raise NotImplementedError(message)
 
     def iter_particles(self, names=None):
-        message = 'NumerrinWrapper does not handle particle container'
+        message = 'KratosWrapper does not handle particle container'
         raise NotImplementedError(message)
 
     def iter_meshes(self):
@@ -90,7 +90,7 @@ class KratosWrapper(object):
             yield mesh
 
     def iter_lattices(self, names=None):
-        message = 'NumerrinWrapper does not handle lattice'
+        message = 'KratosWrapper does not handle lattice'
         raise NotImplementedError(message)
 
     # KratosWrapper Internal
