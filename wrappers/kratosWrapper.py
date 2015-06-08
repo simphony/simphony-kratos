@@ -30,6 +30,10 @@ class KratosWrapper(object):
         self.id_to_uuid_condition_map = {}
         self.uuid_to_id_condition_map = {}
 
+        self.id_to_ref_node = {}
+        self.id_to_ref_element = {}
+        self.id_to_ref_condition = {}
+
         # Containers
         self.pcs = {}
         self.meshes = {}
