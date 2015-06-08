@@ -100,34 +100,38 @@ class KratosWrapper(object):
 
     def getSolutionStepVariable1D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
-        data.update({
-            pair[0]: entity.GetSolutionStepValue(pair[1])
-        })
+        if(pair[0] not None):
+            data.update({
+                pair[0]: entity.GetSolutionStepValue(pair[1])
+            })
 
     def getSolutionStepVariable3D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
-        data.update({
-            pair[0]: [
-                entity.GetSolutionStepValue(pair[2]),
-                entity.GetSolutionStepValue(pair[3]),
-                entity.GetSolutionStepValue(pair[4])
-            ]
-        })
+        if(pair[0] not None):
+            data.update({
+                pair[0]: [
+                    entity.GetSolutionStepValue(pair[2]),
+                    entity.GetSolutionStepValue(pair[3]),
+                    entity.GetSolutionStepValue(pair[4])
+                ]
+            })
 
     def setSolutionStepVariable1D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
-        entity.SetSolutionStepValue(
-            pair[1],
-            data[pair[0]]
-        )
+        if(pair[0] not None):
+            entity.SetSolutionStepValue(
+                pair[1],
+                data[pair[0]]
+            )
 
     def setSolutionStepVariable3D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
-        for i in xrange(0, 3):
-            entity.SetSolutionStepValue(
-                pair[2 + i],
-                data[pair[0]][0 + i]
-            )
+        if(pair[0] not None):
+            for i in xrange(0, 3):
+                entity.SetSolutionStepValue(
+                    pair[2 + i],
+                    data[pair[0]][0 + i]
+                )
 
     def getNodalData(self, data, node):
         pass
