@@ -1,0 +1,46 @@
+Begin ModelPartData
+//  VARIABLE_NAME value
+End ModelPartData
+
+Begin Properties 0
+WALL_FRICTION 0.3
+End Properties
+
+Begin Nodes // GUI DEM-FEM-Wall group identifier: DEM-wall1
+1 2.00000 -1.00000 0.00000
+5 -1.00000 -1.00000 0.00000
+6 2.00000 2.00000 0.00000
+7 -1.00000 2.00000 0.00000
+End Nodes
+
+Begin Conditions RigidFace3D3N // GUI DEM-FEM-Wall group identifier: DEM-wall1
+4  0  1 6 7
+5  0  1 7 5
+End Conditions
+
+Begin Mesh 1 // GUI DEM-FEM-Wall group identifier: DEM-wall1
+Begin MeshData // GUI DEM-FEM-Wall group identifier: DEM-wall1
+  VELOCITY [3] (0.0,0.0,0.0)
+  VELOCITY_PERIOD 0.0
+  ANGULAR_VELOCITY [3] (0.0,0.0,0.0)
+  ROTATION_CENTER [3] (0.0,0.0,0.0)
+  ANGULAR_VELOCITY_PERIOD 0.0
+  VELOCITY_START_TIME 0.0
+  VELOCITY_STOP_TIME 0.0
+  ANGULAR_VELOCITY_START_TIME 0.0
+  ANGULAR_VELOCITY_STOP_TIME 0.0
+  FIXED_MESH_OPTION 0
+  IDENTIFIER DEM-wall1
+   TOP  0
+   BOTTOM  0
+   FORCE_INTEGRATION_GROUP  0
+End MeshData
+
+Begin MeshNodes
+1
+5
+6
+7
+End MeshNodes
+End Mesh
+

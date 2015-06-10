@@ -6,7 +6,7 @@ from enum import Enum, unique
 
 
 @unique
-class CUBAExtension(Enum):
+class CUBAExt(Enum):
     """ Provisional CUBA keywords specific for Kratos
 
     These are additional CUBA-Keywords for Kratos-CFD and
@@ -101,99 +101,16 @@ class CUBAExtension(Enum):
     shape: [1]
     type: string
 
-    - description: Reaction TOTAL_FORCES
-    domain: [MD]
-    key: REACTION
-    name: Reaction
-    number: 111
-    shape: [1]
-    type: double
-
-    - description: Distance
-    domain: [MD]
-    key: REACTION
-    name: Reaction
-    number: 112
-    shape: [1]
-    type: double
-
-    - description: Viscosity
-    domain: [MD]
-    key: VISCOSITY
-    name: Viscosity
-    number: 113
-    shape: [1]
-    type: double
-
-    - description: Force of the body
-    domain: [MD]
-    key: BODY_FORCE
-    name: BodyForce
-    number: 114
-    shape: [1]
-    type: double
-
-    - description: Flags of the node
-    domain: [MD]
-    key: FLAG_VARIABLE
-    name: FlagVariable
-    number: 115
-    shape: [1]
-    type: integer
-
-    - description: Boolean for structure check
-    domain: [MD]
-    key: IS_STRUCTURE
-    name: FlagVariable
-    number: 116
-    shape: [1]
-    type: boolean
-
-    - description: Boolean for slip check
-    domain: [MD]
-    key: IS_SLIP
-    name: FlagVariable
-    number: 117
-    shape: [1]
-    type: boolean
-
-    - description: Boolean for imposed pressure check
-    domain: [MD]
-    key: IMPOSED_PRES
-    name: FlagVariable
-    number: 118
-    shape: [1]
-    type: boolean
-
-    - description: Boolean for imposed velocity check
-    domain: [MD]
-    key: IMPOSED_VEL
-    name: FlagVariable
-    number: 119
-    shape: [1]
-    type: boolean
-
 """
 
-    NODAL_MASS = 100
-    DISPLACEMENT = 101
-    TOTAL_FORCES = 102
-    WALL_FRICTION = 103
-    PARTICLE_DENSITY = 104
-    PARTICLE_FRICTION = 105
-    PARTICLE_COHESION = 106
-    LN_OF_RESTITUTION_COEFF = 107
-    PARTICLE_MATERIAL = 108
-    DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME = 109
-    DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME = 110
-
-    REACTION = 111
-    DISTANCE = 112
-    VISCOSITY = 113
-    BODY_FORCE = 114
-    FLAG_VARIABLE = 115
-    IS_STRUCTURE = 116
-    IS_SLIP = 117
-
-    IMPOSED_PRES = 118
-    IMPOSED_VEL = 119
+    NODAL_MASS = 0
+    DISPLACEMENT = 1
+    TOTAL_FORCES = 2
+    WALL_FRICTION = 3
+    PARTICLE_DENSITY = 4
+    PARTICLE_FRICTION = 5
+    PARTICLE_COHESION = 6
+    LN_OF_RESTITUTION_COEFF = 7
+    PARTICLE_MATERIAL = 8
+    DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME = 9
+    DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME = 10

@@ -47,6 +47,9 @@ class KratosWrapper(object):
         self.SP = DataContainer()
         self.BC = DataContainer()
 
+        # Extended data containers
+        self.SPE = {}
+
         # Initialization
         self.initialize()
 
