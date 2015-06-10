@@ -627,7 +627,7 @@ class DEMPackWrapper(KratosWrapper):
 
         # Solve
         for n in xrange(0, self.CM[CUBA.NUMBER_OF_TIME_STEPS]):
-            
+
             dt = self.spheres_model_part.ProcessInfo.GetValue(DELTA_TIME)
             time = time + dt
             step += 1

@@ -29,7 +29,7 @@ class TestKratosCFDWrapper(unittest.TestCase):
 
         """
 
-        self.path = "CFD_exampleFluid"
+        self.path = "wrappers/tests/cfd/CFD_exampleFluid"
 
         self.bc_vel = {'inlet': (1.0, 0.0, 0.0),
                        'outlet': 'zeroGradient',
