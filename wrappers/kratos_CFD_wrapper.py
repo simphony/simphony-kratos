@@ -16,7 +16,6 @@ from simphony.cuds.mesh import Cell as SCell
 
 # Wrapper Imports
 from wrappers.kratosWrapper import KratosWrapper
-from wrappers.cuba_extension import CUBAExtension
 
 # Kratos Imports
 import ProjectParameters
@@ -231,7 +230,7 @@ class CFDWrapper(KratosWrapper):
 
                 # No data is stored in the element yet
 
-                pass 
+                pass
 
     def exportKratosConditions(self, src, dst):
         """ Parses all kratos conditions to simphony faces
@@ -267,7 +266,7 @@ class CFDWrapper(KratosWrapper):
 
                 # No data is stored in the condition yet
 
-                pass 
+                pass
 
     def exportKratosDof(self, src, dst):
         """ Sets the Dof information for the appropiate points
@@ -298,7 +297,7 @@ class CFDWrapper(KratosWrapper):
         #         p.data = data
         #         dst.update_point(p)
 
-        pass 
+        pass
 
     # import
 
@@ -343,7 +342,6 @@ class CFDWrapper(KratosWrapper):
                 data = point.data
 
                 self.setNodalData(data, node)
-
 
     def importKratosElements(self, src, dst):
         """ Parses all simphony cells to kratos elements
@@ -423,12 +421,12 @@ class CFDWrapper(KratosWrapper):
         #     if point.data[CUBAExtension.IMPOSED_PRES] == 1:
         #         node.Fix(PRESSURE)
 
-        pass 
+        pass
 
     # FileIO
 
     def read_modelpart(self, filename):
-        """ Reads a Kratos formated modelpart NYI
+        """ Reads a Kratos formated modelpart
 
         This adds partial support for the future FileIO
         """
@@ -472,7 +470,7 @@ class CFDWrapper(KratosWrapper):
         return new_mesh
 
     def write_modelpart(self, filename):
-        """ Writes a Kratos formated modelpart
+        """ Writes a Kratos formated modelpart WIP
 
         This adds partial support for the future FileIO
         """
@@ -565,11 +563,6 @@ class CFDWrapper(KratosWrapper):
 
         self.addNodalVariablesToModelpart(self.fluid_model_part)
 
-        pass
-
-    def initializeTimeStep(self):
-        pass
-
     def run(self):
         """ Run a step of the wrapper """
 
@@ -586,8 +579,6 @@ class CFDWrapper(KratosWrapper):
             self.get_mesh("Model"),
             self.fluid_model_part
         )
-
-        print("xyz")
 
         self.updateBackwardDicc()
         self.setElementData()
@@ -627,7 +618,7 @@ class CFDWrapper(KratosWrapper):
         self.fluid_model_part.CloneTimeStep(self.time)
         self.time = self.time + Dt
 
-        for n in xrange(0, self.substeps):
+        for n in xrange(0, self.CM[CUBA.NUMBER_OF_TIME_STEPS]):
             self.fluid_model_part.CloneTimeStep(self.time)
             self.solver.Solve()
             self.time = self.time + Dt
@@ -654,9 +645,6 @@ class CFDWrapper(KratosWrapper):
         )
 
         self.updateForwardDicc()
-
-    def finalizeTimeStep(self):
-        pass
 
     def finalize(self):
         pass
