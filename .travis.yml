@@ -3,9 +3,9 @@ python:
   - "2.7"
 
 before_install:
-  - wget https://web.cimne.upc.edu/users/croig/data/kratos-simphony.tgz -O /tmp/kratos.tar.gz
+  - wget https://web.cimne.upc.edu/users/croig/data/kratos-simphony.tgz -O /tmp/kratos.tgz
   - mkdir $PWD/kratos
-  - tar -xzvf /tmp/kratos.tar.gz -C $PWD/kratos
+  - tar -xzvf /tmp/kratos.tgz -C $PWD/kratos
   - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/kratos/libs
   - export PYTHONPATH=$PYTHONPATH:$PWD/kratos
   - export PATH=$PATH:$PWD/kratos
