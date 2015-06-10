@@ -4,10 +4,11 @@ python:
 
 before_install:
   - wget https://web.cimne.upc.edu/users/croig/data/kratos-simphony.tgz -O /tmp/kratos.tar.gz
-  - tar -xzvf /tmp/kratos.tar.gz -C $PWD/kratos/
+  - mkdir $PWD/kratos
+  - tar -xzvf /tmp/kratos.tar.gz -C $PWD/kratos
   - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/kratos/libs
-  - export PYTHONPATH=$PYTHONPATH:$PWD/kratos/
-  - export PATH=$PATH:$PWD/kratos/
+  - export PYTHONPATH=$PYTHONPATH:$PWD/kratos
+  - export PATH=$PATH:$PWD/kratos
 
 install:
   - pip install -r dev_requirements.txt
