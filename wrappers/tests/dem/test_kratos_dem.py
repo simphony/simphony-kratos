@@ -11,6 +11,10 @@ sys.path.append(os.path.abspath('wrappers/tests/dem'))
 
 from KratosMultiphysics import *
 from KratosMultiphysics.DEMApplication import *
+from KratosMultiphysics.IncompressibleFluidApplication import *
+from KratosMultiphysics.FluidDynamicsApplication import *
+from KratosMultiphysics.ExternalSolversApplication import *
+from KratosMultiphysics.MeshingApplication import *
 
 import unittest
 
@@ -26,8 +30,8 @@ class TestKratosCFDWrapper(unittest.TestCase):
 
         """
 
-        self.fluid_path = "3balls"
-        self.rigid_path = "3ballsDEM_FEM_boundary"
+        self.fluid_path = "wrappers/tests/dem/3balls"
+        self.rigid_path = "wrappers/tests/dem/3ballsDEM_FEM_boundary"
 
         self.time_step = 0.001
         self.num_steps = 600
@@ -50,7 +54,7 @@ class TestKratosCFDWrapper(unittest.TestCase):
         wrapper.setMeshData(mesh)
         wrapper.add_mesh(mesh)
 
-        for i in xrange(0, 10):
+        for i in xrange(0, 1):
             wrapper.run()
 
         wrapper.finalize()

@@ -579,7 +579,6 @@ class DEMPackWrapper(KratosWrapper):
 
         self.solver.Initialize()
 
-
     def run(self):
         """ Run a step of the wrapper """
 
@@ -649,4 +648,4 @@ class DEMPackWrapper(KratosWrapper):
         self.updateForwardDicc()
 
     def finalize(self):
-        self.demio.FinalizeMesh()
+        pass
