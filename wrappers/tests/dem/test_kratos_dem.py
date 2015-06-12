@@ -30,7 +30,7 @@ class TestKratosCFDWrapper(unittest.TestCase):
         self.rigid_path = "3ballsDEM_FEM_boundary"
 
         self.time_step = 0.001
-        self.num_steps = 50
+        self.num_steps = 600
 
     def test_run(self):
         """ Test if cfd can run
@@ -50,7 +50,7 @@ class TestKratosCFDWrapper(unittest.TestCase):
         wrapper.setMeshData(mesh)
         wrapper.add_mesh(mesh)
 
-        for i in xrange(0, 1):
+        for i in xrange(0, 10):
             wrapper.run()
 
         wrapper.finalize()

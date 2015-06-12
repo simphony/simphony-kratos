@@ -349,6 +349,12 @@ class DEMPackWrapper(KratosWrapper):
         # Set dofs
         SolverStrategy.AddDofs(self.spheres_model_part)
 
+        self.element_properties = Properties(0)
+        self.condition_properties = Properties(1)
+
+        self.elemNodeData = {CUBA.RADIUS: RADIUS}
+        self.condNodeData = {}
+
         for n in self.spheres_model_part.Nodes:
             self.id_to_ref_node[n.Id] = n
 
@@ -373,6 +379,8 @@ class DEMPackWrapper(KratosWrapper):
             self.rigid_face_model_part,
             new_mesh
         )
+
+        self.solver.Initialize()
 
         self.updateForwardDicc()
 
@@ -515,8 +523,6 @@ class DEMPackWrapper(KratosWrapper):
             execute Kratos' DEMPack solver
         """
 
-        print("Initializing")
-
         # DEMPack SubClasses
         self.procedures = DEM_procedures.Procedures(DEM_parameters)
         self.parallelutils = DEM_procedures.ParallelUtils()
@@ -544,10 +550,10 @@ class DEMPackWrapper(KratosWrapper):
         )
 
         # Prepare variables
-        # self.solver.AddAdditionalVariables(
-        #     spheres_model_part,
-        #     DEM_parameters
-        # )
+        self.solver.AddAdditionalVariables(
+            self.spheres_model_part,
+            DEM_parameters
+        )
         self.procedures.AddCommonVariables(
             self.spheres_model_part,
             DEM_parameters
@@ -565,29 +571,6 @@ class DEMPackWrapper(KratosWrapper):
             DEM_parameters
         )
 
-        # Prepare de interal io system
-        self.demio.AddGlobalVariables()
-        self.demio.AddSpheresVariables()
-        self.demio.AddFEMBoundaryVariables()
-        self.demio.AddClusterVariables()
-        self.demio.AddContactVariables()
-        #
-        self.demio.AddMpiVariables()
-        self.demio.EnableMpiVariables()
-
-        self.demio.Configure(
-            DEM_parameters.problem_name,
-            DEM_parameters.OutputFileType,
-            DEM_parameters.Multifile,
-            DEM_parameters.ContactMeshOption
-        )
-
-        self.element_properties = Properties(0)
-        self.condition_properties = Properties(1)
-
-        self.elemNodeData = {CUBA.RADIUS: RADIUS}
-        self.condNodeData = {}
-
         # Set a search strategy
         self.solver.search_strategy = self.parallelutils.GetSearchStrategy(
             self.solver,
@@ -595,6 +578,7 @@ class DEMPackWrapper(KratosWrapper):
         )
 
         self.solver.Initialize()
+
 
     def run(self):
         """ Run a step of the wrapper """
@@ -644,11 +628,6 @@ class DEMPackWrapper(KratosWrapper):
 
             time += dt
 
-            for n in self.spheres_model_part.Nodes:
-                print(n)
-
-        print(self.spheres_model_part)
-
         self.exportKratosNodes(
             self.spheres_model_part,
             self.get_mesh("Model")
@@ -659,7 +638,7 @@ class DEMPackWrapper(KratosWrapper):
         )
 
         self.exportKratosNodes(
-            self.spheres_model_part,
+            self.rigid_face_model_part,
             self.get_mesh("Model")
         )
         self.exportKratosConditions(
