@@ -157,7 +157,7 @@ class TestKratosWrapper(unittest.TestCase):
         wrapper.add_mesh(self.mesh2)
 
         meshes_n = ["foo1", "foo2"]
-        meshes_w = [m for m in wrapper.iter_meshes()]
+        meshes_w = [m.name for m in wrapper.iter_meshes()]
 
         self.assertItemsEqual(meshes_n, meshes_w)
 
@@ -232,6 +232,57 @@ class TestKratosWrapper(unittest.TestCase):
         wrapper = KratosWrapper()
         with self.assertRaises(NotImplementedError):
             wrapper.iter_lattices()
+
+
+    def test_change_mesh_name(self):
+        """ Test if the wrapper can correctly handle mesh name 
+        changes
+
+        """
+
+        wrapper = KratosWrapper()
+        proxy_mesh = wrapper.add_mesh(self.mesh1)
+
+        wrapper = KratosWrapper()
+        proxy_meshA = wrapper.add_mesh(self.mesh1)
+        proxy_meshB = wrapper.add_mesh(self.mesh2)
+
+        proxy_meshA.name = "fooRenamed"
+
+        w_mesh1 = wrapper.get_mesh("fooRenamed")
+
+        for point in w_mesh1.iter_points():
+            wp = self.mesh1.get_point(point.uid)
+            self.assertEqual(point.uid, wp.uid)
+
+        for edge in w_mesh1.iter_edges():
+            we = self.mesh1.get_edge(edge.uid)
+            self.assertEqual(edge.uid, we.uid)
+
+        for face in w_mesh1.iter_faces():
+            wf = self.mesh1.get_face(face.uid)
+            self.assertEqual(face.uid, wf.uid)
+
+        for cell in w_mesh1.iter_cells():
+            wc = self.mesh1.get_cell(cell.uid)
+            self.assertEqual(cell.uid, wc.uid)
+
+    def test_change_mesh_name_iter(self):
+        """ Test if the wrapper can correctly handle mesh name 
+        changes in iterators
+
+        """
+
+        wrapper = KratosWrapper()
+        proxy_meshA = wrapper.add_mesh(self.mesh1)
+        proxy_meshB = wrapper.add_mesh(self.mesh2)
+
+        proxy_meshB.name = "fooRenamed"
+
+        meshes_n = ["foo1", "fooRenamed"]
+        meshes_w = [m.name for m in wrapper.iter_meshes()]
+
+        self.assertItemsEqual(meshes_n, meshes_w)
 
 
 if __name__ == '__main__':
