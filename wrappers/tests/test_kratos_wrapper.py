@@ -233,20 +233,6 @@ class TestKratosWrapper(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             wrapper.iter_lattices()
 
-    def test_run_cfd(self):
-        """ Test the execution of one step of the simulation
-
-        """
-
-        pass
-
-    def test_run_dem(self):
-        """ Test the execution of one step of the simulation
-
-        """
-
-        pass
-
 
 if __name__ == '__main__':
     unittest.main()
