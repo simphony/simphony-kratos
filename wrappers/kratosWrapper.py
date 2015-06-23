@@ -11,6 +11,7 @@ in order to import or export models from KratosMultiphysics
 from __future__ import print_function, absolute_import, division
 
 # Simphony Imports
+from simphony.cuds.mesh import Mesh
 from simphony.core.data_container import DataContainer
 
 # Kratos Imports
@@ -60,7 +61,25 @@ class KratosWrapper(object):
         raise NotImplementedError(message)
 
     def add_mesh(self, src):
-        self.meshes[src.name] = src
+        c_mesh = Mesh(name=src.name)
+
+        for p in src.iter_points():
+            c_mesh.add_point(p)
+
+        for e in src.iter_edges():
+            c_mesh.add_edge(e)
+
+        for f in src.iter_faces():
+            c_mesh.add_face(f)
+
+        for c in src.iter_cells():
+            c_mesh.add_cell(c)
+
+        c_mesh.data = src.data
+
+        self.meshes.append(c_mesh)
+
+        return c_mesh
 
     def add_lattice(self, lattice):
         message = 'KratosWrapper does not handle lattice'
@@ -82,7 +101,12 @@ class KratosWrapper(object):
         raise NotImplementedError(message)
 
     def get_mesh(self, name):
-        return self.meshes[name]
+        for mesh in self.meshes:
+            if mesh.name == name:
+                return mesh
+        else
+            message = 'Mesh not found'
+            raise NotImplementedError(message)
 
     def get_lattice(self, name):
         message = 'KratosWrapper does not handle lattice'
