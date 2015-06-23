@@ -125,14 +125,16 @@ class KratosWrapper(object):
     def iter_meshes(self, names=None):
         if names is None:
             for mesh in self.meshes:
-                        yield mesh
+                yield mesh
         else:
-            for mesh in self.mesh:
+            mesh_names = [m.name for m in self.meshes]
+            for name in names:
+                if name not in mesh_names:
+                    message = 'Mesh not found'
+                    raise KeyError(message)
+            for mesh in self.meshes:
                 if mesh.name in names:
                     yield mesh
-            else:
-                message = 'Mesh not found'
-                raise KeyError(message)
 
     def iter_lattices(self, names=None):
         message = 'KratosWrapper does not handle lattice'

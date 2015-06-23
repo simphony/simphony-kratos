@@ -161,6 +161,20 @@ class TestKratosWrapper(unittest.TestCase):
 
         self.assertItemsEqual(meshes_n, meshes_w)
 
+    def test_iter_meshes_subset(self):
+        """ Test if meshes can be iterated.
+
+        """
+
+        wrapper = KratosWrapper()
+        wrapper.add_mesh(self.mesh1)
+        wrapper.add_mesh(self.mesh2)
+
+        meshes_n = ["foo1"]
+        meshes_w = [m.name for m in wrapper.iter_meshes(meshes_n)]
+
+        self.assertItemsEqual(meshes_n, meshes_w)
+
     def test_add_particles(self):
         """ Test if a particle container can be added to the wrapper
 
