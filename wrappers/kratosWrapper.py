@@ -96,7 +96,7 @@ class KratosWrapper(object):
                 return
         else:
             message = 'Mesh not found'
-            raise NotImplementedError(message)
+            raise KeyError(message)
 
     def delete_lattice(self, name):
         message = 'KratosWrapper does not handle lattice'
@@ -112,7 +112,7 @@ class KratosWrapper(object):
                 return mesh
         else:
             message = 'Mesh not found'
-            raise NotImplementedError(message)
+            raise KeyError(message)
 
     def get_lattice(self, name):
         message = 'KratosWrapper does not handle lattice'
@@ -123,8 +123,16 @@ class KratosWrapper(object):
         raise NotImplementedError(message)
 
     def iter_meshes(self, names=None):
-        for mesh in self.meshes:
-            yield mesh
+        if names is None:
+            for mesh in self.meshes:
+                        yield mesh
+        else:
+            for mesh in self.mesh:
+                if mesh.name in names:
+                    yield mesh
+            else:
+                message = 'Mesh not found'
+                raise KeyError(message)
 
     def iter_lattices(self, names=None):
         message = 'KratosWrapper does not handle lattice'
