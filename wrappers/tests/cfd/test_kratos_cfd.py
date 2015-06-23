@@ -10,6 +10,7 @@ import os
 sys.path.append(os.path.abspath('wrappers/tests/cfd'))
 
 from KratosMultiphysics import *
+from KratosMultiphysics.DEMApplication import *
 from KratosMultiphysics.IncompressibleFluidApplication import *
 from KratosMultiphysics.FluidDynamicsApplication import *
 from KratosMultiphysics.ExternalSolversApplication import *
