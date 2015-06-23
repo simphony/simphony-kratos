@@ -233,9 +233,8 @@ class TestKratosWrapper(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             wrapper.iter_lattices()
 
-
     def test_change_mesh_name(self):
-        """ Test if the wrapper can correctly handle mesh name 
+        """ Test if the wrapper can correctly handle mesh name
         changes
 
         """
@@ -243,11 +242,7 @@ class TestKratosWrapper(unittest.TestCase):
         wrapper = KratosWrapper()
         proxy_mesh = wrapper.add_mesh(self.mesh1)
 
-        wrapper = KratosWrapper()
-        proxy_meshA = wrapper.add_mesh(self.mesh1)
-        proxy_meshB = wrapper.add_mesh(self.mesh2)
-
-        proxy_meshA.name = "fooRenamed"
+        proxy_mesh.name = "fooRenamed"
 
         w_mesh1 = wrapper.get_mesh("fooRenamed")
 
@@ -268,16 +263,16 @@ class TestKratosWrapper(unittest.TestCase):
             self.assertEqual(cell.uid, wc.uid)
 
     def test_change_mesh_name_iter(self):
-        """ Test if the wrapper can correctly handle mesh name 
+        """ Test if the wrapper can correctly handle mesh name
         changes in iterators
 
         """
 
         wrapper = KratosWrapper()
-        proxy_meshA = wrapper.add_mesh(self.mesh1)
-        proxy_meshB = wrapper.add_mesh(self.mesh2)
+        wrapper.add_mesh(self.mesh1)
+        proxy_mesh = wrapper.add_mesh(self.mesh2)
 
-        proxy_meshB.name = "fooRenamed"
+        proxy_mesh.name = "fooRenamed"
 
         meshes_n = ["foo1", "fooRenamed"]
         meshes_w = [m.name for m in wrapper.iter_meshes()]
