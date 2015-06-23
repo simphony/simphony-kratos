@@ -36,9 +36,9 @@ class KratosWrapper(object):
         self.id_to_ref_condition = {}
 
         # Containers
-        self.pcs = {}
-        self.meshes = {}
-        self.lattices = {}
+        self.pcs = []
+        self.meshes = []
+        self.lattices = []
 
         # Id's stuff
         self.free_id = 1
@@ -90,7 +90,13 @@ class KratosWrapper(object):
         raise NotImplementedError(message)
 
     def delete_mesh(self, name):
-        del self.meshes[name]
+        for mesh in self.meshes:
+            if mesh.name == name:
+                self.meshes.remove(mesh)
+                return
+        else:
+            message = 'Mesh not found'
+            raise NotImplementedError(message)
 
     def delete_lattice(self, name):
         message = 'KratosWrapper does not handle lattice'
@@ -104,7 +110,7 @@ class KratosWrapper(object):
         for mesh in self.meshes:
             if mesh.name == name:
                 return mesh
-        else
+        else:
             message = 'Mesh not found'
             raise NotImplementedError(message)
 
@@ -116,7 +122,7 @@ class KratosWrapper(object):
         message = 'KratosWrapper does not handle particle container'
         raise NotImplementedError(message)
 
-    def iter_meshes(self):
+    def iter_meshes(self, names=None):
         for mesh in self.meshes:
             yield mesh
 
