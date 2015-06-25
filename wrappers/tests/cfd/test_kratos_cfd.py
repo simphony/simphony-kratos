@@ -7,8 +7,6 @@ kratosWrapper class.
 import sys
 import os
 
-sys.path.append(os.path.abspath('wrappers/tests/cfd'))
-
 from KratosMultiphysics import *
 from KratosMultiphysics.DEMApplication import *
 from KratosMultiphysics.IncompressibleFluidApplication import *
@@ -21,7 +19,7 @@ import unittest
 from simphony.core.cuba import CUBA
 
 from wrappers import kratos_CFD_wrapper as CFDengine
-
+from wrappers.tests.cfd import ProjectParameters
 
 class TestKratosCFDWrapper(unittest.TestCase):
 

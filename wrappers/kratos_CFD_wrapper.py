@@ -18,7 +18,7 @@ from simphony.cuds.mesh import Cell as SCell
 from wrappers.kratosWrapper import KratosWrapper
 
 # Kratos Imports
-import ProjectParameters
+from wrappers.tests.cfd import ProjectParameters
 
 from KratosMultiphysics import *
 from KratosMultiphysics.IncompressibleFluidApplication import *
