@@ -19,6 +19,7 @@ import unittest
 from simphony.core.cuba import CUBA
 
 from wrappers import kratos_CFD_wrapper as CFDengine
+from wrappers.kratos_utils import read_modelpart
 from wrappers.cuba_extension import CUBAExt
 from wrappers.tests.cfd import ProjectParameters
 
@@ -53,19 +54,28 @@ class TestKratosCFDWrapper(unittest.TestCase):
 
         wrapper.CM[CUBA.TIME_STEP] = self.time_step
         wrapper.CM[CUBA.NUMBER_OF_TIME_STEPS] = self.num_steps
-        wrapper.BC[CUBA.VELOCITY] = self.bc_vel
-        wrapper.BC[CUBA.PRESSURE] = self.bc_pre
 
-        wrapper.SPE[CUBAExt.FLUID_MESH_NAME] = "fluid"
+        wrapper.SPE[CUBAExt.FLUID_MESHES] = "fluid_0,fluid_1,fluid_2,fluid_3,fluid_4"
 
-        mesh = wrapper.read_modelpart(self.path)
+        # reads kratos data so its interpretable by simphony
+        kratos_model = read_modelpart(self.path)
+        # mesh.name = "fluid"
 
-        mesh.name = "fluid"
+        wrapper.BC[CUBA.VELOCITY] = {}
+        wrapper.BC[CUBA.PRESSURE] = {}
 
-        wrapper.add_mesh(mesh)
+        for mesh in kratos_model['meshes']:
+            wrapper.add_mesh(mesh)
+
+        for bc in kratos_model['bcs']:
+            wrapper.BC[CUBA.VELOCITY][bc['name']] = bc['velocity']
+            wrapper.BC[CUBA.PRESSURE][bc['name']] = bc['pressure']
+
+        print(wrapper.BC[CUBA.VELOCITY])
+        print(wrapper.BC[CUBA.PRESSURE])
 
         for i in xrange(0, wrapper.CM[CUBA.NUMBER_OF_TIME_STEPS]):
-            wrapper.run()
+           wrapper.run()
 
     def tear_down(self):
         pass
