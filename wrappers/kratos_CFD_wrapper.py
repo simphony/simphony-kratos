@@ -645,6 +645,3 @@ class CFDWrapper(KratosWrapper):
         )
 
         self.updateForwardDicc()
-
-    def finalize(self):
-        pass

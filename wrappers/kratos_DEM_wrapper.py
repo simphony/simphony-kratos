@@ -17,12 +17,12 @@ from simphony.cuds.mesh import Cell as SCell
 # Wrapper Imports
 from wrappers.kratosWrapper import KratosWrapper
 from wrappers.cuba_extension import CUBAExt
+from wrappers.tests.dem import DEM_explicit_solver_var
 
 # Kratos Imports
 from KratosMultiphysics import *
 from KratosMultiphysics.DEMApplication import *
 
-import DEM_explicit_solver_var as DEM_parameters
 import sphere_strategy as SolverStrategy
 import DEM_procedures
 
@@ -646,6 +646,3 @@ class DEMPackWrapper(KratosWrapper):
         )
 
         self.updateForwardDicc()
-
-    def finalize(self):
-        pass
