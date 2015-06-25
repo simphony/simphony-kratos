@@ -101,6 +101,22 @@ class CUBAExt(Enum):
     shape: [1]
     type: string
 
+    - description: Name of the fluid mesh
+    domain: [DEM,CFD]
+    key: FLUID_MESH_NAME
+    name: FluidMeshName
+    number: 109
+    shape: [1]
+    type: string
+
+    - description: Name of the structure mesh
+    domain: [DEM]
+    key: STRUCTURE_MESH_NAME
+    name: StructureMeshName
+    number: 110
+    shape: [1]
+    type: string
+
 """
 
     NODAL_MASS = 0
@@ -114,3 +130,6 @@ class CUBAExt(Enum):
     PARTICLE_MATERIAL = 8
     DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME = 9
     DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME = 10
+
+    FLUID_MESH_NAME = 11
+    STRUCTURE_MESH_NAME = 12 
