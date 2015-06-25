@@ -244,9 +244,6 @@ class KratosWrapper(object):
                 v: k for k, v in self.uuid_to_id_condition_map.items()
             }
 
-    def setMeshData(self, mesh):
-        pass
-
     def initialize(self):
         pass
 

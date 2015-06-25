@@ -19,6 +19,7 @@ import unittest
 from simphony.core.cuba import CUBA
 
 from wrappers import kratos_CFD_wrapper as CFDengine
+from wrappers.cuba_extension import CUBAExt
 from wrappers.tests.cfd import ProjectParameters
 
 class TestKratosCFDWrapper(unittest.TestCase):
@@ -55,7 +56,11 @@ class TestKratosCFDWrapper(unittest.TestCase):
         wrapper.BC[CUBA.VELOCITY] = self.bc_vel
         wrapper.BC[CUBA.PRESSURE] = self.bc_pre
 
+        wrapper.SPE[CUBAExt.FLUID_MESH_NAME] = "fluid"
+
         mesh = wrapper.read_modelpart(self.path)
+
+        mesh.name = "fluid"
 
         wrapper.add_mesh(mesh)
 

@@ -16,6 +16,7 @@ from simphony.cuds.mesh import Cell as SCell
 
 # Wrapper Imports
 from wrappers.kratosWrapper import KratosWrapper
+from wrappers.cuba_extension import CUBAExt
 
 # Kratos Imports
 from wrappers.tests.cfd import ProjectParameters
@@ -562,15 +563,15 @@ class CFDWrapper(KratosWrapper):
 
         # Import the into Kratos
         self.importKratosNodes(
-            self.get_mesh("Model"),
+            self.get_mesh(self.SPE[CUBAExt.FLUID_MESH_NAME]),
             self.fluid_model_part
         )
         self.importKratosElements(
-            self.get_mesh("Model"),
+            self.get_mesh(self.SPE[CUBAExt.FLUID_MESH_NAME]),
             self.fluid_model_part
         )
         self.importKratosConditions(
-            self.get_mesh("Model"),
+            self.get_mesh(self.SPE[CUBAExt.FLUID_MESH_NAME]),
             self.fluid_model_part
         )
 
@@ -583,7 +584,7 @@ class CFDWrapper(KratosWrapper):
         self.solver_module.AddDofs(self.fluid_model_part, self.SolverSettings)
 
         self.importKratosDof(
-            self.get_mesh("Model"),
+            self.get_mesh(self.SPE[CUBAExt.FLUID_MESH_NAME]),
             self.fluid_model_part
         )
 
@@ -620,19 +621,19 @@ class CFDWrapper(KratosWrapper):
         # Export data back to SimPhoNy
         self.exportKratosNodes(
             self.fluid_model_part,
-            self.get_mesh("Model")
+            self.get_mesh(self.SPE[CUBAExt.FLUID_MESH_NAME])
         )
         self.exportKratosElements(
             self.fluid_model_part,
-            self.get_mesh("Model")
+            self.get_mesh(self.SPE[CUBAExt.FLUID_MESH_NAME])
         )
         self.exportKratosConditions(
             self.fluid_model_part,
-            self.get_mesh("Model")
+            self.get_mesh(self.SPE[CUBAExt.FLUID_MESH_NAME])
         )
         self.exportKratosDof(
             self.fluid_model_part,
-            self.get_mesh("Model")
+            self.get_mesh(self.SPE[CUBAExt.FLUID_MESH_NAME])
         )
 
         self.updateForwardDicc()
