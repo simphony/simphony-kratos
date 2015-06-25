@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 with open('README.rst', 'r') as readme:
     README_TEXT = readme.read()
 
-VERSION = '0.1.0.dev0'
+VERSION = '0.1.5'
 
 
 def write_version_py(filename=None):
@@ -34,5 +34,5 @@ setup(
     entry_points={
         'simphony.engine': ['kratos = simkratos']},
     packages=find_packages(),
-    install_requires=["simphony >= 0.1.1"]
+    install_requires=["simphony >= 0.1.5"]
 )
