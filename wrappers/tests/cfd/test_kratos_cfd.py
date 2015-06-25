@@ -57,13 +57,10 @@ class TestKratosCFDWrapper(unittest.TestCase):
 
         mesh = wrapper.read_modelpart(self.path)
 
-        wrapper.setMeshData(mesh)
         wrapper.add_mesh(mesh)
 
         for i in xrange(0, wrapper.CM[CUBA.NUMBER_OF_TIME_STEPS]):
             wrapper.run()
-
-        wrapper.finalize()
 
     def tear_down(self):
         pass
