@@ -359,7 +359,7 @@ class DEMPackWrapper(KratosWrapper):
             self.id_to_ref_node[n.Id] = n
 
         # Add the problem data
-        self.setMeshData(new_mesh)
+        self._setMeshData(new_mesh)
 
         # Export data back to SimPhoNy
         self.exportKratosNodes(
@@ -447,7 +447,7 @@ class DEMPackWrapper(KratosWrapper):
             )
         f.write('End NodalData\n\n')
 
-    def setMeshData(self, mesh):
+    def _setMeshData(self, mesh):
         " This probably needs to be done throug configuration"
 
         cLawString = "DEMContinuumConstitutiveLaw"

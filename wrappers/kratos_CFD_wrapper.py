@@ -444,9 +444,6 @@ class CFDWrapper(KratosWrapper):
         for n in self.fluid_model_part.Nodes:
             self.id_to_ref_node[n.Id] = n
 
-        # Add the problem data
-        self.setMeshData(new_mesh)
-
         # Export data back to SimPhoNy
         self.exportKratosNodes(
             self.fluid_model_part,
@@ -531,9 +528,6 @@ class CFDWrapper(KratosWrapper):
         f.write('End NodalData\n\n')
 
     # Properties
-
-    def setMeshData(self, mesh):
-        pass
 
     def setElementData(self):
         pass
@@ -622,9 +616,6 @@ class CFDWrapper(KratosWrapper):
             self.fluid_model_part.CloneTimeStep(self.time)
             self.solver.Solve()
             self.time = self.time + Dt
-
-        # Add the problem data
-        self.setMeshData(self.get_mesh("Model"))
 
         # Export data back to SimPhoNy
         self.exportKratosNodes(
