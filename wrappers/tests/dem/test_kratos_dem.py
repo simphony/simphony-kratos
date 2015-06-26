@@ -4,7 +4,6 @@ This module contains the unitary tests for the
 kratosWrapper class.
 
 """
-import sys
 import os
 
 from KratosMultiphysics import *
@@ -19,8 +18,8 @@ import unittest
 from simphony.core.cuba import CUBA
 
 from wrappers import kratos_DEM_wrapper as DEMPackEngine
-from wrappers.tests.dem import DEM_explicit_solver_var
-
+from wrappers.kratos_utils import DEM_Utils
+from wrappers.cuba_extension import CUBAExt
 
 class TestKratosCFDWrapper(unittest.TestCase):
 
@@ -29,8 +28,14 @@ class TestKratosCFDWrapper(unittest.TestCase):
 
         """
 
-        self.fluid_path = "wrappers/tests/dem/3balls"
-        self.rigid_path = "wrappers/tests/dem/3ballsDEM_FEM_boundary"
+        self.fluid_path = os.path.join(
+            os.path.dirname(__file__),
+            '3balls'
+        )
+        self.rigid_path = os.path.join(
+            os.path.dirname(__file__),
+            '3ballsDEM_FEM_boundary'
+        )
 
         self.time_step = 0.001
         self.num_steps = 600
@@ -40,17 +45,36 @@ class TestKratosCFDWrapper(unittest.TestCase):
 
         """
 
+        utils = DEM_Utils()
+
         wrapper = DEMPackEngine.DEMPackWrapper()
 
         wrapper.CM[CUBA.TIME_STEP] = self.time_step
         wrapper.CM[CUBA.NUMBER_OF_TIME_STEPS] = self.num_steps
 
-        mesh = wrapper.read_modelpart(
-            self.fluid_path,
-            self.rigid_path
+        # Set the meshes that are part of the fluid
+        wrapper.SPE[CUBAExt.FLUID_MESHES] = [
+            "fluid_0"
+        ]
+
+        # Set the meshes that are part of the fluid
+        wrapper.SPE[CUBAExt.STRUCTURE_MESHES] = [
+            "solid_0"
+        ]
+
+        kratos_model_f = utils.read_modelpart(
+            self.fluid_path, "fluid"
         )
 
-        wrapper.add_mesh(mesh)
+        kratos_model_s = utils.read_modelpart(
+            self.rigid_path, "solid"
+        )
+
+        for mesh in kratos_model_f['meshes']:
+            wrapper.add_mesh(mesh)
+
+        for mesh in kratos_model_s['meshes']:
+            wrapper.add_mesh(mesh)
 
         for i in xrange(0, 1):
             wrapper.run()

@@ -18,7 +18,7 @@ from wrappers.kratosWrapper import KratosWrapper
 from wrappers.cuba_extension import CUBAExt
 
 # Kratos Imports
-from wrappers.tests.cfd import ProjectParameters
+from wrappers import ProjectParameters
 
 from KratosMultiphysics import *
 from KratosMultiphysics.IncompressibleFluidApplication import *
@@ -491,7 +491,7 @@ class CFDWrapper(KratosWrapper):
 
         fluid_meshes = self.SPE[CUBAExt.FLUID_MESHES]
 
-        self.fluid_model_part.GetMesh(4)
+        self.fluid_model_part.GetMesh(len(fluid_meshes))
 
         properties = PropertiesArray()
 

@@ -142,17 +142,14 @@ class KratosWrapper(object):
 
     # KratosWrapper Internal
 
-    def addNodalVariablesToModelpart(self):
-        pass
-
-    def getSolutionStepVariable1D(self, data, entity, variable):
+    def __getSolutionStepVariable1D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
         if(pair[0] is not None):
             data.update({
                 pair[0]: entity.GetSolutionStepValue(pair[1])
             })
 
-    def getSolutionStepVariable3D(self, data, entity, variable):
+    def __getSolutionStepVariable3D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
         if(pair[0] is not None):
             data.update({
@@ -163,7 +160,7 @@ class KratosWrapper(object):
                 ]
             })
 
-    def setSolutionStepVariable1D(self, data, entity, variable):
+    def __setSolutionStepVariable1D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
         if(pair[0] is not None):
             entity.SetSolutionStepValue(
@@ -171,7 +168,7 @@ class KratosWrapper(object):
                 data[pair[0]]
             )
 
-    def setSolutionStepVariable3D(self, data, entity, variable):
+    def __setSolutionStepVariable3D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
         if(pair[0] is not None):
             for i in xrange(0, 3):
@@ -180,43 +177,7 @@ class KratosWrapper(object):
                     data[pair[0]][0 + i]
                 )
 
-    def getNodalData(self, data, node):
-        pass
-
-    def setNodalData(self, data, node):
-        pass
-
-    def exportKratosNodes(self, src, dst):
-        pass
-
-    def exportKratosElements(self, src, dst):
-        pass
-
-    def exportKratosConditions(self, src, dst):
-        pass
-
-    def exportKratosDof(self, src, dst):
-        pass
-
-    def importKratosNodes(self, src, dst):
-        pass
-
-    def importKratosElements(self, src, dst):
-        pass
-
-    def importKratosConditions(self, src, dst):
-        pass
-
-    def importKratosDof(self, src, dst):
-        pass
-
-    def read_modelpart(self, filename):
-        pass
-
-    def write_modelpart(self, filename):
-        pass
-
-    def updateForwardDicc(self):
+    def __updateForwardDicc(self):
         if not self.uuid_to_id_node_map:
             self.uuid_to_id_node_map = {
                 v: k for k, v in self.id_to_uuid_node_map.items()
@@ -230,7 +191,7 @@ class KratosWrapper(object):
                 v: k for k, v in self.id_to_uuid_condition_map.items()
             }
 
-    def updateBackwardDicc(self):
+    def __updateBackwardDicc(self):
         if not self.id_to_uuid_node_map:
             self.id_to_uuid_node_map = {
                 v: k for k, v in self.uuid_to_id_node_map.items()
@@ -243,9 +204,6 @@ class KratosWrapper(object):
             self.id_to_uuid_condition_map = {
                 v: k for k, v in self.uuid_to_id_condition_map.items()
             }
-
-    def initialize(self):
-        pass
 
     def run(self, mesh):
         pass
