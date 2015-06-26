@@ -10,7 +10,7 @@ import unittest
 from simphony.cuds.mesh import Mesh, Point, Edge, Face, Cell
 from simphony.core.data_container import DataContainer
 
-from wrappers.kratosWrapper import KratosWrapper
+from simkratos.kratosWrapper import KratosWrapper
 
 
 class TestKratosWrapper(unittest.TestCase):
