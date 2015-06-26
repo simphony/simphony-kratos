@@ -15,9 +15,9 @@ from simphony.cuds.mesh import Face as SFace
 from simphony.cuds.mesh import Cell as SCell
 
 # Wrapper Imports
-from wrappers.kratosWrapper import KratosWrapper
-from wrappers.cuba_extension import CUBAExt
-from wrappers.DEM import DEM_explicit_solver_var
+from simkratos.kratosWrapper import KratosWrapper
+from simkratos.cuba_extension import CUBAExt
+from simkratos.DEM import DEM_explicit_solver_var
 
 # Kratos Imports
 from KratosMultiphysics import *
