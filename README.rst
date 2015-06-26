@@ -22,7 +22,7 @@ Requirements
 Installation
 ------------
 
-Installation is based on setuptools and requeires Python 2.7::
+Installation is based on setuptools and requeire Python 2.7::
 
     # build and install
     python setup.py install
