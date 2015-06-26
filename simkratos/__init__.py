@@ -8,6 +8,6 @@ __all__ = [
     "CFD_Utils",
     "DEM_Utils",
     "CUBAExt",
-    "CFDWrapper"
+    "CFDWrapper",
     "DEMWrapper"
 ]
