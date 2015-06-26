@@ -65,8 +65,8 @@ class TestKratosCFDWrapper(unittest.TestCase):
         print(wrapper.BC[CUBA.VELOCITY])
         print(wrapper.BC[CUBA.PRESSURE])
 
-        # for i in xrange(0, wrapper.CM[CUBA.NUMBER_OF_TIME_STEPS]):
-        #     wrapper.run()
+        for i in xrange(0, wrapper.CM[CUBA.NUMBER_OF_TIME_STEPS]):
+            wrapper.run()
 
     def tear_down(self):
         pass
