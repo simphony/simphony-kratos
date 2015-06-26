@@ -4,9 +4,6 @@ This module contains the unitary tests for the
 kratosWrapper class.
 
 """
-import sys
-import os
-
 from KratosMultiphysics import *
 from KratosMultiphysics.DEMApplication import *
 from KratosMultiphysics.IncompressibleFluidApplication import *
@@ -21,7 +18,7 @@ from simphony.core.cuba import CUBA
 from wrappers import kratos_CFD_wrapper as CFDengine
 from wrappers.kratos_utils import CFD_Utils
 from wrappers.cuba_extension import CUBAExt
-from wrappers.tests.cfd import ProjectParameters
+
 
 class TestKratosCFDWrapper(unittest.TestCase):
 
@@ -57,7 +54,10 @@ class TestKratosCFDWrapper(unittest.TestCase):
         wrapper.CM[CUBA.TIME_STEP] = self.time_step
         wrapper.CM[CUBA.NUMBER_OF_TIME_STEPS] = self.num_steps
 
-        wrapper.SPE[CUBAExt.FLUID_MESHES] = "fluid_0,fluid_1,fluid_2,fluid_3,fluid_4"
+        wrapper.SPE[CUBAExt.FLUID_MESHES] = [
+            "fluid_0", "fluid_1", "fluid_2",
+            "fluid_3", "fluid_4"
+        ]
 
         # reads kratos data so its interpretable by simphony
         kratos_model = utils.read_modelpart(self.path)
@@ -77,7 +77,7 @@ class TestKratosCFDWrapper(unittest.TestCase):
         print(wrapper.BC[CUBA.PRESSURE])
 
         for i in xrange(0, wrapper.CM[CUBA.NUMBER_OF_TIME_STEPS]):
-           wrapper.run()
+            wrapper.run()
 
     def tear_down(self):
         pass

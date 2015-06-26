@@ -13,7 +13,6 @@ from KratosMultiphysics.FluidDynamicsApplication import *
 from KratosMultiphysics.ExternalSolversApplication import *
 from KratosMultiphysics.MeshingApplication import *
 
-from wrappers.tests.cfd import ProjectParameters
 
 class CFD_Utils(object):
 
@@ -178,9 +177,6 @@ class CFD_Utils(object):
 
         model_part = ModelPart("FluidPart")
 
-        SolverSettings = ProjectParameters.FluidSolverConfiguration
-        solver_module = import_solver(SolverSettings)
-
         model_part.AddNodalSolutionStepVariable(PRESSURE)
         model_part.AddNodalSolutionStepVariable(VELOCITY)
         model_part.AddNodalSolutionStepVariable(VISCOSITY)
@@ -192,11 +188,11 @@ class CFD_Utils(object):
         smp_meshes = []
         smp_bcs = []
 
-        for i in xrange(0,model_part.NumberOfMeshes()):
+        for i in xrange(0, model_part.NumberOfMeshes()):
 
-            mesh_name = 'fluid_'+str(i)
+            mesh_name = 'fluid_' + str(i)
 
-            smp_mesh = SMesh(name = mesh_name)
+            smp_mesh = SMesh(name=mesh_name)
 
             # Export data back to SimPhoNy
             self._exportKratosNodes(
@@ -219,25 +215,27 @@ class CFD_Utils(object):
             data[CUBA.MATERIAL_ID] = i
             smp_mesh.data = data
 
-            pressure = 'empty' 
+            pressure = 'empty'
             velocity = 'empty'
 
-            if model_part.GetProperties(0)[i].GetValue(IMPOSED_PRESSURE) == 1:
+            properties = model_part.GetProperties(0)[i]
+
+            if properties.GetValue(IMPOSED_PRESSURE) == 1:
                 pressure = model_part.GetProperties(0)[i].GetValue(PRESSURE)
-            if model_part.GetProperties(0)[i].GetValue(IMPOSED_VELOCITY_X) == 1:
+            if properties.GetValue(IMPOSED_VELOCITY_X) == 1:
                 velocity = (
-                    model_part.GetProperties(0)[i].GetValue(IMPOSED_VELOCITY_X_VALUE),
-                    model_part.GetProperties(0)[i].GetValue(IMPOSED_VELOCITY_Y_VALUE),
-                    model_part.GetProperties(0)[i].GetValue(IMPOSED_VELOCITY_Z_VALUE)
+                    properties.GetValue(IMPOSED_VELOCITY_X_VALUE),
+                    properties.GetValue(IMPOSED_VELOCITY_Y_VALUE),
+                    properties.GetValue(IMPOSED_VELOCITY_Z_VALUE)
                 )
 
             smp_bc = {
-                'name':mesh_name,
-                'pressure':pressure,
-                'velocity':velocity
+                'name': mesh_name,
+                'pressure': pressure,
+                'velocity': velocity
             }
 
             smp_bcs.append(smp_bc)
             smp_meshes.append(smp_mesh)
 
-        return {'meshes':smp_meshes,'bcs':smp_bcs}
+        return {'meshes': smp_meshes, 'bcs': smp_bcs}
