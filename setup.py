@@ -21,18 +21,7 @@ version = '%s'
     finally:
         fh.close()
 
-
-cfd = os.path.join(
-    os.path.dirname(__file__),
-    'simkratos/CFD', 'version.py'
-)
-dem = os.path.join(
-    os.path.dirname(__file__),
-    'simkratos/DEM', 'version.py'
-)
-
-write_version_py(cfd)
-write_version_py(dem)
+write_version_py()
 
 setup(
     name='simkratos',
