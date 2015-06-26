@@ -11,7 +11,7 @@ VERSION = '0.1.5'
 def write_version_py(filename=None):
     if filename is None:
         filename = os.path.join(
-            os.path.dirname(__file__), 'wrappers', 'version.py')
+            os.path.dirname(__file__), 'simkratos', 'version.py')
     ver = """\
 version = '%s'
 """
@@ -24,18 +24,18 @@ version = '%s'
 
 cfd = os.path.join(
     os.path.dirname(__file__),
-    'wrappers/CFD', 'version.py'
+    'simkratos/CFD', 'version.py'
 )
 dem = os.path.join(
     os.path.dirname(__file__),
-    'wrappers/DEM', 'version.py'
+    'simkratos/DEM', 'version.py'
 )
 
 write_version_py(cfd)
 write_version_py(dem)
 
 setup(
-    name='wrappers',
+    name='simkratos',
     version=VERSION,
     author='SimPhoNy, EU FP7 Project (Nr. 604005) www.simphony-project.eu',
     description='The Kratos-CFD and Kratos-DEMPack wrappers\
@@ -43,9 +43,9 @@ setup(
     long_description=README_TEXT,
     entry_points={
         'simphony.engine': [
-            'kratosDEM = wrappers.DEM',
-            'kratosCFD = wrappers.CFD'
+            'kratosDEM = simkratos.DEM',
+            'kratosCFD = simkratos.CFD'
         ]},
     packages=find_packages(),
-    install_requires=["simphony >= 0.1.5"]
+    install_requires=["simphony >= 0.1.3"]
 )
