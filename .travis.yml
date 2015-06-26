@@ -15,5 +15,5 @@ install:
   - python setup.py develop
 
 script:
-  - flake8 --exclude=use_cases,utilities,kratos,ProjectParameters.py,DEM_explicit_solver_var.py --ignore=F403 .
+  - flake8 .
   - python -m unittest discover
