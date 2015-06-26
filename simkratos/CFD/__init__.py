@@ -1,5 +1,5 @@
-from wrappers.kratos_utils import CFD_Utils
-from wrappers.cuba_extension import CUBAExt
+from simkratos.kratos_utils import CFD_Utils
+from simkratos.cuba_extension import CUBAExt
 from .kratos_CFD_wrapper import CFDWrapper
 
 __all__ = [

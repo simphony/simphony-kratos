@@ -1,5 +1,5 @@
-from wrappers.kratos_utils import DEM_Utils
-from wrappers.cuba_extension import CUBAExt
+from simkratos.kratos_utils import DEM_Utils
+from simkratos.cuba_extension import CUBAExt
 from .kratos_DEM_wrapper import DEMWrapper
 
 __all__ = [

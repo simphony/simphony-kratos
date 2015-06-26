@@ -31,10 +31,9 @@ setup(
                  for the SimPhoNy framework',
     long_description=README_TEXT,
     entry_points={
-        'simphony.engine': [
-            'kratosDEM = simkratos.DEM',
-            'kratosCFD = simkratos.CFD'
-        ]},
+        'simphony.engine': ['kratosDEM=simkratos.DEM'],
+        'simphony.engine': ['kratosCFD=simkratos.CFD']
+        },
     packages=find_packages(),
     install_requires=["simphony >= 0.1.3"]
 )
