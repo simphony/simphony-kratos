@@ -35,7 +35,6 @@ class CFDWrapper(KratosWrapper):
 
         self.time = 0
         self.step = 0
-        self.substeps = 1
 
         # The dictionary defines the relation between CUBA and
         # kratos variables
@@ -276,27 +275,7 @@ class CFDWrapper(KratosWrapper):
 
         """
 
-        return 0
-
-        for i in xrange(1, src.NumberOfMeshes()):
-
-            mesh = src.GetMesh(i)
-            prop = src.GetProperties()[i]
-
-            nodelist = [self.id_to_uuid_node_map[n.Id] for n in mesh.Nodes]
-
-            for p in dst.iter_points(nodelist):
-
-                data = p.data
-
-                if prop.GetValue(IMPOSED_PRESSURE) == 1:
-                    data[CUBAExtension.IMPOSED_PRES] = 1
-
-                if prop.GetValue(IMPOSED_VELOCITY_X) == 1:
-                    data[CUBAExtension.IMPOSED_VEL] = 1
-
-                p.data = data
-                dst.update_point(p)
+        pass
 
     def importKratosNodes(self, src, dst, group):
         """ Parses all simphony points to kratos nodes
@@ -418,6 +397,44 @@ class CFDWrapper(KratosWrapper):
                 conditions.append(dst.Conditions[self.uuid_to_id_condition_map[cnd.uid]])
             dst.SetConditions(conditions,group)
 
+    def importKratosDof(self, src, dst, mesh_name, group):
+
+        mesh_prop = Properties(group)
+
+        mesh_prop.SetValue(IS_SLIP,0)
+
+        if self.BC[CUBA.PRESSURE][mesh_name] == 'empty':
+            mesh_prop.SetValue(IMPOSED_PRESSURE,0)
+        else:
+            mesh_prop.SetValue(IMPOSED_PRESSURE,1)
+            mesh_prop.SetValue(PRESSURE,self.BC[CUBA.PRESSURE][mesh_name])
+
+            for node in self.fluid_model_part.GetNodes(group):
+                node.Fix(PRESSURE)
+                node.SetValue(PRESSURE,self.BC[CUBA.PRESSURE][mesh_name])
+
+        if self.BC[CUBA.VELOCITY][mesh_name] == 'empty':
+            mesh_prop.SetValue(IMPOSED_VELOCITY_X,0)
+            mesh_prop.SetValue(IMPOSED_VELOCITY_Y,0)
+            mesh_prop.SetValue(IMPOSED_VELOCITY_Z,0)
+        else:
+            mesh_prop.SetValue(IMPOSED_VELOCITY_X,1)
+            mesh_prop.SetValue(IMPOSED_VELOCITY_Y,1)
+            mesh_prop.SetValue(IMPOSED_VELOCITY_Z,1)
+            mesh_prop.SetValue(IMPOSED_VELOCITY_X_VALUE,self.BC[CUBA.VELOCITY][mesh_name][0])
+            mesh_prop.SetValue(IMPOSED_VELOCITY_Y_VALUE,self.BC[CUBA.VELOCITY][mesh_name][1])
+            mesh_prop.SetValue(IMPOSED_VELOCITY_Z_VALUE,self.BC[CUBA.VELOCITY][mesh_name][2])
+
+            for node in self.fluid_model_part.GetNodes(group):
+                node.Fix(VELOCITY_X)
+                node.Fix(VELOCITY_Y)
+                node.Fix(VELOCITY_Z)
+                node.SetValue(VELOCITY_X,self.BC[CUBA.VELOCITY][mesh_name][0])
+                node.SetValue(VELOCITY_Y,self.BC[CUBA.VELOCITY][mesh_name][1])
+                node.SetValue(VELOCITY_Z,self.BC[CUBA.VELOCITY][mesh_name][2])
+
+        return mesh_prop
+
     def setElementData(self):
         pass
 
@@ -476,39 +493,12 @@ class CFDWrapper(KratosWrapper):
                 group
             )
 
-            mesh_prop = Properties(group)
-
-            mesh_prop.SetValue(IS_SLIP,0)
-
-            if self.BC[CUBA.PRESSURE][mesh_name] == 'empty':
-                mesh_prop.SetValue(IMPOSED_PRESSURE,0)
-            else:
-                mesh_prop.SetValue(IMPOSED_PRESSURE,1)
-                mesh_prop.SetValue(PRESSURE,self.BC[CUBA.PRESSURE][mesh_name])
-
-                for node in self.fluid_model_part.GetNodes(group):
-                    node.Fix(PRESSURE)
-                    node.SetValue(PRESSURE,self.BC[CUBA.PRESSURE][mesh_name])
-
-            if self.BC[CUBA.VELOCITY][mesh_name] == 'empty':
-                mesh_prop.SetValue(IMPOSED_VELOCITY_X,0)
-                mesh_prop.SetValue(IMPOSED_VELOCITY_Y,0)
-                mesh_prop.SetValue(IMPOSED_VELOCITY_Z,0)
-            else:
-                mesh_prop.SetValue(IMPOSED_VELOCITY_X,1)
-                mesh_prop.SetValue(IMPOSED_VELOCITY_Y,1)
-                mesh_prop.SetValue(IMPOSED_VELOCITY_Z,1)
-                mesh_prop.SetValue(IMPOSED_VELOCITY_X_VALUE,self.BC[CUBA.VELOCITY][mesh_name][0])
-                mesh_prop.SetValue(IMPOSED_VELOCITY_Y_VALUE,self.BC[CUBA.VELOCITY][mesh_name][1])
-                mesh_prop.SetValue(IMPOSED_VELOCITY_Z_VALUE,self.BC[CUBA.VELOCITY][mesh_name][2])
-
-                for node in self.fluid_model_part.GetNodes(group):
-                    node.Fix(VELOCITY_X)
-                    node.Fix(VELOCITY_Y)
-                    node.Fix(VELOCITY_Z)
-                    node.SetValue(VELOCITY_X,self.BC[CUBA.VELOCITY][mesh_name][0])
-                    node.SetValue(VELOCITY_Y,self.BC[CUBA.VELOCITY][mesh_name][1])
-                    node.SetValue(VELOCITY_Z,self.BC[CUBA.VELOCITY][mesh_name][2])
+            mesh_prop = self.importKratosDof(
+                mesh,
+                self.fluid_model_part,
+                mesh_name,
+                group
+            )
 
             properties.append(mesh_prop)
 
@@ -533,18 +523,12 @@ class CFDWrapper(KratosWrapper):
         self.solver.Initialize()
 
         Dt = self.CM[CUBA.TIME_STEP]
-        # Nsteps = ProjectParameters.nsteps
-        # final_time = ProjectParameters.max_time
-        # output_time = ProjectParameters.output_time
 
         self.fluid_model_part.ProcessInfo.SetValue(DELTA_TIME, Dt)
 
-        self.fluid_model_part.CloneTimeStep(self.time)
-        self.time = self.time + Dt
-        self.fluid_model_part.CloneTimeStep(self.time)
-        self.time = self.time + Dt
-        self.fluid_model_part.CloneTimeStep(self.time)
-        self.time = self.time + Dt
+        for i in xrange(0,3):
+            self.fluid_model_part.CloneTimeStep(self.time)
+            self.time = self.time + Dt
 
         for n in xrange(0, self.CM[CUBA.NUMBER_OF_TIME_STEPS]):
             self.fluid_model_part.CloneTimeStep(self.time)

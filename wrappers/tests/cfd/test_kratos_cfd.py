@@ -19,7 +19,7 @@ import unittest
 from simphony.core.cuba import CUBA
 
 from wrappers import kratos_CFD_wrapper as CFDengine
-from wrappers.kratos_utils import read_modelpart
+from wrappers.kratos_utils import CFD_Utils
 from wrappers.cuba_extension import CUBAExt
 from wrappers.tests.cfd import ProjectParameters
 
@@ -50,6 +50,8 @@ class TestKratosCFDWrapper(unittest.TestCase):
 
         """
 
+        utils = CFD_Utils()
+
         wrapper = CFDengine.CFDWrapper()
 
         wrapper.CM[CUBA.TIME_STEP] = self.time_step
@@ -58,7 +60,7 @@ class TestKratosCFDWrapper(unittest.TestCase):
         wrapper.SPE[CUBAExt.FLUID_MESHES] = "fluid_0,fluid_1,fluid_2,fluid_3,fluid_4"
 
         # reads kratos data so its interpretable by simphony
-        kratos_model = read_modelpart(self.path)
+        kratos_model = utils.read_modelpart(self.path)
         # mesh.name = "fluid"
 
         wrapper.BC[CUBA.VELOCITY] = {}
