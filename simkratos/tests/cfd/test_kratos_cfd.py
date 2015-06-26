@@ -17,6 +17,7 @@ import unittest
 from simphony.core.cuba import CUBA
 from simphony.engine import kratosCFD
 
+
 class TestKratosCFDWrapper(unittest.TestCase):
 
     def setUp(self):

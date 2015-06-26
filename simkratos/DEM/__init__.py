@@ -3,7 +3,7 @@ from wrappers.cuba_extension import CUBAExt
 from .kratos_DEM_wrapper import DEMWrapper
 
 __all__ = [
-	"DEM_Utils",
-	"CUBAExt",
-	"DEMWrapper"
+    "DEM_Utils",
+    "CUBAExt",
+    "DEMWrapper"
 ]

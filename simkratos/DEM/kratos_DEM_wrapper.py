@@ -17,13 +17,12 @@ from simphony.cuds.mesh import Cell as SCell
 # Wrapper Imports
 from simkratos.kratosWrapper import KratosWrapper
 from simkratos.cuba_extension import CUBAExt
-from simkratos.DEM import DEM_explicit_solver_var
+from simkratos.DEM import DEM_explicit_solver_var as DEM_parameters
 
 # Kratos Imports
 from KratosMultiphysics import *
 from KratosMultiphysics.DEMApplication import *
 
-import DEM_explicit_solver_var as DEM_parameters
 import sphere_strategy as SolverStrategy
 import DEM_procedures
 
@@ -71,6 +70,8 @@ class DEMPackWrapper(KratosWrapper):
                 TOTAL_FORCES_Z
             ]
         }
+
+        self.initialize()
 
     def getNodalData(self, data, node, model):
         """ Extracts the node data
@@ -543,8 +544,8 @@ class DEMPackWrapper(KratosWrapper):
         fluid_meshes = self.SPE[CUBAExt.FLUID_MESHES]
         solid_meshes = self.SPE[CUBAExt.STRUCTURE_MESHES]
 
-        self.spheres_model_part.GetMesh(len(fluid_meshes)-1)
-        self.rigid_face_model_part.GetMesh(len(fluid_meshes)-1)
+        self.spheres_model_part.GetMesh(len(fluid_meshes) - 1)
+        self.rigid_face_model_part.GetMesh(len(fluid_meshes) - 1)
 
         properties = PropertiesArray()
 
@@ -583,7 +584,7 @@ class DEMPackWrapper(KratosWrapper):
 
         properties.append(self.element_properties)
         # properties.append(self.condition_properties)
-        
+
         self.spheres_model_part.SetProperties(properties)
         # self.rigid_face_model_part.SetProperties(properties)
         SolverStrategy.AddDofs(self.spheres_model_part)
