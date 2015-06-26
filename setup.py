@@ -22,7 +22,17 @@ version = '%s'
         fh.close()
 
 
-write_version_py()
+cfd = os.path.join(
+    os.path.dirname(__file__),
+    'wrappers/CFD', 'version.py'
+)
+dem = os.path.join(
+    os.path.dirname(__file__),
+    'wrappers/DEM', 'version.py'
+)
+
+write_version_py(cfd)
+write_version_py(dem)
 
 setup(
     name='wrappers',
@@ -32,7 +42,10 @@ setup(
                  for the SimPhoNy framework',
     long_description=README_TEXT,
     entry_points={
-        'simphony.engine': ['kratos = wrappers']},
+        'simphony.engine': [
+            'kratosDEM = wrappers.DEM',
+            'kratosCFD = wrappers.CFD'
+        ]},
     packages=find_packages(),
     install_requires=["simphony >= 0.1.5"]
 )

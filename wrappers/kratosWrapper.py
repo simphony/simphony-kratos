@@ -51,9 +51,6 @@ class KratosWrapper(object):
         # Extended data containers
         self.SPE = {}
 
-        # Initialization
-        self.initialize()
-
     # ABCModelingEngine Implementation
 
     def add_particles(self, particle_container):
@@ -142,14 +139,14 @@ class KratosWrapper(object):
 
     # KratosWrapper Internal
 
-    def __getSolutionStepVariable1D(self, data, entity, variable):
+    def getSolutionStepVariable1D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
         if(pair[0] is not None):
             data.update({
                 pair[0]: entity.GetSolutionStepValue(pair[1])
             })
 
-    def __getSolutionStepVariable3D(self, data, entity, variable):
+    def getSolutionStepVariable3D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
         if(pair[0] is not None):
             data.update({
@@ -160,7 +157,7 @@ class KratosWrapper(object):
                 ]
             })
 
-    def __setSolutionStepVariable1D(self, data, entity, variable):
+    def setSolutionStepVariable1D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
         if(pair[0] is not None):
             entity.SetSolutionStepValue(
@@ -168,7 +165,7 @@ class KratosWrapper(object):
                 data[pair[0]]
             )
 
-    def __setSolutionStepVariable3D(self, data, entity, variable):
+    def setSolutionStepVariable3D(self, data, entity, variable):
         pair = self.variables_dictionary[variable]
         if(pair[0] is not None):
             for i in xrange(0, 3):
@@ -177,7 +174,7 @@ class KratosWrapper(object):
                     data[pair[0]][0 + i]
                 )
 
-    def __updateForwardDicc(self):
+    def updateForwardDicc(self):
         if not self.uuid_to_id_node_map:
             self.uuid_to_id_node_map = {
                 v: k for k, v in self.id_to_uuid_node_map.items()
@@ -191,7 +188,7 @@ class KratosWrapper(object):
                 v: k for k, v in self.id_to_uuid_condition_map.items()
             }
 
-    def __updateBackwardDicc(self):
+    def updateBackwardDicc(self):
         if not self.id_to_uuid_node_map:
             self.id_to_uuid_node_map = {
                 v: k for k, v in self.uuid_to_id_node_map.items()

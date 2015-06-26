@@ -18,7 +18,7 @@ from wrappers.kratosWrapper import KratosWrapper
 from wrappers.cuba_extension import CUBAExt
 
 # Kratos Imports
-from wrappers import ProjectParameters
+from wrappers.CFD import ProjectParameters
 
 from KratosMultiphysics import *
 from KratosMultiphysics.IncompressibleFluidApplication import *
@@ -90,6 +90,8 @@ class CFDWrapper(KratosWrapper):
                 IS_SLIP
             ]
         }
+
+        self.initialize()
 
     def addNodalVariablesToModelpart(self, modelPart):
         """ Adds the Kratos CFD nodal variables
