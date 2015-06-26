@@ -55,12 +55,12 @@ To use any of the wrappers after the installation they need to be imported as pl
 
 For Kratos-CFD::
 
-  from simphony.engine import kratosCFD
+  from simphony.engine import kratos
     engine = kratos.CFDWrapper()
     
 or for DEMPack::
 
-  from simphony.engine import kratosDEM
+  from simphony.engine import kratos
     engine = kratos.DEMWrapper()
 
 Testing
