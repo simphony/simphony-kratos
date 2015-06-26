@@ -27,7 +27,7 @@ import sphere_strategy as SolverStrategy
 import DEM_procedures
 
 
-class DEMPackWrapper(KratosWrapper):
+class DEMWrapper(KratosWrapper):
 
     def __init__(self):
         KratosWrapper.__init__(self)
@@ -480,7 +480,7 @@ class DEMPackWrapper(KratosWrapper):
         self.parallelutils = DEM_procedures.ParallelUtils()
         self.materialTest = DEM_procedures.MaterialTest()
         self.creator_destructor = ParticleCreatorDestructor()
-        self.demio = DEM_procedures.DEMIo()
+        # self.demio = DEM_procedures.DEMIo()
 
         # Prepare ModelParts
         self.spheres_model_part = ModelPart("Particles")
@@ -643,8 +643,5 @@ class DEMPackWrapper(KratosWrapper):
                 mesh,
                 group
             )
-
-        for n in self.spheres_model_part.Nodes:
-            print(n.Properties)
 
         self.updateForwardDicc()
