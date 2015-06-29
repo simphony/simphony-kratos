@@ -1,0 +1,35 @@
+Begin ModelPartData
+//  VARIABLE_NAME value
+End ModelPartData
+
+Begin Properties 1
+PARTICLE_DENSITY 2500.0
+YOUNG_MODULUS 1.0e5
+POISSON_RATIO 0.20
+PARTICLE_FRICTION 0.99999999999999989
+PARTICLE_COHESION 0.0
+LN_OF_RESTITUTION_COEFF -1.6094379124341003
+PARTICLE_MATERIAL 1
+ROLLING_FRICTION 0.01
+DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME DEMContinuumConstitutiveLaw
+DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME DEM_D_Tsuji_viscous_Coulomb
+End Properties
+
+Begin Nodes // GUI group identifier: DEMElem1 celemid SphericPartDEMElement3D
+2 0.75000 0.50000 0.50000
+3 0.25000 0.50000 0.50000
+4 0.50000 0.93301 0.50000
+End Nodes
+
+Begin Elements SphericParticle3D   //  GUI group identifier: DEMElem1
+1 1 3
+2 1 2
+3 1 4
+End Elements
+
+Begin NodalData RADIUS  // GUI group identifier: DEMElem1 Elementid SphericPartDEMElement3D
+3 0 0.25
+2 0 0.25
+4 0 0.25
+End NodalData
+
