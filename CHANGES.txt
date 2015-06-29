@@ -1,0 +1,20 @@
+SimPhoNy-Kratos CHANGELOG
+=========================
+
+Release 0.1.1
+-------------
+
+* Added entry points for simphony.engine (#15)
+* Corrected imports so the tests can run from any given directory (#14)
+* Added additional CUBAExt keywords (#13)
+* Added README.rst (#11)
+* Mesh class now has the correct name for simphony common 0.1.3 and later (#8)
+* Updated Particle cointainer to Particles (#7)
+* Import and export functions now correctly handle kratos entities (#6)
+* Removed GIDIO from the production code (#5)
+* Removed debug prints (#3)
+
+Release 0.1.0
+-------------
+
+* Initial implementation of the internal wrappers
