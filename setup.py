@@ -32,5 +32,7 @@ setup(
     long_description=README_TEXT,
     entry_points={'simphony.engine': ['kratos = simkratos']},
     packages=find_packages(),
+    package_data={'simkratos': ['tests/dem/*.mdpa',
+                                'tests/cfd/*.mdpa']},
     install_requires=["simphony >= 0.1.3"]
 )
