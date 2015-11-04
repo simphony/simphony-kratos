@@ -11,6 +11,8 @@ in order to import or export models from KratosMultiphysics
 from __future__ import print_function, absolute_import, division
 
 # Simphony Imports
+from simphony.cuds.abc_modeling_engine import ABCModelingEngine
+from simphony.cuds.abc_mesh import ABCMesh
 from simphony.cuds.mesh import Mesh
 from simphony.core.data_container import DataContainer
 
@@ -20,7 +22,7 @@ from simphony.core.data_container import DataContainer
 # Uuid and other dependences
 
 
-class KratosWrapper(object):
+class KratosWrapper(ABCModelingEngine):
 
     def __init__(self):
         # Uid <-> KratosId mapping
@@ -53,40 +55,28 @@ class KratosWrapper(object):
 
     # ABCModelingEngine Implementation
 
-    def add_particles(self, particle_container):
-        message = 'KratosWrapper does not handle particle container'
-        raise NotImplementedError(message)
+    def add_dataset(self, container):
+        if not isinstance(container, ABCMesh):
+            raise TypeError(
+                "The type of the dataset container is not supported")
+        if any(container.name == mesh.name for mesh in self.meshes):
+            raise ValueError(
+                'Mesh \'{n}\` already exists'.format(container.name))
+        self._add_mesh(container)
 
-    def add_mesh(self, src):
+    def _add_mesh(self, src):
         c_mesh = Mesh(name=src.name)
 
-        for p in src.iter_points():
-            c_mesh.add_point(p)
-
-        for e in src.iter_edges():
-            c_mesh.add_edge(e)
-
-        for f in src.iter_faces():
-            c_mesh.add_face(f)
-
-        for c in src.iter_cells():
-            c_mesh.add_cell(c)
+        c_mesh.add_points(src.iter_points())
+        c_mesh.add_edges(src.iter_edges())
+        c_mesh.add_faces(src.iter_faces())
+        c_mesh.add_cells(src.iter_cells())
 
         c_mesh.data = src.data
 
         self.meshes.append(c_mesh)
 
-        return c_mesh
-
-    def add_lattice(self, lattice):
-        message = 'KratosWrapper does not handle lattice'
-        raise NotImplementedError(message)
-
-    def delete_particles(self, name):
-        message = 'KratosWrapper does not handle particle container'
-        raise NotImplementedError(message)
-
-    def delete_mesh(self, name):
+    def remove_dataset(self, name):
         for mesh in self.meshes:
             if mesh.name == name:
                 self.meshes.remove(mesh)
@@ -95,15 +85,7 @@ class KratosWrapper(object):
             message = 'Mesh not found'
             raise KeyError(message)
 
-    def delete_lattice(self, name):
-        message = 'KratosWrapper does not handle lattice'
-        raise NotImplementedError(message)
-
-    def get_particles(self, name):
-        message = 'KratosWrapper does not handle particle container'
-        raise NotImplementedError(message)
-
-    def get_mesh(self, name):
+    def get_dataset(self, name):
         for mesh in self.meshes:
             if mesh.name == name:
                 return mesh
@@ -111,15 +93,7 @@ class KratosWrapper(object):
             message = 'Mesh not found'
             raise KeyError(message)
 
-    def get_lattice(self, name):
-        message = 'KratosWrapper does not handle lattice'
-        raise NotImplementedError(message)
-
-    def iter_particles(self, names=None):
-        message = 'KratosWrapper does not handle particle container'
-        raise NotImplementedError(message)
-
-    def iter_meshes(self, names=None):
+    def iter_datasets(self, names=None):
         if names is None:
             for mesh in self.meshes:
                 yield mesh
@@ -133,9 +107,11 @@ class KratosWrapper(object):
                 if mesh.name in names:
                     yield mesh
 
-    def iter_lattices(self, names=None):
-        message = 'KratosWrapper does not handle lattice'
-        raise NotImplementedError(message)
+    def get_dataset_names(self):  # pragma: no cover
+        """ Returns the names of the all the datasets in the engine workspace.
+
+        """
+        return [mesh.name for mesh in self.meshes]
 
     # KratosWrapper Internal
 

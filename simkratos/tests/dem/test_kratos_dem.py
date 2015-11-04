@@ -68,10 +68,10 @@ class TestKratosCFDWrapper(unittest.TestCase):
         )
 
         for mesh in kratos_model_f['meshes']:
-            wrapper.add_mesh(mesh)
+            wrapper.add_dataset(mesh)
 
         for mesh in kratos_model_s['meshes']:
-            wrapper.add_mesh(mesh)
+            wrapper.add_dataset(mesh)
 
         for i in xrange(0, 1):
             wrapper.run()

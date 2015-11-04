@@ -129,9 +129,9 @@ class DEMWrapper(KratosWrapper):
                     uid=point_uid
                 )
 
-                pid = dst.add_point(point)
+                pid = dst.add_points([point])
 
-                self.id_to_uuid_node_map[node.Id] = pid
+                self.id_to_uuid_node_map[node.Id] = pid[0]
 
             else:
 
@@ -139,7 +139,7 @@ class DEMWrapper(KratosWrapper):
 
                 point.data = DataContainer(data)
 
-                dst.update_point(point)
+                dst.update_points([point])
 
     def exportKratosElements(self, src, dst, group):
         """ Parses all kratos elements to simphony cells
@@ -172,9 +172,9 @@ class DEMWrapper(KratosWrapper):
                     uid=element_uid
                 )
 
-                cid = dst.add_cell(cell)
+                cid = dst.add_cells([cell])
 
-                self.id_to_uuid_element_map[element.Id] = cid
+                self.id_to_uuid_element_map[element.Id] = cid[0]
 
             else:
 
@@ -213,7 +213,7 @@ class DEMWrapper(KratosWrapper):
 
                 fid = dst.add_face(face)
 
-                self.id_to_uuid_condition_map[condition.Id] = fid
+                self.id_to_uuid_condition_map[condition.Id] = fid[0]
 
             else:
 
@@ -461,7 +461,7 @@ class DEMWrapper(KratosWrapper):
         )
 
     def setConditionData(self):
-        cmesh = self.get_mesh("Conditions")
+        cmesh = self.get_dataset("Conditions")
 
         self.condition_properties.SetValue(
             WALL_FRICTION,
@@ -552,7 +552,7 @@ class DEMWrapper(KratosWrapper):
         print("Fluid meshes")
         for mesh_name in fluid_meshes:
 
-            mesh = self.get_mesh(mesh_name)
+            mesh = self.get_dataset(mesh_name)
             group = mesh.data[CUBA.MATERIAL_ID]
 
             self.importKratosNodes(
@@ -614,7 +614,7 @@ class DEMWrapper(KratosWrapper):
 
         for mesh_name in fluid_meshes:
 
-            mesh = self.get_mesh(mesh_name)
+            mesh = self.get_dataset(mesh_name)
             group = mesh.data[CUBA.MATERIAL_ID]
 
             self.exportKratosNodes(
@@ -630,7 +630,7 @@ class DEMWrapper(KratosWrapper):
 
         for mesh_name in solid_meshes:
 
-            mesh = self.get_mesh(mesh_name)
+            mesh = self.get_dataset(mesh_name)
             group = mesh.data[CUBA.MATERIAL_ID]
 
             self.exportKratosNodes(

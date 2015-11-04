@@ -182,9 +182,9 @@ class CFDWrapper(KratosWrapper):
                     uid=point_uid
                 )
 
-                pid = dst.add_point(point)
+                pid = dst.add_points([point])
 
-                self.id_to_uuid_node_map[node.Id] = pid
+                self.id_to_uuid_node_map[node.Id] = pid[0]
 
             else:
 
@@ -193,7 +193,7 @@ class CFDWrapper(KratosWrapper):
                 # iterate over the correct data
                 point.data = DataContainer(data)
 
-                dst.update_point(point)
+                dst.update_points([point])
 
     def exportKratosElements(self, src, dst, group):
         """ Parses all kratos elements to simphony cells
@@ -221,9 +221,9 @@ class CFDWrapper(KratosWrapper):
                     uid=element_uid
                 )
 
-                cid = dst.add_cell(cell)
+                cid = dst.add_cells([cell])
 
-                self.id_to_uuid_element_map[element.Id] = cid
+                self.id_to_uuid_element_map[element.Id] = cid[0]
 
             else:
 
@@ -257,9 +257,9 @@ class CFDWrapper(KratosWrapper):
                     uid=condition_uid
                 )
 
-                fid = dst.add_face(face)
+                fid = dst.add_faces([face])
 
-                self.id_to_uuid_condition_map[condition.Id] = fid
+                self.id_to_uuid_condition_map[condition.Id] = fid[0]
 
             else:
 
@@ -499,7 +499,7 @@ class CFDWrapper(KratosWrapper):
 
         for mesh_name in fluid_meshes:
 
-            mesh = self.get_mesh(mesh_name)
+            mesh = self.get_dataset(mesh_name)
             group = mesh.data[CUBA.MATERIAL_ID]
 
             self.importKratosNodes(
@@ -562,7 +562,7 @@ class CFDWrapper(KratosWrapper):
 
         for mesh_name in fluid_meshes:
 
-            mesh = self.get_mesh(mesh_name)
+            mesh = self.get_dataset(mesh_name)
             group = mesh.data[CUBA.MATERIAL_ID]
 
             # Export data back to SimPhoNy
