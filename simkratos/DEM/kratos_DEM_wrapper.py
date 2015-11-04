@@ -461,7 +461,7 @@ class DEMWrapper(KratosWrapper):
         )
 
     def setConditionData(self):
-        cmesh = self.get_mesh("Conditions")
+        cmesh = self.get_dataset("Conditions")
 
         self.condition_properties.SetValue(
             WALL_FRICTION,
@@ -552,7 +552,7 @@ class DEMWrapper(KratosWrapper):
         print("Fluid meshes")
         for mesh_name in fluid_meshes:
 
-            mesh = self.get_mesh(mesh_name)
+            mesh = self.get_dataset(mesh_name)
             group = mesh.data[CUBA.MATERIAL_ID]
 
             self.importKratosNodes(
@@ -614,7 +614,7 @@ class DEMWrapper(KratosWrapper):
 
         for mesh_name in fluid_meshes:
 
-            mesh = self.get_mesh(mesh_name)
+            mesh = self.get_dataset(mesh_name)
             group = mesh.data[CUBA.MATERIAL_ID]
 
             self.exportKratosNodes(
@@ -630,7 +630,7 @@ class DEMWrapper(KratosWrapper):
 
         for mesh_name in solid_meshes:
 
-            mesh = self.get_mesh(mesh_name)
+            mesh = self.get_dataset(mesh_name)
             group = mesh.data[CUBA.MATERIAL_ID]
 
             self.exportKratosNodes(

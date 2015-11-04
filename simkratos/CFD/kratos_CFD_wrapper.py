@@ -499,7 +499,7 @@ class CFDWrapper(KratosWrapper):
 
         for mesh_name in fluid_meshes:
 
-            mesh = self.get_mesh(mesh_name)
+            mesh = self.get_dataset(mesh_name)
             group = mesh.data[CUBA.MATERIAL_ID]
 
             self.importKratosNodes(
@@ -562,7 +562,7 @@ class CFDWrapper(KratosWrapper):
 
         for mesh_name in fluid_meshes:
 
-            mesh = self.get_mesh(mesh_name)
+            mesh = self.get_dataset(mesh_name)
             group = mesh.data[CUBA.MATERIAL_ID]
 
             # Export data back to SimPhoNy

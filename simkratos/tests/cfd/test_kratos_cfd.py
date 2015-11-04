@@ -57,7 +57,7 @@ class TestKratosCFDWrapper(unittest.TestCase):
         wrapper.BC[CUBA.PRESSURE] = {}
 
         for mesh in kratos_model['meshes']:
-            wrapper.add_mesh(mesh)
+            wrapper.add_dataset(mesh)
 
         for bc in kratos_model['bcs']:
             wrapper.BC[CUBA.VELOCITY][bc['name']] = bc['velocity']
