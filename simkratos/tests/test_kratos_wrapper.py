@@ -42,11 +42,11 @@ class TestKratosWrapper(unittest.TestCase):
         cuuids = []
 
         for point in self.points:
-            puuid = self.mesh1.add_point(point)
+            puuid = self.mesh1.add_points([point])
             puuid1.append(puuid)
 
         for point in self.points:
-            puuid = self.mesh2.add_point(point)
+            puuid = self.mesh2.add_points([point])
             puuid2.append(puuid)
 
         edges = [
@@ -65,16 +65,16 @@ class TestKratosWrapper(unittest.TestCase):
         ]
 
         for edge in edges:
-            euuid = self.mesh1.add_edge(edge)
+            euuid = self.mesh1.add_edges([edge])
             euuids.append(euuid)
 
         for face in faces:
-            fuuid = self.mesh1.add_face(face)
+            fuuid = self.mesh1.add_faces([face])
             fuuids.append(fuuid)
 
         for cell in cells:
-            cuuid = self.mesh2.add_cell(cell)
-            cuuids.append(cuuid)
+            cuuid = self.mesh2.add_cells([cell])
+            cuuids.append(cuuid[0])
 
     def test_add_mesh(self):
         """ Test if a mesh can be added to the wrapper

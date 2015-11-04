@@ -104,9 +104,9 @@ class CFD_Utils(object):
                 uid=point_uid
             )
 
-            pid = dst.add_point(point)
+            pid = dst.add_points([point])
 
-            self.id_to_uuid_node_map[node.Id] = pid
+            self.id_to_uuid_node_map[node.Id] = pid[0]
 
     def _exportKratosElements(self, src, dst, group):
         """ Parses all kratos elements to simphony cells
@@ -135,9 +135,9 @@ class CFD_Utils(object):
                 uid=element_uid
             )
 
-            cid = dst.add_cell(cell)
+            cid = dst.add_cells([cell])
 
-            self.id_to_uuid_element_map[element.Id] = cid
+            self.id_to_uuid_element_map[element.Id] = cid[0]
 
     def _exportKratosConditions(self, src, dst, group):
         """ Parses all kratos conditions to simphony faces
@@ -166,9 +166,9 @@ class CFD_Utils(object):
                 uid=condition_uid
             )
 
-            fid = dst.add_face(face)
+            fid = dst.add_faces([face])
 
-            self.id_to_uuid_condition_map[condition.Id] = fid
+            self.id_to_uuid_condition_map[condition.Id] = fid[0]
 
     def read_modelpart(self, filename):
         """ Reads a Kratos formated modelpart fro CFD
@@ -326,9 +326,9 @@ class DEM_Utils(object):
                 uid=point_uid
             )
 
-            pid = dst.add_point(point)
+            pid = dst.add_points([point])
 
-            self.id_to_uuid_node_map[node.Id] = pid
+            self.id_to_uuid_node_map[node.Id] = pid[0]
 
     def _exportKratosElements(self, src, dst, group):
         """ Parses all kratos elements to simphony cells
@@ -357,9 +357,9 @@ class DEM_Utils(object):
                 uid=element_uid
             )
 
-            cid = dst.add_cell(cell)
+            cid = dst.add_cells([cell])
 
-            self.id_to_uuid_element_map[element.Id] = cid
+            self.id_to_uuid_element_map[element.Id] = cid[0]
 
     def _exportKratosConditions(self, src, dst, group):
         """ Parses all kratos conditions to simphony faces
@@ -388,9 +388,9 @@ class DEM_Utils(object):
                 uid=condition_uid
             )
 
-            fid = dst.add_face(face)
+            fid = dst.add_faces([face])
 
-            self.id_to_uuid_condition_map[condition.Id] = fid
+            self.id_to_uuid_condition_map[condition.Id] = fid[0]
 
     def read_modelpart(self, filename, basename):
         """ Reads a Kratos formated modelpart fro CFD
