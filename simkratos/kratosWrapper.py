@@ -59,6 +59,9 @@ class KratosWrapper(ABCModelingEngine):
         if not isinstance(container, ABCMesh):
             raise TypeError(
                 "The type of the dataset container is not supported")
+        if any(container.name == mesh.name for mesh in self.meshes):
+            raise ValueError(
+                'Mesh \'{n}\` already exists'.format(container.name))
         self._add_mesh(container)
 
     def _add_mesh(self, src):

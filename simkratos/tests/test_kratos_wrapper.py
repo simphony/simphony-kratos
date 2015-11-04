@@ -98,6 +98,12 @@ class TestKratosWrapper(unittest.TestCase):
 
         self.assertEqual(num_meshes, 2)
 
+    def test_add_existing_mesh(self):
+        wrapper = KratosWrapper()
+        wrapper.add_dataset(self.mesh1)
+        with self.assertRaises(KeyError):
+            wrapper.add_dataset(self.mesh1)
+
     def test_delete_mesh(self):
         """ Test if a mesh can be deleted from the wrapper
 
