@@ -1,6 +1,11 @@
 SimPhoNy-Kratos CHANGELOG
 =========================
 
+Release 0.2.0
+-------------
+
+* KratosWrapper now uses simphony-common 0.2.x version (#20)
+
 Release 0.1.1
 -------------
 
