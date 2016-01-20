@@ -11,8 +11,8 @@ PARTICLE_COHESION 0.0
 LN_OF_RESTITUTION_COEFF -1.6094379124341003
 PARTICLE_MATERIAL 1
 ROLLING_FRICTION 0.01
-DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME DEMContinuumConstitutiveLaw
-DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME DEM_D_Tsuji_viscous_Coulomb
+DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME DEM_D_Hertz_viscous_Coulomb
+DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME DEM_D_Hertz_viscous_Coulomb
 End Properties
 
 Begin Nodes // GUI group identifier: DEMElem1 celemid SphericPartDEMElement3D
@@ -32,4 +32,3 @@ Begin NodalData RADIUS  // GUI group identifier: DEMElem1 Elementid SphericPartD
 2 0 0.25
 4 0 0.25
 End NodalData
-

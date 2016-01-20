@@ -105,7 +105,15 @@ class CUBAExt(Enum):
     domain: [DEM,CFD]
     key: FLUID_MESHES
     name: FluidMeshes
-    number: 109
+    number: 111
+    shape: [1]
+    type: string
+
+    - description: Name of the meshes that compose the fluidModelpart
+    domain: [DEM]
+    key: FLUID_PARTICLES
+    name: FluidParticles
+    number: 112
     shape: [1]
     type: string
 
@@ -113,7 +121,7 @@ class CUBAExt(Enum):
     domain: [DEM]
     key: STRUCTURE_MESHES
     name: StructureMeshes
-    number: 110
+    number: 113
     shape: [1]
     type: string
 
@@ -131,4 +139,5 @@ class CUBAExt(Enum):
     DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME = 9
     DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME = 10
     FLUID_MESHES = 11
-    STRUCTURE_MESHES = 12
+    FLUID_PARTICLES = 12
+    STRUCTURE_MESHES = 13
