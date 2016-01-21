@@ -187,8 +187,7 @@ class TestKratosWrapper(unittest.TestCase):
         """
 
         wrapper = KratosWrapper()
-        with self.assertRaises(TypeError):
-            wrapper.add_dataset(Particles(name="test"))
+        wrapper.add_dataset(Particles(name="test"))
 
     def test_change_mesh_name(self):
         """ Test if the wrapper can correctly handle mesh name

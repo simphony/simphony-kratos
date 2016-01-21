@@ -50,7 +50,7 @@ class TestKratosCFDWrapper(unittest.TestCase):
         wrapper.CM[CUBA.NUMBER_OF_TIME_STEPS] = self.num_steps
 
         # Set the meshes that are part of the fluid
-        wrapper.SPE[kratos.CUBAExt.FLUID_MESHES] = [
+        wrapper.SPE[kratos.CUBAExt.FLUID_PARTICLES] = [
             "fluid_0"
         ]
 
@@ -59,11 +59,11 @@ class TestKratosCFDWrapper(unittest.TestCase):
             "solid_0"
         ]
 
-        kratos_model_f = utils.read_modelpart(
+        kratos_model_f = utils.read_modelpart_as_particles(
             self.fluid_path, "fluid"
         )
 
-        kratos_model_s = utils.read_modelpart(
+        kratos_model_s = utils.read_modelpart_as_mesh(
             self.rigid_path, "solid"
         )
 

@@ -10,10 +10,14 @@ in order to import or export models from KratosMultiphysics
 # compatible with python 2.6 and 2.7
 from __future__ import print_function, absolute_import, division
 
+import itertools
+
 # Simphony Imports
 from simphony.cuds.abc_modeling_engine import ABCModelingEngine
 from simphony.cuds.abc_mesh import ABCMesh
+from simphony.cuds.abc_particles import ABCParticles
 from simphony.cuds.mesh import Mesh
+from simphony.cuds.particles import Particles
 from simphony.core.data_container import DataContainer
 
 # Kratos Imports
@@ -56,13 +60,22 @@ class KratosWrapper(ABCModelingEngine):
     # ABCModelingEngine Implementation
 
     def add_dataset(self, container):
-        if not isinstance(container, ABCMesh):
-            raise TypeError(
-                "The type of the dataset container is not supported")
-        if any(container.name == mesh.name for mesh in self.meshes):
+
+        if any(container.name == ps.name for ps in self.pcs):
+            raise ValueError(
+                'Particles \'{n}\` already exists'.format(container.name))
+
+        if any(container.name == ms.name for ms in self.meshes):
             raise ValueError(
                 'Mesh \'{n}\` already exists'.format(container.name))
-        self._add_mesh(container)
+
+        if isinstance(container, ABCMesh):
+            self._add_mesh(container)
+        elif isinstance(container, ABCParticles):
+            self._add_particles(container)
+        else:
+            raise TypeError(
+                "The type of the dataset container is not supported")
 
     def _add_mesh(self, src):
         c_mesh = Mesh(name=src.name)
@@ -76,42 +89,90 @@ class KratosWrapper(ABCModelingEngine):
 
         self.meshes.append(c_mesh)
 
+    def _add_particles(self, src):
+        c_particles = Particles(name=src.name)
+
+        c_particles.add_particles(src.iter_particles())
+        c_particles.add_bonds(src.iter_bonds())
+
+        c_particles.data = src.data
+
+        self.pcs.append(c_particles)
+
     def remove_dataset(self, name):
-        for mesh in self.meshes:
-            if mesh.name == name:
-                self.meshes.remove(mesh)
-                return
+        if name in [m.name for m in self.meshes]:
+            for mesh in self.meshes:
+                if mesh.name == name:
+                    self.meshes.remove(mesh)
+                    return
+        elif name in [p.name for p in self.pcs]:
+            for pc in self.pcs:
+                if pc.name == name:
+                    self.pcs.remove(pc)
+                    return
         else:
-            message = 'Mesh not found'
+            message = 'Dataset not found'
             raise KeyError(message)
 
     def get_dataset(self, name):
-        for mesh in self.meshes:
-            if mesh.name == name:
-                return mesh
+        if name in [m.name for m in self.meshes]:
+            for mesh in self.meshes:
+                if mesh.name == name:
+                    return mesh
+        elif name in [p.name for p in self.pcs]:
+            for pc in self.pcs:
+                if pc.name == name:
+                    return pc
         else:
-            message = 'Mesh not found'
+            message = 'Dataset not found'
             raise KeyError(message)
 
     def iter_datasets(self, names=None):
-        if names is None:
-            for mesh in self.meshes:
-                yield mesh
-        else:
-            mesh_names = [m.name for m in self.meshes]
+
+        ip = self._iter_particles(names)
+        im = self._iter_meshes(names)
+
+        iter_list = [i for i in ip] + [i for i in im]
+
+        if names is not None:
             for name in names:
-                if name not in mesh_names:
-                    message = 'Mesh not found'
-                    raise KeyError(message)
-            for mesh in self.meshes:
-                if mesh.name in names:
-                    yield mesh
+                if name not in [i.name for i in iter_list]:
+                    raise ValueError(
+                        'Container \'{n}\' does not exists'.format(n=name))
+        for i in iter_list:
+            yield i
 
     def get_dataset_names(self):  # pragma: no cover
         """ Returns the names of the all the datasets in the engine workspace.
 
         """
-        return [mesh.name for mesh in self.meshes]
+
+        ip = self._iter_particles()
+        im = self._iter_meshes()
+
+        iter_list = itertools.chain(ip, im)
+
+        return [i.name for i in iter_list]
+
+    # private
+
+    def _iter_meshes(self, names=None):
+        if names is None:
+            for mesh in self.meshes:
+                yield mesh
+        else:
+            for mesh in [mesh for mesh in self.meshes]:
+                if mesh.name in names:
+                    yield mesh
+
+    def _iter_particles(self, names=None):
+        if names is None:
+            for pc in self.pcs:
+                yield pc
+        else:
+            for pc in [pc.name for pc in self.pcs]:
+                if pc.name in names:
+                    yield pc
 
     # KratosWrapper Internal
 
