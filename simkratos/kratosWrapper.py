@@ -5,9 +5,9 @@ wrappers
 
 """
 
-# Kratos will works with Python3 by default.
+# Kratos works with Python3 by default.
 # This line makes KratosMultiphysics backward
-# compatible with python 2.6 and 2.7
+#  compatible with python 2.6 and 2.7
 from __future__ import print_function, absolute_import, division
 
 import itertools
@@ -19,11 +19,6 @@ from simphony.cuds.abc_particles import ABCParticles
 from simphony.cuds.mesh import Mesh
 from simphony.cuds.particles import Particles
 from simphony.core.data_container import DataContainer
-
-# Kratos Imports
-# from KratosMultiphysics import *
-
-# Uuid and other dependences
 
 
 class KratosWrapper(ABCModelingEngine):
