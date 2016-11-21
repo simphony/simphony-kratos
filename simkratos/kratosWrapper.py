@@ -1,7 +1,7 @@
-""" Template to convert modelparts from kratos to simphony
+""" KRATOS Common Simphony Wrapper
 
-This file show an example of how to utilze the kratos wrappers
-in order to import or export models from KratosMultiphysics
+This module provides the common functionality for Kratos based
+wrappers
 
 """
 
