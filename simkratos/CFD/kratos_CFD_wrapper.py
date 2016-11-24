@@ -30,7 +30,7 @@ from KratosMultiphysics.MeshingApplication import *
 class CFDWrapper(KratosWrapper):
 
     def __init__(self, use_internal_interface=True, **kwargs):
-        super(KratosWrapper, self).__init__(use_internal_interface, kwargs)
+        super(KratosWrapper, self).__init__(**kwargs)
 
         self.time = 0
         self.step = 0
