@@ -29,8 +29,8 @@ from KratosMultiphysics.MeshingApplication import *
 
 class CFDWrapper(KratosWrapper):
 
-    def __init__(self):
-        KratosWrapper.__init__(self)
+    def __init__(self, use_internal_interface=True, **kwargs):
+        super(KratosWrapper, self).__init__(use_internal_interface, kwargs)
 
         self.time = 0
         self.step = 0
@@ -502,21 +502,9 @@ class CFDWrapper(KratosWrapper):
             mesh = self.get_dataset(mesh_name)
             group = mesh.data[CUBA.MATERIAL_ID]
 
-            self.importKratosNodes(
-                mesh,
-                self.fluid_model_part,
-                group
-            )
-            self.importKratosElements(
-                mesh,
-                self.fluid_model_part,
-                group
-            )
-            self.importKratosConditions(
-                mesh,
-                self.fluid_model_part,
-                group
-            )
+            self.importKratosNodes(mesh, self.fluid_model_part, group)
+            self.importKratosElements(mesh, self.fluid_model_part, group)
+            self.importKratosConditions(mesh, self.fluid_model_part, group)
 
             mesh_prop = self.importKratosDof(
                 mesh,
@@ -547,7 +535,7 @@ class CFDWrapper(KratosWrapper):
 
         self.solver.Initialize()
 
-        Dt = self.CM[CUBA.TIME_STEP]
+        Dt = self.cuds.get('IntegrationTime').step
 
         self.fluid_model_part.ProcessInfo.SetValue(DELTA_TIME, Dt)
 
@@ -566,20 +554,8 @@ class CFDWrapper(KratosWrapper):
             group = mesh.data[CUBA.MATERIAL_ID]
 
             # Export data back to SimPhoNy
-            self.exportKratosNodes(
-                self.fluid_model_part,
-                mesh,
-                group
-            )
-            self.exportKratosElements(
-                self.fluid_model_part,
-                mesh,
-                group
-            )
-            self.exportKratosConditions(
-                self.fluid_model_part,
-                mesh,
-                group
-            )
+            self.exportKratosNodes(self.fluid_model_part, mesh, group)
+            self.exportKratosElements(self.fluid_model_part, mesh, group)
+            self.exportKratosConditions(self.fluid_model_part, mesh, group)
 
         self.updateForwardDicc()
