@@ -197,24 +197,12 @@ class CFD_Utils(object):
             smp_mesh = SMesh(name=mesh_name)
 
             # Export data back to SimPhoNy
-            self._exportKratosNodes(
-                model_part,
-                smp_mesh,
-                i
-            )
-            self._exportKratosElements(
-                model_part,
-                smp_mesh,
-                i
-            )
-            self._exportKratosConditions(
-                model_part,
-                smp_mesh,
-                i
-            )
+            self._exportKratosNodes(model_part, smp_mesh, i)
+            self._exportKratosElements(model_part, smp_mesh, i)
+            self._exportKratosConditions(model_part, smp_mesh, i)
 
             data = DataContainer()
-            data[CUBA.MATERIAL_ID] = i
+            data[CUBA.MATERIAL] = i
             smp_mesh.data = data
 
             pressure = 'empty'
@@ -440,8 +428,6 @@ class DEM_Utils(object):
 
         model_part_io_fluid = ModelPartIO(filename)
         model_part_io_fluid.ReadModelPart(model_part)
-
-        print(model_part)
 
         smp_meshes = []
         smp_bcs = []
