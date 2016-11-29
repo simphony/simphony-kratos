@@ -1,3 +1,2 @@
 coverage
 flake8
--e git+https://github.com/simphony/simphony-common.git#egg=simphony
