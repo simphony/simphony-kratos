@@ -203,6 +203,7 @@ class CFD_Utils(object):
 
             data = DataContainer()
             data[CUBA.MATERIAL] = i
+            # api.Material(name='a_material')
             smp_mesh.data = data
 
             pressure = 'empty'
@@ -456,7 +457,8 @@ class DEM_Utils(object):
             )
 
             data = DataContainer()
-            data[CUBA.MATERIAL_ID] = i
+            data[CUBA.MATERIAL] = i
+            # api.Material(name='a_material')
             smp_mesh.data = data
 
             pressure = 'empty'
@@ -517,7 +519,8 @@ class DEM_Utils(object):
             )
 
             data = DataContainer()
-            data[CUBA.MATERIAL_ID] = i
+            data[CUBA.MATERIAL] = i
+            # api.Material(name='a_material')
             smp_particles.data = data
 
             pressure = 'empty'

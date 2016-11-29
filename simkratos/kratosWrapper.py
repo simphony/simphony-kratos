@@ -72,6 +72,10 @@ class KratosWrapper(ABCModelingEngine):
         # Call the base class in order to load CUDS
         super(KratosWrapper, self).__init__(**kwargs)
 
+    def _load_cuds(self):
+        """Load CUDS data into lammps engine."""
+        pass
+
     def add_dataset(self, container):
         """Add a CUDS container
 

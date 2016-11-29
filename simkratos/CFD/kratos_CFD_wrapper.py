@@ -9,6 +9,8 @@ from __future__ import print_function, absolute_import, division
 from simphony.core.cuba import CUBA
 from simphony.core.data_container import DataContainer
 
+from simphony.cuds.abc_mesh import ABCMesh
+
 from simphony.cuds.mesh import Point as SPoint
 from simphony.cuds.mesh import Face as SFace
 from simphony.cuds.mesh import Cell as SCell
@@ -30,7 +32,7 @@ from KratosMultiphysics.MeshingApplication import *
 class CFDWrapper(KratosWrapper):
 
     def __init__(self, use_internal_interface=True, **kwargs):
-        super(KratosWrapper, self).__init__(**kwargs)
+        super(CFDWrapper, self).__init__(use_internal_interface, **kwargs)
 
         self.time = 0
         self.step = 0
@@ -92,6 +94,15 @@ class CFDWrapper(KratosWrapper):
         }
 
         self.initialize()
+
+    def _load_cuds(self):
+        """Load CUDS data into lammps engine."""
+        cuds = self.get_cuds()
+        if not cuds:
+            return
+
+        for component in cuds.iter(ABCMesh):
+            self.add_dataset(component)
 
     def addNodalVariablesToModelpart(self, modelPart):
         """ Adds the Kratos CFD nodal variables
@@ -406,21 +417,25 @@ class CFDWrapper(KratosWrapper):
 
     def importKratosDof(self, src, dst, mesh_name, group):
 
-        mesh_prop = Properties(group)
+        bcName = 'condition_' + mesh_name
+        bc = self.get_cuds().get(bcName)
 
+        mesh_prop = Properties(group)
         mesh_prop.SetValue(IS_SLIP, 0)
 
-        if self.BC[CUBA.PRESSURE][mesh_name] == 'empty':
+        print(bcName, bc)
+
+        if bc.data[CUBA.PRESSURE] == 'empty':
             mesh_prop.SetValue(IMPOSED_PRESSURE, 0)
         else:
             mesh_prop.SetValue(IMPOSED_PRESSURE, 1)
-            mesh_prop.SetValue(PRESSURE, self.BC[CUBA.PRESSURE][mesh_name])
+            mesh_prop.SetValue(PRESSURE, bc.data[CUBA.PRESSURE])
 
             for node in self.fluid_model_part.GetNodes(group):
                 node.Fix(PRESSURE)
-                node.SetValue(PRESSURE, self.BC[CUBA.PRESSURE][mesh_name])
+                node.SetValue(PRESSURE, bc.data[CUBA.PRESSURE])
 
-        if self.BC[CUBA.VELOCITY][mesh_name] == 'empty':
+        if bc.data[CUBA.VELOCITY] == 'empty':
             mesh_prop.SetValue(IMPOSED_VELOCITY_X, 0)
             mesh_prop.SetValue(IMPOSED_VELOCITY_Y, 0)
             mesh_prop.SetValue(IMPOSED_VELOCITY_Z, 0)
@@ -430,33 +445,24 @@ class CFDWrapper(KratosWrapper):
             mesh_prop.SetValue(IMPOSED_VELOCITY_Z, 1)
             mesh_prop.SetValue(
                 IMPOSED_VELOCITY_X_VALUE,
-                self.BC[CUBA.VELOCITY][mesh_name][0]
+                bc.data[CUBA.VELOCITY][0]
             )
             mesh_prop.SetValue(
                 IMPOSED_VELOCITY_Y_VALUE,
-                self.BC[CUBA.VELOCITY][mesh_name][1]
+                bc.data[CUBA.VELOCITY][1]
             )
             mesh_prop.SetValue(
                 IMPOSED_VELOCITY_Z_VALUE,
-                self.BC[CUBA.VELOCITY][mesh_name][2]
+                bc.data[CUBA.VELOCITY][2]
             )
 
             for node in self.fluid_model_part.GetNodes(group):
                 node.Fix(VELOCITY_X)
                 node.Fix(VELOCITY_Y)
                 node.Fix(VELOCITY_Z)
-                node.SetValue(
-                    VELOCITY_X,
-                    self.BC[CUBA.VELOCITY][mesh_name][0]
-                )
-                node.SetValue(
-                    VELOCITY_Y,
-                    self.BC[CUBA.VELOCITY][mesh_name][1]
-                )
-                node.SetValue(
-                    VELOCITY_Z,
-                    self.BC[CUBA.VELOCITY][mesh_name][2]
-                )
+                node.SetValue(VELOCITY_X, bc.data[CUBA.VELOCITY][0])
+                node.SetValue(VELOCITY_Y, bc.data[CUBA.VELOCITY][1])
+                node.SetValue(VELOCITY_Z, bc.data[CUBA.VELOCITY][2])
 
         return mesh_prop
 
@@ -491,16 +497,16 @@ class CFDWrapper(KratosWrapper):
     def run(self):
         """ Run a step of the wrapper """
 
-        fluid_meshes = self.SPE[CUBAExt.FLUID_MESHES]
+        fluid_meshes = self.meshes
 
+        cuds = self.get_cuds()
         self.fluid_model_part.GetMesh(len(fluid_meshes))
 
         properties = PropertiesArray()
 
-        for mesh_name in fluid_meshes:
+        for mesh in cuds.iter(ABCMesh):
 
-            mesh = self.get_dataset(mesh_name)
-            group = mesh.data[CUBA.MATERIAL_ID]
+            group = mesh.data[CUBA.MATERIAL]
 
             self.importKratosNodes(mesh, self.fluid_model_part, group)
             self.importKratosElements(mesh, self.fluid_model_part, group)
@@ -509,7 +515,7 @@ class CFDWrapper(KratosWrapper):
             mesh_prop = self.importKratosDof(
                 mesh,
                 self.fluid_model_part,
-                mesh_name,
+                mesh.name,
                 group
             )
 
@@ -535,25 +541,33 @@ class CFDWrapper(KratosWrapper):
 
         self.solver.Initialize()
 
-        Dt = self.cuds.get('IntegrationTime').step
+        Dt = cuds.get('md_nve_integration_time').step
 
         self.fluid_model_part.ProcessInfo.SetValue(DELTA_TIME, Dt)
 
+        # Init the temporal db without starting the simulation since we
+        # cannot make sure this is the first execution of kratos or not.
+        # NOTE: Temporal db from previous kratos steps is lost.
         for i in xrange(0, 3):
             self.fluid_model_part.CloneTimeStep(self.time)
-            self.time = self.time + Dt
 
-        for n in xrange(0, self.CM[CUBA.NUMBER_OF_TIME_STEPS]):
+        # Start the simulation itself
+        self.time = cuds.get('md_nve_integration_time').time
+        self.final = cuds.get('md_nve_integration_time').final
+
+        while self.time < self.final:
             self.fluid_model_part.CloneTimeStep(self.time)
             self.solver.Solve()
             self.time = self.time + Dt
 
-        for mesh_name in fluid_meshes:
+        cuds.get('md_nve_integration_time').time = self.time
+        cuds.get('md_nve_integration_time').final = self.final
 
-            mesh = self.get_dataset(mesh_name)
-            group = mesh.data[CUBA.MATERIAL_ID]
+        # Resotre the information to SimPhoNy
+        for mesh in cuds.iter(ABCMesh):
 
-            # Export data back to SimPhoNy
+            group = mesh.data[CUBA.MATERIAL]
+
             self.exportKratosNodes(self.fluid_model_part, mesh, group)
             self.exportKratosElements(self.fluid_model_part, mesh, group)
             self.exportKratosConditions(self.fluid_model_part, mesh, group)
