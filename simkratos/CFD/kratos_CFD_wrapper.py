@@ -199,12 +199,12 @@ class CFDWrapper(KratosWrapper):
 
             else:
 
-                point = dst.get_point(uid=self.id_to_uuid_node_map[node.Id])
+                point = dst.get(uid=self.id_to_uuid_node_map[node.Id])
 
                 # iterate over the correct data
                 point.data = DataContainer(data)
 
-                dst.update_points([point])
+                dst.update([point])
 
     def exportKratosElements(self, src, dst, group):
         """ Parses all kratos elements to simphony cells
@@ -302,7 +302,7 @@ class CFDWrapper(KratosWrapper):
 
         # Add the points in case they don't exist and update their value in
         # case they do.
-        for point in src.iter_points():
+        for point in src.iter(item_type=CUBA.POINT):
 
             if point.uid not in self.uuid_to_id_node_map.keys():
                 self.uuid_to_id_node_map.update(
@@ -334,7 +334,7 @@ class CFDWrapper(KratosWrapper):
         # If they belong to a different group, add them
         if group != 0:
             nodes = NodesArray()
-            for point in src.iter_points():
+            for point in src.iter(item_type=CUBA.POINT):
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[point.uid]]
                 )
@@ -351,7 +351,7 @@ class CFDWrapper(KratosWrapper):
 
         """
 
-        for element in src.iter_cells():
+        for element in src.iter(item_type=CUBA.CELL):
 
             if element.uid not in self.uuid_to_id_element_map.keys():
                 self.uuid_to_id_element_map.update(
@@ -372,7 +372,7 @@ class CFDWrapper(KratosWrapper):
         if group != 0:
             print(group)
             elements = ElementsArray()
-            for elem in src.iter_cells():
+            for elem in src.iter(item_type=CUBA.CELL):
                 elements.append(
                     dst.Elements[self.uuid_to_id_element_map[elem.uid]]
                 )
@@ -389,7 +389,7 @@ class CFDWrapper(KratosWrapper):
 
         """
 
-        for condition in src.iter_faces():
+        for condition in src.iter(item_type=CUBA.FACE):
 
             if condition.uid not in self.uuid_to_id_condition_map.keys():
                 self.uuid_to_id_condition_map.update(
@@ -409,7 +409,7 @@ class CFDWrapper(KratosWrapper):
         # If they belong to a different group, add them
         if group != 0:
             conditions = ConditionsArray()
-            for cnd in src.iter_faces():
+            for cnd in src.iter(item_type=CUBA.FACE):
                 conditions.append(
                     dst.Conditions[self.uuid_to_id_condition_map[cnd.uid]]
                 )

@@ -13,6 +13,7 @@ from __future__ import print_function, absolute_import, division
 import itertools
 
 # Simphony Imports
+from simphony.core.cuba import CUBA
 from simphony.cuds.abc_modeling_engine import ABCModelingEngine
 from simphony.cuds.abc_mesh import ABCMesh
 from simphony.cuds.abc_particles import ABCParticles
@@ -367,10 +368,10 @@ class KratosWrapper(ABCModelingEngine):
 
         c_mesh = Mesh(name=src.name)
 
-        c_mesh.add(src.iter_points())
-        c_mesh.add(src.iter_edges())
-        c_mesh.add(src.iter_faces())
-        c_mesh.add(src.iter_cells())
+        c_mesh.add(src.iter(item_type=CUBA.POINT))
+        c_mesh.add(src.iter(item_type=CUBA.EDGE))
+        c_mesh.add(src.iter(item_type=CUBA.FACE))
+        c_mesh.add(src.iter(item_type=CUBA.CELL))
 
         c_mesh.data = src.data
 
