@@ -21,6 +21,7 @@ version = '%s'
     finally:
         fh.close()
 
+
 write_version_py()
 
 setup(
