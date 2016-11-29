@@ -106,7 +106,7 @@ class CFD_Utils(object):
                 uid=point_uid
             )
 
-            pid = dst.add_points([point])
+            pid = dst.add([point])
 
             self.id_to_uuid_node_map[node.Id] = pid[0]
 
@@ -137,7 +137,7 @@ class CFD_Utils(object):
                 uid=element_uid
             )
 
-            cid = dst.add_cells([cell])
+            cid = dst.add([cell])
 
             self.id_to_uuid_element_map[element.Id] = cid[0]
 
@@ -168,7 +168,7 @@ class CFD_Utils(object):
                 uid=condition_uid
             )
 
-            fid = dst.add_faces([face])
+            fid = dst.add([face])
 
             self.id_to_uuid_condition_map[condition.Id] = fid[0]
 
@@ -317,7 +317,7 @@ class DEM_Utils(object):
                 uid=point_uid
             )
 
-            pid = dst.add_points([point])
+            pid = dst.add([point])
 
             self.id_to_uuid_node_map[node.Id] = pid[0]
 
@@ -350,7 +350,7 @@ class DEM_Utils(object):
                 uid=particle_uid
             )
 
-            pid = dst.add_particles([sparticle])
+            pid = dst.add([sparticle])
 
             self.id_to_uuid_node_map[particle.Id] = pid[0]
 
@@ -381,7 +381,7 @@ class DEM_Utils(object):
                 uid=element_uid
             )
 
-            cid = dst.add_cells([cell])
+            cid = dst.add([cell])
 
             self.id_to_uuid_element_map[element.Id] = cid[0]
 
@@ -412,7 +412,7 @@ class DEM_Utils(object):
                 uid=condition_uid
             )
 
-            fid = dst.add_faces([face])
+            fid = dst.add([face])
 
             self.id_to_uuid_condition_map[condition.Id] = fid[0]
 

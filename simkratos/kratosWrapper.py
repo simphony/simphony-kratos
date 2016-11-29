@@ -367,10 +367,10 @@ class KratosWrapper(ABCModelingEngine):
 
         c_mesh = Mesh(name=src.name)
 
-        c_mesh.add_points(src.iter_points())
-        c_mesh.add_edges(src.iter_edges())
-        c_mesh.add_faces(src.iter_faces())
-        c_mesh.add_cells(src.iter_cells())
+        c_mesh.add(src.iter_points())
+        c_mesh.add(src.iter_edges())
+        c_mesh.add(src.iter_faces())
+        c_mesh.add(src.iter_cells())
 
         c_mesh.data = src.data
 
