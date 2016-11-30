@@ -118,8 +118,6 @@ class CFDWrapper(KratosWrapper):
         if "DISTANCE" in ProjectParameters.nodal_results:
             modelPart.AddNodalSolutionStepVariable(DISTANCE)
 
-        self.solver_module.AddVariables(modelPart, self.SolverSettings)
-
     # gets data for the nodes
 
     def getNodalData(self, data, node):
@@ -370,7 +368,6 @@ class CFDWrapper(KratosWrapper):
 
         # If they belong to a different group, add them
         if group != 0:
-            print(group)
             elements = ElementsArray()
             for elem in src.iter(item_type=CUBA.CELL):
                 elements.append(
@@ -420,10 +417,11 @@ class CFDWrapper(KratosWrapper):
         bcName = 'condition_' + mesh_name
         bc = self.get_cuds().get(bcName)
 
+        print("Importing Kratos DOF for mesh:",bcName)
+        print(bc.data)
+
         mesh_prop = Properties(group)
         mesh_prop.SetValue(IS_SLIP, 0)
-
-        print(bcName, bc)
 
         if bc.data[CUBA.PRESSURE] == 'empty':
             mesh_prop.SetValue(IMPOSED_PRESSURE, 0)
@@ -484,15 +482,19 @@ class CFDWrapper(KratosWrapper):
         self.fluid_model_part = ModelPart("")
         self.fluid_model_part.SetBufferSize(3)
 
-        self.element_properties = Properties(0)
+        self.addNodalVariablesToModelpart(self.fluid_model_part)
 
         self.SolverSettings = ProjectParameters.FluidSolverConfiguration
         self.solver_module = import_solver(self.SolverSettings)
-        self.solver = self.solver_module.CreateSolver(
-            self.fluid_model_part,
-            self.SolverSettings)
 
-        self.addNodalVariablesToModelpart(self.fluid_model_part)
+        self.solver_module.AddVariables(
+            self.fluid_model_part,
+            self.SolverSettings
+        )
+
+        self.element_properties = Properties(0)
+
+        print("Initialized")
 
     def run(self):
         """ Run a step of the wrapper """
@@ -525,7 +527,7 @@ class CFDWrapper(KratosWrapper):
 
         self.updateBackwardDicc()
         self.setElementData()
-        # self.setConditionData()
+        self.setConditionData()
 
         self.fluid_model_part.SetBufferSize(3)
 
@@ -545,15 +547,16 @@ class CFDWrapper(KratosWrapper):
 
         self.fluid_model_part.ProcessInfo.SetValue(DELTA_TIME, Dt)
 
+        # Start the simulation itself
+        self.time = cuds.get('md_nve_integration_time').time
+        self.final = cuds.get('md_nve_integration_time').final
+
         # Init the temporal db without starting the simulation since we
         # cannot make sure this is the first execution of kratos or not.
         # NOTE: Temporal db from previous kratos steps is lost.
         for i in xrange(0, 3):
             self.fluid_model_part.CloneTimeStep(self.time)
-
-        # Start the simulation itself
-        self.time = cuds.get('md_nve_integration_time').time
-        self.final = cuds.get('md_nve_integration_time').final
+            self.time = self.time + Dt
 
         while self.time < self.final:
             self.fluid_model_part.CloneTimeStep(self.time)
