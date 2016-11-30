@@ -417,9 +417,6 @@ class CFDWrapper(KratosWrapper):
         bcName = 'condition_' + mesh_name
         bc = self.get_cuds().get(bcName)
 
-        print("Importing Kratos DOF for mesh:",bcName)
-        print(bc.data)
-
         mesh_prop = Properties(group)
         mesh_prop.SetValue(IS_SLIP, 0)
 
@@ -493,8 +490,6 @@ class CFDWrapper(KratosWrapper):
         )
 
         self.element_properties = Properties(0)
-
-        print("Initialized")
 
     def run(self):
         """ Run a step of the wrapper """
