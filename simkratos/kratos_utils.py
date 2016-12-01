@@ -211,7 +211,7 @@ class CFD_Utils(object):
         materialData = material.data
 
         for key, val in self.supportedMaterialProp:
-            if properties.HasValue(val):
+            if properties.GetValue(val):
                 materialData[key] = properties.GetValue(val)
 
         material.data = materialData
@@ -313,6 +313,11 @@ class DEM_Utils(object):
         }
 
         self.supportedMaterialProp = {
+            CUBA.DENSITY: PARTICLE_DENSITY,
+            CUBA.YOUNG_MODULUS: YOUNG_MODULUS,
+            CUBA.POISSON_RATIO: POISSON_RATIO,
+            CUBA.FRICTION_COEFFICIENT: PARTICLE_FRICTION,
+            CUBA.ROLLING_FRICTION: ROLLING_FRICTION
         }
 
     def _getSolutionStepVariable1D(self, data, entity, variable):
@@ -505,14 +510,14 @@ class DEM_Utils(object):
         material = api.Material(name='material' + mesh_name)
         materialData = material.data
 
-        for key, val in self.supportedMaterialProp:
-            if properties.HasValue(val):
+        for key, val in self.supportedMaterialProp.items():
+            if properties.GetValue(val):
                 materialData[key] = properties.GetValue(val)
 
         material.data = materialData
         return material
 
-    def read_modelpart_as_mesh(self, filename, basename):
+    def read_modelpart_as_mesh(self, filename):
         """ Reads a Kratos formated modelpart from DEM
 
         """
@@ -534,7 +539,7 @@ class DEM_Utils(object):
 
             mesh_name = 'solid_' + str(i)
 
-            smp_mesh = SMesh(name=mesh_name)
+            mesh = SMesh(name=mesh_name)
 
             # Export mesh data to Simphony
             self._exportKratosNodes(model_part, mesh, i)
@@ -566,7 +571,7 @@ class DEM_Utils(object):
             'materials': smp_materials,
         }
 
-    def read_modelpart_as_particles(self, filename, basename):
+    def read_modelpart_as_particles(self, filename):
         """ Reads a Kratos formated modelpart from DEM
 
         """
@@ -580,7 +585,7 @@ class DEM_Utils(object):
         model_part_io_fluid = ModelPartIO(filename)
         model_part_io_fluid.ReadModelPart(model_part)
 
-        smp_meshes = []
+        smp_particles = []
         smp_conditions = []
         smp_materials = []
 
@@ -588,32 +593,32 @@ class DEM_Utils(object):
 
             particles_name = 'particles_' + str(i)
 
-            smp_particles = SParticles(name=particles_name)
+            particles = SParticles(name=particles_name)
 
             # Export particle data to Simphony
-            self._exportKratosParticles(model_part, smp_particles, i)
+            self._exportKratosParticles(model_part, particles, i)
 
             properties = model_part.GetProperties(0)[i]
 
             # Fill the boundary condition for the mesh
-            condition = self._convertBc(properties, mesh_name)
+            condition = self._convertBc(properties, particles_name)
 
             # Fill the material for the mesh
-            material = self._convertMaterial(properties, mesh_name)
+            material = self._convertMaterial(properties, particles_name)
 
             # Save the relations
-            meshData = mesh.data
-            meshData[CUBA.CONDITION] = condition.name
-            meshData[CUBA.MATERIAL] = material.name
-            mesh.data = meshData
+            particlesData = particles.data
+            particlesData[CUBA.CONDITION] = condition.name
+            particlesData[CUBA.MATERIAL] = material.name
+            particles.data = particlesData
 
             # Pack the return objects
-            smp_meshes.append(mesh)
+            smp_particles.append(particles)
             smp_conditions.append(condition)
             smp_materials.append(material)
 
         return {
-            'datasets': smp_meshes,
+            'datasets': smp_particles,
             'conditions': smp_conditions,
             'materials': smp_materials,
         }
