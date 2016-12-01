@@ -9,6 +9,9 @@ from __future__ import print_function, absolute_import, division
 from simphony.core.cuba import CUBA
 from simphony.core.data_container import DataContainer
 
+from simphony.cuds.abc_mesh import ABCMesh
+from simphony.cuds.abc_particles import ABCParticles
+
 from simphony.cuds.mesh import Point as SPoint
 from simphony.cuds.mesh import Face as SFace
 from simphony.cuds.mesh import Cell as SCell
@@ -29,8 +32,8 @@ import DEM_procedures
 
 class DEMWrapper(KratosWrapper):
 
-    def __init__(self):
-        KratosWrapper.__init__(self)
+    def __init__(self, use_internal_interface=True, **kwargs):
+        super(DEMWrapper, self).__init__(use_internal_interface, **kwargs)
 
         self.time = 0
         self.step = 0
@@ -72,6 +75,15 @@ class DEMWrapper(KratosWrapper):
         }
 
         self.initialize()
+
+    def _load_cuds(self):
+        """Load CUDS data into lammps engine."""
+        cuds = self.get_cuds()
+        if not cuds:
+            return
+
+        for component in cuds.iter(ABCMesh):
+            self.add_dataset(component)
 
     def getNodalData(self, data, node, model):
         """ Extracts the node data
@@ -135,7 +147,7 @@ class DEMWrapper(KratosWrapper):
 
             else:
 
-                point = dst.get_point(uid=self.id_to_uuid_node_map[node.Id])
+                point = dst.get(uid=self.id_to_uuid_node_map[node.Id])
 
                 point.data = DataContainer(data)
 
@@ -175,7 +187,7 @@ class DEMWrapper(KratosWrapper):
 
             else:
 
-                particle = dst.get_particle(
+                particle = dst.get(
                     uid=self.id_to_uuid_node_map[particle.Id]
                 )
 
@@ -604,19 +616,20 @@ class DEMWrapper(KratosWrapper):
     def run(self):
         """ Run a step of the wrapper """
 
-        fluid_particles = self.SPE[CUBAExt.FLUID_PARTICLES]
-        solid_meshes = self.SPE[CUBAExt.STRUCTURE_MESHES]
+        fluid_particles = self.pcs
+        solid_meshes = self.meshes
 
-        self.spheres_model_part.GetMesh(len(fluid_particles) - 1)
-        self.rigid_face_model_part.GetMesh(len(solid_meshes) - 1)
+        self.spheres_model_part.GetMesh(len(fluid_particles))
+        self.rigid_face_model_part.GetMesh(len(solid_meshes))
 
         fluid_properties = PropertiesArray()
+        meshNumber = 1
+        meshDict = {}
         # solid_properties = PropertiesArray()
 
-        for particles_name in fluid_particles:
+        for particles in cuds.iter(ABCParticles):
 
-            particles = self.get_dataset(particles_name)
-            group = particles.data[CUBA.MATERIAL_ID]
+            group = meshNumber
 
             self.importKratosParticles(
                 particles,
@@ -624,10 +637,11 @@ class DEMWrapper(KratosWrapper):
                 group
             )
 
-        # for mesh_name in solid_meshes:
+            meshNumber += 1
+
+        # for mesh in cuds.iter(ABCMesh):
         #
-        #     mesh = self.get_dataset(mesh_name)
-        #     group = mesh.data[CUBA.MATERIAL_ID]
+        #     group = meshNumber
         #
         #     self.importKratosNodes(
         #         mesh,
@@ -639,6 +653,8 @@ class DEMWrapper(KratosWrapper):
         #         self.rigid_face_model_part,
         #         group
         #     )
+        #
+        #     meshNumber += 1
 
         self.updateBackwardDicc()
 
