@@ -412,17 +412,19 @@ class CFDWrapper(KratosWrapper):
                 )
             dst.SetConditions(conditions, group)
 
-    def importKratosDof(self, src, dst, mesh_name, group):
+    def importKratosDof(self, src, dst, group):
 
-        bcName = 'condition_' + mesh_name
-        bc = self.get_cuds().get(bcName)
+        bc = self.get_cuds().get(src.data[CUBA.CONDITION])
 
         mesh_prop = Properties(group)
         mesh_prop.SetValue(IS_SLIP, 0)
 
-        if bc.data[CUBA.PRESSURE] == 'empty':
+        print("Applying DOF to mesh", group, bc, src.data[CUBA.CONDITION])
+
+        if CUBA.PRESSURE not in bc.data:
             mesh_prop.SetValue(IMPOSED_PRESSURE, 0)
         else:
+            print(bc.data[CUBA.PRESSURE])
             mesh_prop.SetValue(IMPOSED_PRESSURE, 1)
             mesh_prop.SetValue(PRESSURE, bc.data[CUBA.PRESSURE])
 
@@ -430,34 +432,42 @@ class CFDWrapper(KratosWrapper):
                 node.Fix(PRESSURE)
                 node.SetValue(PRESSURE, bc.data[CUBA.PRESSURE])
 
-        if bc.data[CUBA.VELOCITY] == 'empty':
+        if CUBA.VELOCITY not in bc.data:
             mesh_prop.SetValue(IMPOSED_VELOCITY_X, 0)
             mesh_prop.SetValue(IMPOSED_VELOCITY_Y, 0)
             mesh_prop.SetValue(IMPOSED_VELOCITY_Z, 0)
         else:
-            mesh_prop.SetValue(IMPOSED_VELOCITY_X, 1)
-            mesh_prop.SetValue(IMPOSED_VELOCITY_Y, 1)
-            mesh_prop.SetValue(IMPOSED_VELOCITY_Z, 1)
-            mesh_prop.SetValue(
-                IMPOSED_VELOCITY_X_VALUE,
-                bc.data[CUBA.VELOCITY][0]
-            )
-            mesh_prop.SetValue(
-                IMPOSED_VELOCITY_Y_VALUE,
-                bc.data[CUBA.VELOCITY][1]
-            )
-            mesh_prop.SetValue(
-                IMPOSED_VELOCITY_Z_VALUE,
-                bc.data[CUBA.VELOCITY][2]
-            )
+            print(bc.data[CUBA.VELOCITY])
+            imposedVel = bc.data[CUBA.VELOCITY]
+            if imposedVel[0] is not None:
+                mesh_prop.SetValue(IMPOSED_VELOCITY_X, 1)
+                mesh_prop.SetValue(
+                    IMPOSED_VELOCITY_X_VALUE,
+                    bc.data[CUBA.VELOCITY][0]
+                )
+            if imposedVel[1] is not None:
+                mesh_prop.SetValue(IMPOSED_VELOCITY_Y, 1)
+                mesh_prop.SetValue(
+                    IMPOSED_VELOCITY_Y_VALUE,
+                    bc.data[CUBA.VELOCITY][1]
+                )
+            if imposedVel[2] is not None:
+                mesh_prop.SetValue(IMPOSED_VELOCITY_Z, 1)
+                mesh_prop.SetValue(
+                    IMPOSED_VELOCITY_Z_VALUE,
+                    bc.data[CUBA.VELOCITY][2]
+                )
 
             for node in self.fluid_model_part.GetNodes(group):
-                node.Fix(VELOCITY_X)
-                node.Fix(VELOCITY_Y)
-                node.Fix(VELOCITY_Z)
-                node.SetValue(VELOCITY_X, bc.data[CUBA.VELOCITY][0])
-                node.SetValue(VELOCITY_Y, bc.data[CUBA.VELOCITY][1])
-                node.SetValue(VELOCITY_Z, bc.data[CUBA.VELOCITY][2])
+                if imposedVel[0] is not None:
+                    node.Fix(VELOCITY_X)
+                    node.SetValue(VELOCITY_X, bc.data[CUBA.VELOCITY][0])
+                if imposedVel[1] is not None:
+                    node.Fix(VELOCITY_Y)
+                    node.SetValue(VELOCITY_Y, bc.data[CUBA.VELOCITY][1])
+                if imposedVel[2] is not None:
+                    node.Fix(VELOCITY_Z)
+                    node.SetValue(VELOCITY_Z, bc.data[CUBA.VELOCITY][2])
 
         return mesh_prop
 
@@ -500,25 +510,28 @@ class CFDWrapper(KratosWrapper):
         self.fluid_model_part.GetMesh(len(fluid_meshes))
 
         properties = PropertiesArray()
+        meshNumber = 1
+        meshDict = {}
 
         for mesh in cuds.iter(ABCMesh):
 
-            group = mesh.data[CUBA.MATERIAL]
+            group = meshNumber
 
             self.importKratosNodes(mesh, self.fluid_model_part, group)
             self.importKratosElements(mesh, self.fluid_model_part, group)
             self.importKratosConditions(mesh, self.fluid_model_part, group)
 
             mesh_prop = self.importKratosDof(
-                mesh,
-                self.fluid_model_part,
-                mesh.name,
-                group
+                mesh, self.fluid_model_part, group
             )
 
+            meshDict[mesh.name] = meshNumber
+
             properties.append(mesh_prop)
+            meshNumber += 1
 
         self.fluid_model_part.SetProperties(properties)
+        print(self.fluid_model_part)
 
         self.updateBackwardDicc()
         self.setElementData()
@@ -564,7 +577,7 @@ class CFDWrapper(KratosWrapper):
         # Resotre the information to SimPhoNy
         for mesh in cuds.iter(ABCMesh):
 
-            group = mesh.data[CUBA.MATERIAL]
+            group = meshDict[mesh.name]
 
             self.exportKratosNodes(self.fluid_model_part, mesh, group)
             self.exportKratosElements(self.fluid_model_part, mesh, group)

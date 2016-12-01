@@ -1,4 +1,5 @@
 from simphony.core.cuba import CUBA
+from simphony.cuds.meta import api
 from simphony.core.data_container import DataContainer
 
 from simphony.cuds.mesh import Point as SPoint
@@ -46,6 +47,9 @@ class CFD_Utils(object):
                 CUBA.DENSITY,
                 DENSITY
             ]
+        }
+
+        self.supportedMaterialProp = {
         }
 
     def _getSolutionStepVariable1D(self, data, entity, variable):
@@ -172,8 +176,60 @@ class CFD_Utils(object):
 
             self.id_to_uuid_condition_map[condition.Id] = fid[0]
 
+    def _convertBc(self, properties, mesh_name):
+        condition = api.Condition(name='condition_' + mesh_name)
+        conditionData = condition.data
+
+        velocityCondition = [None, None, None]
+
+        if properties.GetValue(IMPOSED_PRESSURE) == 1:
+            conditionData[CUBA.PRESSURE] = properties.GetValue(
+                PRESSURE
+            )
+
+        if properties.GetValue(IMPOSED_VELOCITY_X) == 1:
+            velocityCondition[0] = properties.GetValue(
+                IMPOSED_VELOCITY_X_VALUE
+            )
+        if properties.GetValue(IMPOSED_VELOCITY_Y) == 1:
+            velocityCondition[1] = properties.GetValue(
+                IMPOSED_VELOCITY_Y_VALUE
+            )
+        if properties.GetValue(IMPOSED_VELOCITY_Z) == 1:
+            velocityCondition[2] = properties.GetValue(
+                IMPOSED_VELOCITY_Z_VALUE
+            )
+
+        if not (None in velocityCondition):
+            conditionData[CUBA.VELOCITY] = velocityCondition
+
+        condition.data = conditionData
+        return condition
+
+    def _convertMaterial(self, properties, mesh_name):
+        material = api.Material(name='material' + mesh_name)
+        materialData = material.data
+
+        for key, val in self.supportedMaterialProp:
+            if properties.HasValue(val):
+                materialData[key] = properties.GetValue(val)
+
+        material.data = materialData
+        return material
+
     def read_modelpart(self, filename):
-        """ Reads a Kratos formated modelpart fro CFD
+        """ Reads a Kratos formated modelpart for KratosCFD wrapper
+
+        This functions translates each of the modelpart meshes to
+        one simphony mesh.
+
+        Properties in the modelpart related to boundary conditions are
+        stored in simphony conditions and referenced in CUBA.CONDITION
+        inside the mesh.
+
+        Properties in the modelpart not relared to boundary conditions
+        are stored in simphony as materials and referenced in
+        CUBA.MATERIAL inside the mesh.
 
         """
 
@@ -188,48 +244,46 @@ class CFD_Utils(object):
         model_part_io_fluid.ReadModelPart(model_part)
 
         smp_meshes = []
-        smp_bcs = []
+        smp_conditions = []
+        smp_materials = []
 
-        for i in xrange(0, model_part.NumberOfMeshes()):
+        print(model_part)
+
+        for i in xrange(1, model_part.NumberOfMeshes()):
 
             mesh_name = 'fluid_' + str(i)
 
-            smp_mesh = SMesh(name=mesh_name)
+            mesh = SMesh(name=mesh_name)
 
-            # Export data back to SimPhoNy
-            self._exportKratosNodes(model_part, smp_mesh, i)
-            self._exportKratosElements(model_part, smp_mesh, i)
-            self._exportKratosConditions(model_part, smp_mesh, i)
-
-            data = DataContainer()
-            data[CUBA.MATERIAL] = i
-            # api.Material(name='a_material')
-            smp_mesh.data = data
-
-            pressure = 'empty'
-            velocity = 'empty'
+            # Export mesh data to Simphony
+            self._exportKratosNodes(model_part, mesh, i)
+            self._exportKratosElements(model_part, mesh, i)
+            self._exportKratosConditions(model_part, mesh, i)
 
             properties = model_part.GetProperties(0)[i]
 
-            if properties.GetValue(IMPOSED_PRESSURE) == 1:
-                pressure = model_part.GetProperties(0)[i].GetValue(PRESSURE)
-            if properties.GetValue(IMPOSED_VELOCITY_X) == 1:
-                velocity = (
-                    properties.GetValue(IMPOSED_VELOCITY_X_VALUE),
-                    properties.GetValue(IMPOSED_VELOCITY_Y_VALUE),
-                    properties.GetValue(IMPOSED_VELOCITY_Z_VALUE)
-                )
+            # Fill the boundary condition for the mesh
+            condition = self._convertBc(properties, mesh_name)
 
-            smp_bc = {
-                'name': mesh_name,
-                'pressure': pressure,
-                'velocity': velocity
-            }
+            # Fill the material for the mesh
+            material = self._convertMaterial(properties, mesh_name)
 
-            smp_bcs.append(smp_bc)
-            smp_meshes.append(smp_mesh)
+            # Save the relations
+            meshData = mesh.data
+            meshData[CUBA.CONDITION] = condition.name
+            meshData[CUBA.MATERIAL] = material.name
+            mesh.data = meshData
 
-        return {'meshes': smp_meshes, 'bcs': smp_bcs}
+            # Pack the return objects
+            smp_meshes.append(mesh)
+            smp_conditions.append(condition)
+            smp_materials.append(material)
+
+        return {
+            'datasets': smp_meshes,
+            'conditions': smp_conditions,
+            'materials': smp_materials,
+        }
 
 
 class DEM_Utils(object):
@@ -460,6 +514,8 @@ class DEM_Utils(object):
             data[CUBA.MATERIAL] = i
             # api.Material(name='a_material')
             smp_mesh.data = data
+
+
 
             pressure = 'empty'
             velocity = 'empty'
