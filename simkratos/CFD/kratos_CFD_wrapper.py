@@ -507,6 +507,7 @@ class CFDWrapper(KratosWrapper):
         fluid_meshes = self.meshes
 
         cuds = self.get_cuds()
+
         self.fluid_model_part.GetMesh(len(fluid_meshes))
 
         properties = PropertiesArray()
@@ -551,13 +552,13 @@ class CFDWrapper(KratosWrapper):
 
         self.solver.Initialize()
 
-        Dt = cuds.get('md_nve_integration_time').step
+        Dt = cuds.get('cfd_integration_time').step
 
         self.fluid_model_part.ProcessInfo.SetValue(DELTA_TIME, Dt)
 
         # Start the simulation itself
-        self.time = cuds.get('md_nve_integration_time').time
-        self.final = cuds.get('md_nve_integration_time').final
+        self.time = cuds.get('cfd_integration_time').time
+        self.final = cuds.get('cfd_integration_time').final
 
         # Init the temporal db without starting the simulation since we
         # cannot make sure this is the first execution of kratos or not.
@@ -571,8 +572,8 @@ class CFDWrapper(KratosWrapper):
             self.solver.Solve()
             self.time = self.time + Dt
 
-        cuds.get('md_nve_integration_time').time = self.time
-        cuds.get('md_nve_integration_time').final = self.final
+        cuds.get('cfd_integration_time').time = self.time
+        cuds.get('cfd_integration_time').final = self.final
 
         # Resotre the information to SimPhoNy
         for mesh in cuds.iter(ABCMesh):
