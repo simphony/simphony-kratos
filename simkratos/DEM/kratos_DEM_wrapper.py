@@ -639,6 +639,7 @@ class DEMWrapper(KratosWrapper):
                 group
             )
 
+            meshDict[mesh.name] = meshNumber
             meshNumber += 1
 
         # for mesh in cuds.iter(ABCMesh):
@@ -698,10 +699,9 @@ class DEMWrapper(KratosWrapper):
         cuds.get('dem_integration_time').time = self.time
         cuds.get('dem_integration_time').final = self.final
 
-        for particles_name in fluid_particles:
+        for particles in cuds.iter(ABCParticles):
 
-            particles = self.get_dataset(particles_name)
-            group = particles.data[CUBA.MATERIAL_ID]
+            group = meshDict[mesh.name]
 
             self.exportKratosParticles(
                 self.spheres_model_part,
