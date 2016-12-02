@@ -19,7 +19,6 @@ from simphony.cuds.particles import Particle as SParticle
 
 # Wrapper Imports
 from simkratos.kratosWrapper import KratosWrapper
-from simkratos.cuba_extension import CUBAExt
 from simkratos.DEM import DEM_explicit_solver_var as DEM_parameters
 
 # Kratos Imports
