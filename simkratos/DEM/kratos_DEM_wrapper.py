@@ -617,8 +617,6 @@ class DEMWrapper(KratosWrapper):
     def run(self):
         """ Run a step of the wrapper """
 
-        print(' ==== KratosDEM Started. ==== ')
-
         fluid_particles = self.pcs
         solid_meshes = self.meshes
 
@@ -729,5 +727,3 @@ class DEMWrapper(KratosWrapper):
         #     )
 
         self.updateForwardDicc()
-
-        print(' ==== KratosDEM Finished. ==== ')
