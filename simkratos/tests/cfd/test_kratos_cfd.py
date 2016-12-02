@@ -46,7 +46,7 @@ class TestKratosCFDWrapper(unittest.TestCase):
         itime = api.IntegrationTime(name="cfd_integration_time")
         itime.time = 0.0001
         itime.step = 0.0025
-        itime.final = 0.0125  # 5 Kratos Timesteps
+        itime.final = 0.0075  # 5 Kratos Timesteps
         cuds.add(itime)
 
         # Utils are used to read an existing Kratos model as raw data so we can
