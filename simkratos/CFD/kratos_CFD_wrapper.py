@@ -17,7 +17,6 @@ from simphony.cuds.mesh import Cell as SCell
 
 # Wrapper Imports
 from simkratos.kratosWrapper import KratosWrapper
-from simkratos.cuba_extension import CUBAExt
 
 # Kratos Imports
 from simkratos.CFD import ProjectParameters
