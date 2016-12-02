@@ -1,84 +1,54 @@
-""" test_kratosWrapper module
-
-This module contains the unitary tests for the
-kratosWrapper class.
+""" This files provide a test example on how to use
+Simphony along with the Kratos Multiphisics DEM wrapper
 
 """
+
 import os
 
-from KratosMultiphysics import *
-from KratosMultiphysics.DEMApplication import *
-from KratosMultiphysics.IncompressibleFluidApplication import *
-from KratosMultiphysics.FluidDynamicsApplication import *
-from KratosMultiphysics.ExternalSolversApplication import *
-from KratosMultiphysics.MeshingApplication import *
-
-import unittest
-
 from simphony.core.cuba import CUBA
+
+from simphony.api import CUDS, Simulation
+from simphony.cuds.meta import api
+
+# TODO: Utils now belong to probably another package
+from simphony.engine import EngineInterface
 from simphony.engine import kratos
 
+# Add the problem path to the script
+pathParticles = os.path.join(os.path.dirname(__file__), "3balls")
+pathSolid = os.path.join(os.path.dirname(__file__), "3ballsDEM_FEM_boundary")
 
-class TestKratosCFDWrapper(unittest.TestCase):
+cuds = CUDS(name='example_kratos_dem_somulation')
 
-    def setUp(self):
-        """ Creates the necessary information tu run the tests
+# Integration time:
+itime = api.IntegrationTime(name="dem_integration_time")
+itime.time = 0.0001
+itime.step = 0.001
+itime.final = 600 * itime.step
+cuds.add(itime)
 
-        """
+# Utils are used to read an existing Kratos model as raw data so we can
+# initialize the correct simphony datasets
+utils = kratos.DEM_Utils()
 
-        self.fluid_path = os.path.join(
-            os.path.dirname(__file__),
-            '3balls'
-        )
-        self.rigid_path = os.path.join(
-            os.path.dirname(__file__),
-            '3ballsDEM_FEM_boundary'
-        )
+# Reads Kratos mpda as a simphony data.
+kratos_model_particles = utils.read_modelpart_as_particles(pathParticles)
+kratos_model_solid = utils.read_modelpart_as_mesh(pathSolid)
 
-        self.time_step = 0.001
-        self.num_steps = 600
+# Add all models
+for kratos_model in [kratos_model_particles, kratos_model_solid]:
+    # Add the datasets readed from the conversor.
+    for dataset in kratos_model['datasets']:
+        cuds.add(dataset)
 
-    def test_run(self):
-        """ Test if cfd can run
+    # Add the boundary contitions from the conversor
+    for condition in kratos_model['conditions']:
+        cuds.add(condition)
 
-        """
+    # Add the materials contitions from the conversor
+    for material in kratos_model['materials']:
+        cuds.add(material)
 
-        utils = kratos.DEM_Utils()
-        wrapper = kratos.DEMWrapper()
-
-        wrapper.CM[CUBA.TIME_STEP] = self.time_step
-        wrapper.CM[CUBA.NUMBER_OF_TIME_STEPS] = self.num_steps
-
-        # Set the meshes that are part of the fluid
-        wrapper.SPE[kratos.CUBAExt.FLUID_PARTICLES] = [
-            "fluid_0"
-        ]
-
-        # Set the meshes that are part of the fluid
-        wrapper.SPE[kratos.CUBAExt.STRUCTURE_MESHES] = [
-            "solid_0"
-        ]
-
-        kratos_model_f = utils.read_modelpart_as_particles(
-            self.fluid_path, "fluid"
-        )
-
-        kratos_model_s = utils.read_modelpart_as_mesh(
-            self.rigid_path, "solid"
-        )
-
-        for mesh in kratos_model_f['meshes']:
-            wrapper.add_dataset(mesh)
-
-        for mesh in kratos_model_s['meshes']:
-            wrapper.add_dataset(mesh)
-
-        for i in xrange(0, 1):
-            wrapper.run()
-
-    def tear_down(self):
-        pass
-
-
-if __name__ == '__main__':
-    unittest.main()
+# Create the simulation and run the problem
+sim = Simulation(cuds, "KRATOS_DEM", engine_interface=True)
+sim.run()
