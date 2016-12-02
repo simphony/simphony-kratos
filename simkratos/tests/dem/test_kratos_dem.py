@@ -7,13 +7,10 @@ kratosWrapper class.
 import os
 import unittest
 
-from simphony.core.cuba import CUBA
-
 from simphony.api import CUDS, Simulation
 from simphony.cuds.meta import api
 
 # TODO: Utils now belong to probably another package
-from simphony.engine import EngineInterface
 from simphony.engine import kratos
 
 
