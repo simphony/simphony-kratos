@@ -135,11 +135,11 @@ class DEMWrapper(KratosWrapper):
 
             else:
 
-                point = dst.get_point(uid=self.id_to_uuid_node_map[node.Id])
+                point = dst.get(uid=self.id_to_uuid_node_map[node.Id])
 
                 point.data = DataContainer(data)
 
-                dst.update_points([point])
+                dst.update([point])
 
     def exportKratosParticles(self, src, dst, group):
         """ Parses all kratos nodes to simphony Particles
@@ -175,13 +175,11 @@ class DEMWrapper(KratosWrapper):
 
             else:
 
-                particle = dst.get_particle(
-                    uid=self.id_to_uuid_node_map[particle.Id]
-                )
+                particle = dst.get(uid=self.id_to_uuid_node_map[particle.Id])
 
                 particle.data = DataContainer(data)
 
-                dst.update_particles([particle])
+                dst.update([particle])
 
     def exportKratosElements(self, src, dst, group):
         """ Parses all kratos elements to simphony cells
@@ -253,7 +251,7 @@ class DEMWrapper(KratosWrapper):
                     uid=condition_uid
                 )
 
-                fid = dst.add_face(face)
+                fid = dst.add(face)
 
                 self.id_to_uuid_condition_map[condition.Id] = fid[0]
 
@@ -272,7 +270,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for point in src.iter_points():
+        for point in src.iter(item_type=CUBA.POINT):
 
             data = point.data
 
@@ -308,7 +306,7 @@ class DEMWrapper(KratosWrapper):
         # If they belong to a different group, add them
         if group != 0:
             nodes = NodesArray()
-            for point in src.iter_points():
+            for point in src.iter(item_type=CUBA.POINT):
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[point.uid]]
                 )
@@ -325,7 +323,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for particle in src.iter_particles():
+        for particle in src.iter(item_type=CUBA.PARTICLE):
 
             data = particle.data
 
@@ -377,7 +375,7 @@ class DEMWrapper(KratosWrapper):
         if group != 0:
             nodes = NodesArray()
             elements = ElementsArray()
-            for particle in src.iter_points():
+            for particle in src.iter(item_type=CUBA.PARTICLE):
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[particle.uid]]
                 )
