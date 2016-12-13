@@ -188,12 +188,12 @@ class CFDWrapper(KratosWrapper):
 
             else:
 
-                point = dst.get(uid=self.id_to_uuid_node_map[node.Id])
+                point = dst.get_point(uid=self.id_to_uuid_node_map[node.Id])
 
                 # iterate over the correct data
                 point.data = DataContainer(data)
 
-                dst.update([point])
+                dst.update_points([point])
 
     def exportKratosElements(self, src, dst, group):
         """ Parses all kratos elements to simphony cells
