@@ -135,11 +135,11 @@ class DEMWrapper(KratosWrapper):
 
             else:
 
-                point = dst.get(uid=self.id_to_uuid_node_map[node.Id])
+                point = dst.get_point(uid=self.id_to_uuid_node_map[node.Id])
 
                 point.data = DataContainer(data)
 
-                dst.update([point])
+                dst.update_points([point])
 
     def exportKratosParticles(self, src, dst, group):
         """ Parses all kratos nodes to simphony Particles
@@ -175,11 +175,11 @@ class DEMWrapper(KratosWrapper):
 
             else:
 
-                particle = dst.get(uid=self.id_to_uuid_node_map[particle.Id])
+                particle = dst.get_particle(uid=self.id_to_uuid_node_map[particle.Id])
 
                 particle.data = DataContainer(data)
 
-                dst.update([particle])
+                dst.update_particles([particle])
 
     def exportKratosElements(self, src, dst, group):
         """ Parses all kratos elements to simphony cells
@@ -270,7 +270,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for point in src.iter(item_type=CUBA.POINT):
+        for point in src.iter_points():
 
             data = point.data
 
@@ -306,7 +306,7 @@ class DEMWrapper(KratosWrapper):
         # If they belong to a different group, add them
         if group != 0:
             nodes = NodesArray()
-            for point in src.iter(item_type=CUBA.POINT):
+            for point in src.iter_points():
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[point.uid]]
                 )
@@ -323,7 +323,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for particle in src.iter(item_type=CUBA.PARTICLE):
+        for particle in src.iter_particles():
 
             data = particle.data
 
@@ -375,7 +375,7 @@ class DEMWrapper(KratosWrapper):
         if group != 0:
             nodes = NodesArray()
             elements = ElementsArray()
-            for particle in src.iter(item_type=CUBA.PARTICLE):
+            for particle in src.iter_particles():
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[particle.uid]]
                 )
