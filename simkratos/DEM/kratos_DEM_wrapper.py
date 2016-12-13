@@ -175,7 +175,9 @@ class DEMWrapper(KratosWrapper):
 
             else:
 
-                particle = dst.get_particle(uid=self.id_to_uuid_node_map[particle.Id])
+                particle = dst.get_particle(
+                    uid=self.id_to_uuid_node_map[particle.Id]
+                )
 
                 particle.data = DataContainer(data)
 
