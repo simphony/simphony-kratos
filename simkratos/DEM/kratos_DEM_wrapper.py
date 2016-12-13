@@ -614,7 +614,7 @@ class DEMWrapper(KratosWrapper):
         for particles_name in fluid_particles:
 
             particles = self.get_dataset(particles_name)
-            group = particles.data[CUBA.MATERIAL_ID]
+            group = particles.data[CUBA.MATERIAL]
 
             self.importKratosParticles(
                 particles,
@@ -675,7 +675,7 @@ class DEMWrapper(KratosWrapper):
         for particles_name in fluid_particles:
 
             particles = self.get_dataset(particles_name)
-            group = particles.data[CUBA.MATERIAL_ID]
+            group = particles.data[CUBA.MATERIAL]
 
             self.exportKratosParticles(
                 self.spheres_model_part,
