@@ -16,7 +16,7 @@ from KratosMultiphysics.MeshingApplication import *
 import unittest
 
 from simphony.core.cuba import CUBA
-from simphony.engine import kratos
+from simphony.engine import kratos_dem
 
 
 class TestKratosCFDWrapper(unittest.TestCase):
@@ -43,19 +43,19 @@ class TestKratosCFDWrapper(unittest.TestCase):
 
         """
 
-        utils = kratos.DEM_Utils()
-        wrapper = kratos.DEMWrapper()
+        utils = kratos_dem.DEM_Utils()
+        wrapper = kratos_dem.DEMWrapper()
 
         wrapper.CM[CUBA.TIME_STEP] = self.time_step
         wrapper.CM[CUBA.NUMBER_OF_TIME_STEPS] = self.num_steps
 
         # Set the meshes that are part of the fluid
-        wrapper.SPE[kratos.CUBAExt.FLUID_PARTICLES] = [
+        wrapper.SPE[kratos_dem.CUBAExt.FLUID_PARTICLES] = [
             "fluid_0"
         ]
 
         # Set the meshes that are part of the fluid
-        wrapper.SPE[kratos.CUBAExt.STRUCTURE_MESHES] = [
+        wrapper.SPE[kratos_dem.CUBAExt.STRUCTURE_MESHES] = [
             "solid_0"
         ]
 
