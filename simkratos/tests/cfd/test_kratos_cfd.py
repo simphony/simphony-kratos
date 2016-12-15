@@ -27,7 +27,7 @@ class TestKratosCFDWrapper(unittest.TestCase):
         )
 
         self.time_step = 0.001
-        self.num_steps = 5
+        self.num_steps = 1
 
     def test_run(self):
         """ Test if cfd can run

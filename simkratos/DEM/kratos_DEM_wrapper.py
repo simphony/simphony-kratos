@@ -140,7 +140,7 @@ class DEMWrapper(KratosWrapper):
                     uid=point_uid
                 )
 
-                pid = dst.add_points([point])
+                pid = dst.add([point])
 
                 self.id_to_uuid_node_map[node.Id] = pid[0]
 
@@ -180,7 +180,7 @@ class DEMWrapper(KratosWrapper):
                     uid=particle_uid
                 )
 
-                pid = dst.add_particles([particle])
+                pid = dst.add([particle])
 
                 self.id_to_uuid_node_map[particle.Id] = pid[0]
 
@@ -225,7 +225,7 @@ class DEMWrapper(KratosWrapper):
                     uid=element_uid
                 )
 
-                cid = dst.add_cells([cell])
+                cid = dst.add([cell])
 
                 self.id_to_uuid_element_map[element.Id] = cid[0]
 
@@ -264,7 +264,7 @@ class DEMWrapper(KratosWrapper):
                     uid=condition_uid
                 )
 
-                fid = dst.add_face(face)
+                fid = dst.add(face)
 
                 self.id_to_uuid_condition_map[condition.Id] = fid[0]
 
@@ -388,7 +388,7 @@ class DEMWrapper(KratosWrapper):
         if group != 0:
             nodes = NodesArray()
             elements = ElementsArray()
-            for particle in src.iter_points():
+            for particle in src.iter_particles():
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[particle.uid]]
                 )

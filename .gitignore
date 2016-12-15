@@ -1,2 +1,15 @@
 # Python bytecode file
 *.pyc
+
+# Setuptools eggfiles
+*.egg-info
+
+# Versioning
+simkratos/version.py
+
+# Ignore develop dirs
+build/*
+dist/*
+
+# Kratos profile files
+*.time
