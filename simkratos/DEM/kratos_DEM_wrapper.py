@@ -22,8 +22,6 @@ from simkratos.kratosWrapper import KratosWrapper
 from simkratos.DEM import DEM_explicit_solver_var as DEM_parameters
 
 # Kratos Imports
-from KratosMultiphysics import *
-from KratosMultiphysics.DEMApplication import *
 
 import sphere_strategy as SolverStrategy
 import DEM_procedures
@@ -33,6 +31,8 @@ class DEMWrapper(KratosWrapper):
 
     def __init__(self, use_internal_interface=True, **kwargs):
         super(DEMWrapper, self).__init__(use_internal_interface, **kwargs)
+        from KratosMultiphysics import *
+        from KratosMultiphysics.DEMApplication import *
 
         self.time = 0
         self.step = 0
@@ -282,6 +282,8 @@ class DEMWrapper(KratosWrapper):
         of the wrapper
 
         """
+        from KratosMultiphysics import *
+        from KratosMultiphysics.DEMApplication import *
 
         for point in src.iter_points():
 
@@ -335,6 +337,8 @@ class DEMWrapper(KratosWrapper):
         of the wrapper
 
         """
+        from KratosMultiphysics import *
+        from KratosMultiphysics.DEMApplication import *
 
         for particle in src.iter_particles():
 
@@ -408,6 +412,8 @@ class DEMWrapper(KratosWrapper):
         of the wrapper
 
         """
+        from KratosMultiphysics import *
+        from KratosMultiphysics.DEMApplication import *
 
         for element in src.iter_cells():
 
@@ -493,6 +499,8 @@ class DEMWrapper(KratosWrapper):
         self.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME = dLawString
 
     def setElementData(self):
+        from KratosMultiphysics import *
+        from KratosMultiphysics.DEMApplication import *
 
         self.element_properties.SetValue(
             PARTICLE_DENSITY,
@@ -536,6 +544,8 @@ class DEMWrapper(KratosWrapper):
         )
 
     def setConditionData(self):
+        from KratosMultiphysics import *
+        from KratosMultiphysics.DEMApplication import *
         cmesh = self.get_dataset("Conditions")
 
         self.condition_properties.SetValue(
@@ -549,6 +559,8 @@ class DEMWrapper(KratosWrapper):
             Initalizes the necessary kratos commponents to
             execute Kratos' DEMPack solver
         """
+        from KratosMultiphysics import *
+        from KratosMultiphysics.DEMApplication import *
 
         # DEMPack SubClasses
         self.procedures = DEM_procedures.Procedures(DEM_parameters)
@@ -615,6 +627,8 @@ class DEMWrapper(KratosWrapper):
 
     def run(self):
         """ Run a step of the wrapper """
+        from KratosMultiphysics import *
+        from KratosMultiphysics.DEMApplication import *
 
         fluid_particles = self.pcs
         solid_meshes = self.meshes
