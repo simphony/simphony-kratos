@@ -6,6 +6,6 @@ from . import ProjectParameters
 __all__ = [
     "CFD_Utils",
     "CUBAExt",
-    "CFDWrapper"
+    "CFDWrapper",
     "ProjectParameters"
 ]
