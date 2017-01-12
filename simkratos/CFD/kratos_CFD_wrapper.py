@@ -21,16 +21,16 @@ from simkratos.kratosWrapper import KratosWrapper
 # Kratos Imports
 from simkratos.CFD import ProjectParameters
 
-from KratosMultiphysics import *
-from KratosMultiphysics.IncompressibleFluidApplication import *
-from KratosMultiphysics.FluidDynamicsApplication import *
-from KratosMultiphysics.ExternalSolversApplication import *
-from KratosMultiphysics.MeshingApplication import *
-
 
 class CFDWrapper(KratosWrapper):
 
     def __init__(self, use_internal_interface=True, **kwargs):
+        from KratosMultiphysics import *
+        from KratosMultiphysics.IncompressibleFluidApplication import *
+        from KratosMultiphysics.FluidDynamicsApplication import *
+        from KratosMultiphysics.ExternalSolversApplication import *
+        from KratosMultiphysics.MeshingApplication import *
+
         super(CFDWrapper, self).__init__(use_internal_interface, **kwargs)
 
         self.time = 0
@@ -111,6 +111,11 @@ class CFDWrapper(KratosWrapper):
         while importing the mesh.
 
         """
+        from KratosMultiphysics import *
+        from KratosMultiphysics.IncompressibleFluidApplication import *
+        from KratosMultiphysics.FluidDynamicsApplication import *
+        from KratosMultiphysics.ExternalSolversApplication import *
+        from KratosMultiphysics.MeshingApplication import *
 
         if "REACTION" in ProjectParameters.nodal_results:
             modelPart.AddNodalSolutionStepVariable(REACTION)
@@ -296,6 +301,11 @@ class CFDWrapper(KratosWrapper):
         of the wrapper
 
         """
+        from KratosMultiphysics import *
+        from KratosMultiphysics.IncompressibleFluidApplication import *
+        from KratosMultiphysics.FluidDynamicsApplication import *
+        from KratosMultiphysics.ExternalSolversApplication import *
+        from KratosMultiphysics.MeshingApplication import *
 
         # Add the points in case they don't exist and update their value in
         # case they do.
@@ -384,6 +394,11 @@ class CFDWrapper(KratosWrapper):
         of the wrapper
 
         """
+        from KratosMultiphysics import *
+        from KratosMultiphysics.IncompressibleFluidApplication import *
+        from KratosMultiphysics.FluidDynamicsApplication import *
+        from KratosMultiphysics.ExternalSolversApplication import *
+        from KratosMultiphysics.MeshingApplication import *
 
         for condition in src.iter(item_type=CUBA.FACE):
 
@@ -412,6 +427,11 @@ class CFDWrapper(KratosWrapper):
             dst.SetConditions(conditions, group)
 
     def importKratosDof(self, src, dst, group):
+        from KratosMultiphysics import *
+        from KratosMultiphysics.IncompressibleFluidApplication import *
+        from KratosMultiphysics.FluidDynamicsApplication import *
+        from KratosMultiphysics.ExternalSolversApplication import *
+        from KratosMultiphysics.MeshingApplication import *
 
         bc = self.get_cuds().get(src.data[CUBA.CONDITION])
 
@@ -484,6 +504,11 @@ class CFDWrapper(KratosWrapper):
             Initalizes the necessary kratos commponents to
             execute Kratos' CFD solver
         """
+        from KratosMultiphysics import *
+        from KratosMultiphysics.IncompressibleFluidApplication import *
+        from KratosMultiphysics.FluidDynamicsApplication import *
+        from KratosMultiphysics.ExternalSolversApplication import *
+        from KratosMultiphysics.MeshingApplication import *
 
         self.fluid_model_part = ModelPart("")
         self.fluid_model_part.SetBufferSize(3)
@@ -502,6 +527,11 @@ class CFDWrapper(KratosWrapper):
 
     def run(self):
         """ Run a step of the wrapper """
+        from KratosMultiphysics import *
+        from KratosMultiphysics.IncompressibleFluidApplication import *
+        from KratosMultiphysics.FluidDynamicsApplication import *
+        from KratosMultiphysics.ExternalSolversApplication import *
+        from KratosMultiphysics.MeshingApplication import *
 
         fluid_meshes = self.meshes
 
