@@ -7,4 +7,5 @@ __all__ = [
     "CFD_Utils",
     "CUBAExt",
     "CFDWrapper"
+    "ProjectParameters"
 ]
