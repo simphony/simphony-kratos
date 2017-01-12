@@ -9,7 +9,6 @@ env:
 matrix:
   allow_failures:
     - env: SIMPHONY_VERSION=master
-
 before_install:
   - wget https://web.cimne.upc.edu/users/croig/data/kratos-simphony.tgz -O /tmp/kratos.tgz
   - mkdir $PWD/kratos
@@ -19,9 +18,10 @@ before_install:
   - export PATH=$PATH:$PWD/kratos
 
 install:
+  - pip install -e git+https://github.com/simphony/simphony-common.git${SIMPHONY_REMOTE}#egg=simphony
   - pip install -r dev_requirements.txt
   - python setup.py develop
 
 script:
-  - flake8 .
+  - flake8 . --ignore=E121,E123,E126,E226,E24,E704,W503,W504,F405,F401,F403
   - python -m unittest discover
