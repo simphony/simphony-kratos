@@ -38,5 +38,5 @@ setup(
     packages=find_packages(),
     package_data={'simkratos': ['tests/dem/*.mdpa',
                                 'tests/cfd/*.mdpa']},
-    install_requires=["simphony~=0.5"]
+    install_requires=["simphony>0.4,<0.6"]
 )
