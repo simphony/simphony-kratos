@@ -10,6 +10,11 @@ from simphony.cuds.particles import Particle as SParticle
 from simphony.cuds.particles import Particles as SParticles
 
 from KratosMultiphysics import *
+from KratosMultiphysics.IncompressibleFluidApplication import *
+from KratosMultiphysics.FluidDynamicsApplication import *
+from KratosMultiphysics.ExternalSolversApplication import *
+from KratosMultiphysics.MeshingApplication import *
+from KratosMultiphysics.DEMApplication import *
 
 
 class CFD_Utils(object):
