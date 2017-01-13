@@ -2,6 +2,13 @@ from simphony.engine import ABCEngineExtension
 from simphony.engine import EngineInterface
 from simphony.engine.decorators import register
 
+from .kratos_utils import CFD_Utils
+from .kratos_utils import DEM_Utils
+
+__all__ = [
+    "CFD_Utils", "DEM_Utils"
+]
+
 
 @register
 class SimkratosExtension(ABCEngineExtension):
