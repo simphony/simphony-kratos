@@ -2,18 +2,6 @@ from simphony.engine import ABCEngineExtension
 from simphony.engine import EngineInterface
 from simphony.engine.decorators import register
 
-from .kratos_utils import CFD_Utils
-from .kratos_utils import DEM_Utils
-from .cuba_extension import CUBAExt
-from .CFD.kratos_CFD_wrapper import CFDWrapper
-from .DEM.kratos_DEM_wrapper import DEMWrapper
-
-__all__ = [
-    "CFD_Utils", "DEM_Utils",
-    "CUBAExt",
-    "CFDWrapper", "DEMWrapper"
-]
-
 
 @register
 class SimkratosExtension(ABCEngineExtension):
@@ -79,7 +67,9 @@ class SimkratosExtension(ABCEngineExtension):
             )
 
         if engine_name == 'KRATOS_CFD':
+            from .CFD.kratos_CFD_wrapper import CFDWrapper
             return CFDWrapper(cuds=cuds, use_internal_interface=True)
 
         if engine_name == 'KRATOS_DEM':
+            from .DEM.kratos_DEM_wrapper import DEMWrapper
             return DEMWrapper(cuds=cuds, use_internal_interface=True)

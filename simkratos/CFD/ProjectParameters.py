@@ -23,12 +23,12 @@ class FluidSolverConfiguration:
         scaling = False
         krylov_type = "CG"
         smoother_type = "DAMPED_JACOBI"
-    
+
     #convergence criteria settings
     vel_toll = 1E-3
     press_toll = 1E-3
     divergence_cleareance_step = 50
-    
+
     #other solver settings
     oss_switch = 1
     compute_reactions = True
