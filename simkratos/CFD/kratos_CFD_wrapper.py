@@ -27,6 +27,7 @@ from KratosMultiphysics.MeshingApplication import *
 # Kratos Imports
 from simkratos.CFD import ProjectParameters
 
+
 class CFDWrapper(KratosWrapper):
 
     def __init__(self, use_internal_interface=True, **kwargs):
