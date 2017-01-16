@@ -141,9 +141,6 @@ class CFDWrapper(KratosWrapper):
         self.getSolutionStepVariable1D(data, node, "FLAG_VARIABLE")
         self.getSolutionStepVariable1D(data, node, "IS_STRUCTURE")
 
-        # data.update({CUBAExtension.IMPOSED_PRES: node.IsFixed(PRESSURE)})
-        # data.update({CUBAExtension.IMPOSED_VEL: node.IsFixed(VELOCITY_X)})
-
     def setNodalData(self, data, node):
         """ Assembles the point data
 

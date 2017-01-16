@@ -210,8 +210,6 @@ class DEMWrapper(KratosWrapper):
 
             data = {}
 
-            # self.getElementalData(data, node)
-
             if element.Id not in self.id_to_uuid_element_map:
 
                 point_list = [
@@ -248,8 +246,6 @@ class DEMWrapper(KratosWrapper):
             condition_uid = None
 
             data = {}
-
-            # self.getElementalData(data, node)
 
             if condition.Id not in self.id_to_uuid_condition_map:
 
@@ -553,7 +549,6 @@ class DEMWrapper(KratosWrapper):
         self.parallelutils = DEM_procedures.ParallelUtils()
         self.materialTest = DEM_procedures.MaterialTest()
         self.creator_destructor = ParticleCreatorDestructor()
-        # self.demio = DEM_procedures.DEMIo()
 
         # Prepare ModelParts
         self.spheres_model_part = ModelPart("Particles")
@@ -625,7 +620,6 @@ class DEMWrapper(KratosWrapper):
         fluid_properties = PropertiesArray()
         meshNumber = 1
         meshDict = {}
-        # solid_properties = PropertiesArray()
 
         for particles in cuds.iter(ABCParticles):
 
@@ -639,23 +633,6 @@ class DEMWrapper(KratosWrapper):
 
             meshDict[mesh.name] = meshNumber
             meshNumber += 1
-
-        # for mesh in cuds.iter(ABCMesh):
-        #
-        #     group = meshNumber
-        #
-        #     self.importKratosNodes(
-        #         mesh,
-        #         self.rigid_face_model_part,
-        #         group
-        #     )
-        #     self.importKratosConditions(
-        #         mesh,
-        #         self.rigid_face_model_part,
-        #         group
-        #     )
-        #
-        #     meshNumber += 1
 
         self.updateBackwardDicc()
 
@@ -706,21 +683,5 @@ class DEMWrapper(KratosWrapper):
                 particles,
                 group
             )
-
-        # for mesh_name in solid_meshes:
-        #
-        #     mesh = self.get_dataset(mesh_name)
-        #     group = mesh.data[CUBA.MATERIAL_ID]
-        #
-        #     self.exportKratosNodes(
-        #         self.rigid_face_model_part,
-        #         mesh,
-        #         group
-        #     )
-        #     self.exportKratosConditions(
-        #         self.rigid_face_model_part,
-        #         mesh,
-        #         group
-        #     )
 
         self.updateForwardDicc()
