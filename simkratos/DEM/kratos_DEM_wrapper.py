@@ -428,7 +428,6 @@ class DEMWrapper(KratosWrapper):
 
         # If they belong to a different group, add them
         if group != 0:
-            print(group)
             elements = ElementsArray()
             for elem in src.iter_cells():
                 elements.append(

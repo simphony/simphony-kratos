@@ -419,12 +419,9 @@ class CFDWrapper(KratosWrapper):
         mesh_prop = Properties(group)
         mesh_prop.SetValue(IS_SLIP, 0)
 
-        print("Applying DOF to mesh", group, bc, src.data[CUBA.CONDITION])
-
         if CUBA.PRESSURE not in bc.data:
             mesh_prop.SetValue(IMPOSED_PRESSURE, 0)
         else:
-            print(bc.data[CUBA.PRESSURE])
             mesh_prop.SetValue(IMPOSED_PRESSURE, 1)
             mesh_prop.SetValue(PRESSURE, bc.data[CUBA.PRESSURE])
 
@@ -437,7 +434,6 @@ class CFDWrapper(KratosWrapper):
             mesh_prop.SetValue(IMPOSED_VELOCITY_Y, 0)
             mesh_prop.SetValue(IMPOSED_VELOCITY_Z, 0)
         else:
-            print(bc.data[CUBA.VELOCITY])
             imposedVel = bc.data[CUBA.VELOCITY]
             if imposedVel[0] is not None:
                 mesh_prop.SetValue(IMPOSED_VELOCITY_X, 1)
@@ -532,7 +528,6 @@ class CFDWrapper(KratosWrapper):
             meshNumber += 1
 
         self.fluid_model_part.SetProperties(properties)
-        print(self.fluid_model_part)
 
         self.updateBackwardDicc()
         self.setElementData()
