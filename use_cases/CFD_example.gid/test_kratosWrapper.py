@@ -1,58 +1,61 @@
+""" This files provide a test example on how to use
+Simphony along with the Kratos Multiphisics CFD wrapper
 
-# Kratos will works with Python3 by default.
-# This line makes KratosMultiphysics backward compatible with python 2.6 and 2.7
-from __future__ import print_function, absolute_import, division
+"""
 
-# Kratos
-from KratosMultiphysics import *
-from KratosMultiphysics.IncompressibleFluidApplication import *
-from KratosMultiphysics.FluidDynamicsApplication import *
-from KratosMultiphysics.ExternalSolversApplication import *
-from KratosMultiphysics.MeshingApplication import *
+import os
 
-# Simphony Imports
 from simphony.core.cuba import CUBA
-from simphony.core.data_container import DataContainer
+from simphony.cuds.mesh import Mesh
 
-from simphony.cuds.mesh import Mesh as SMesh
-from simphony.cuds.mesh import Point as SPoint
-from simphony.cuds.mesh import Edge as SEdge
-from simphony.cuds.mesh import Face as SFace
-from simphony.cuds.mesh import Cell as SCell
+from simphony.api import CUDS, Simulation
+from simphony.cuds.meta import api
 
-from uuid import *
+# TODO: Utils now belong to probably another package
+from simphony.engine import EngineInterface
+from simphony.engine import kratos
 
-# Wrapper
-from wrappers import kratos_CFD_wrapper as CFDengine
+# Add the problem path to the script
+path = os.path.join(os.path.dirname(__file__), "CFD_exampleFluid")
 
+cuds = CUDS(name='example_fluid_name')
 
-# Definition of the DEMengine
-CFDWrapper = CFDengine.CFDWrapper()
- 
-CFDWrapper.CM[CUBA.TIME_STEP] = 0.001
-CFDWrapper.CM[CUBA.NUMBER_OF_TIME_STEPS] = 51
+# Integration time:
+itime = api.IntegrationTime(name="md_nve_integration_time")
+itime.time = 0.0001
+itime.step = 0.0025
+itime.final = 0.0125  # 5 Kratos Timesteps
+cuds.add(itime)
 
-CFDWrapper.BC[CUBA.VELOCITY] = {'inlet': (1.0, 0.0, 0.0),
-                                'outlet': 'zeroGradient',
-                                'wall': (0.0, 0.0, 0.0),
-                                'frontAndBack': 'empty'}
+# Utils are used to read an existing Kratos model as raw data so we can
+# initialize the correct simphony datasets
+utils = kratos.CFD_Utils()
 
-CFDWrapper.BC[CUBA.PRESSURE] = {'inlet': 'zeroGradient',
-                                'outlet': 0.0,
-                                'wall': 'zeroGradient',
-                                'frontAndBack': 'empty'}
+# Reads kratos data so its interpretable by simphony
+kratos_model = utils.read_modelpart(path)
 
-# This should be used for test proposes only since
-# is not api compliant
-mesh = CFDWrapper.read_modelpart("CFD_exampleFluid")
- 
-CFDWrapper.setMeshData(mesh)
-CFDWrapper.add_mesh(mesh)
+# Add the datasets readed from the conversor.
+# NOTE: That the 'mesh' variable is called that way because CFD is going to
+# use meshes, but it represents a dataset object.
+for mesh in kratos_model['meshes']:
+    cuds.add(mesh)
 
-for i in xrange(0,CFDWrapper.CM[CUBA.NUMBER_OF_TIME_STEPS]):
-    lastTime = CFDWrapper.run()
-    print("Finished Step {}".format(i))
+# Add some boundary conditions readed from the conversor.
+for bc in kratos_model['bcs']:
+    conditionName = 'condition_'+bc['name']
 
-CFDWrapper.finalize()
+    # Generate a regular bondary condition
+    condition = api.Condition(name=conditionName)
 
-print("Test finished correctly")
+    # Apply the data
+    conditionData = condition.data
+    conditionData[CUBA.VELOCITY] = bc['velocity']
+    conditionData[CUBA.PRESSURE] = bc['pressure']
+    condition.data = conditionData
+
+    # Add it to the CUDS
+    cuds.add(condition)
+
+# Create the simulation and run the problem
+sim = Simulation(cuds, "KRATOS_CFD", engine_interface=True)
+sim.run()

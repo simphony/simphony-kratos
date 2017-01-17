@@ -5,18 +5,13 @@ kratosWrapper class.
 
 """
 import os
-
-from KratosMultiphysics import *
-from KratosMultiphysics.DEMApplication import *
-from KratosMultiphysics.IncompressibleFluidApplication import *
-from KratosMultiphysics.FluidDynamicsApplication import *
-from KratosMultiphysics.ExternalSolversApplication import *
-from KratosMultiphysics.MeshingApplication import *
-
 import unittest
 
-from simphony.core.cuba import CUBA
-from simphony.engine import kratos_cfd
+from simphony.api import CUDS, Simulation
+from simphony.cuds.meta import api
+
+# TODO: Utils now belong to probably another package
+from simphony.engine import kratos
 
 
 class TestKratosCFDWrapper(unittest.TestCase):
@@ -39,36 +34,40 @@ class TestKratosCFDWrapper(unittest.TestCase):
 
         """
 
-        utils = kratos_cfd.CFD_Utils()
-        wrapper = kratos_cfd.CFDWrapper()
+        # Add the problem path to the script
+        path = os.path.join(os.path.dirname(__file__), "CFD_exampleFluid")
 
-        wrapper.CM[CUBA.TIME_STEP] = self.time_step
-        wrapper.CM[CUBA.NUMBER_OF_TIME_STEPS] = self.num_steps
+        cuds = CUDS(name='example_kratos_cfd_simulatiob')
 
-        # Set the meshes that are part of the fluid
-        wrapper.SPE[kratos_cfd.CUBAExt.FLUID_MESHES] = [
-            "fluid_0", "fluid_1", "fluid_2",
-            "fluid_3", "fluid_4"
-        ]
+        # Integration time:
+        itime = api.IntegrationTime(name="cfd_integration_time")
+        itime.time = 0.0001
+        itime.step = 0.0025
+        itime.final = 0.0075  # 5 Kratos Timesteps
+        cuds.add(itime)
 
-        # reads kratos data so its interpretable by simphony
-        kratos_model = utils.read_modelpart(self.path)
+        # Utils are used to read an existing Kratos model as raw data so we can
+        # initialize the correct simphony datasets
+        utils = kratos.CFD_Utils()
 
-        wrapper.BC[CUBA.VELOCITY] = {}
-        wrapper.BC[CUBA.PRESSURE] = {}
+        # Reads Kratos mpda as a simphony data.
+        model = utils.read_modelpart(path)
 
-        for mesh in kratos_model['meshes']:
-            wrapper.add_dataset(mesh)
+        # Add the datasets readed from the conversor.
+        for dataset in model['datasets']:
+            cuds.add(dataset)
 
-        for bc in kratos_model['bcs']:
-            wrapper.BC[CUBA.VELOCITY][bc['name']] = bc['velocity']
-            wrapper.BC[CUBA.PRESSURE][bc['name']] = bc['pressure']
+        # Add the boundary contitions from the conversor
+        for condition in model['conditions']:
+            cuds.add(condition)
 
-        print(wrapper.BC[CUBA.VELOCITY])
-        print(wrapper.BC[CUBA.PRESSURE])
+        # Add the materials contitions from the conversor
+        for material in model['materials']:
+            cuds.add(material)
 
-        for i in xrange(0, wrapper.CM[CUBA.NUMBER_OF_TIME_STEPS]):
-            wrapper.run()
+        # Create the simulation and run the problem
+        sim = Simulation(cuds, "KRATOS_CFD", engine_interface=True)
+        sim.run()
 
     def tear_down(self):
         pass

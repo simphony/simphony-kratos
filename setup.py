@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 with open('README.rst', 'r') as readme:
     README_TEXT = readme.read()
 
-VERSION = '0.2.1.dev0'
+VERSION = '0.5.dev0'
 
 
 def write_version_py(filename=None):
@@ -32,11 +32,11 @@ setup(
                  for the SimPhoNy framework',
     long_description=README_TEXT,
     entry_points={'simphony.engine': [
-        'kratos_cfd = simkratos.CFD',
-        'kratos_dem = simkratos.DEM'
+        'kratos = simkratos'
     ]},
     packages=find_packages(),
     package_data={'simkratos': ['tests/dem/*.mdpa',
                                 'tests/cfd/*.mdpa']},
-    install_requires=["simphony ~= 0.4"]
+
+    install_requires=["simphony>0.4,<0.6"]
 )
