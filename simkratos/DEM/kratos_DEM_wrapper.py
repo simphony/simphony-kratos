@@ -329,7 +329,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for particle in src.iter(item_tyme=CUBA.PARTICLES):
+        for particle in src.iter(item_type=CUBA.PARTICLES):
 
             data = particle.data
 
