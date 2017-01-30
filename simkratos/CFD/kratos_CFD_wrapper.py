@@ -9,8 +9,6 @@ from __future__ import print_function, absolute_import, division
 from simphony.core.cuba import CUBA
 from simphony.core.data_container import DataContainer
 
-from simphony.cuds.abc_mesh import ABCMesh
-
 from simphony.cuds.mesh import Point as SPoint
 from simphony.cuds.mesh import Face as SFace
 from simphony.cuds.mesh import Cell as SCell
@@ -101,7 +99,7 @@ class CFDWrapper(KratosWrapper):
         if not cuds:
             return
 
-        for component in cuds.iter(ABCMesh):
+        for component in cuds.iter(item_type=CUBA.MESH):
             self.add_dataset(component)
 
     def addNodalVariablesToModelpart(self, modelPart):
@@ -507,7 +505,7 @@ class CFDWrapper(KratosWrapper):
         meshNumber = 1
         meshDict = {}
 
-        for mesh in cuds.iter(ABCMesh):
+        for mesh in cuds.iter(item_type=CUBA.MESH):
 
             group = meshNumber
 
@@ -568,7 +566,7 @@ class CFDWrapper(KratosWrapper):
         cuds.get('cfd_integration_time').final = self.final
 
         # Resotre the information to SimPhoNy
-        for mesh in cuds.iter(ABCMesh):
+        for mesh in cuds.iter(item_type=CUBA.MESH):
 
             group = meshDict[mesh.name]
 

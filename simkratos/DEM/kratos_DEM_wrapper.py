@@ -9,9 +9,6 @@ from __future__ import print_function, absolute_import, division
 from simphony.core.cuba import CUBA
 from simphony.core.data_container import DataContainer
 
-from simphony.cuds.abc_mesh import ABCMesh
-from simphony.cuds.abc_particles import ABCParticles
-
 from simphony.cuds.mesh import Point as SPoint
 from simphony.cuds.mesh import Face as SFace
 from simphony.cuds.mesh import Cell as SCell
@@ -81,7 +78,7 @@ class DEMWrapper(KratosWrapper):
         if not cuds:
             return
 
-        for component in cuds.iter(ABCMesh):
+        for component in cuds.iter(item_type=CUBA.MESH):
             self.add_dataset(component)
 
     def getNodalData(self, data, node, model):
@@ -621,7 +618,7 @@ class DEMWrapper(KratosWrapper):
         meshNumber = 1
         meshDict = {}
 
-        for particles in cuds.iter(ABCParticles):
+        for particles in cuds.iter(item_type=CUBA.PARTICLES):
 
             group = meshNumber
 
@@ -674,7 +671,7 @@ class DEMWrapper(KratosWrapper):
         cuds.get('dem_integration_time').time = self.time
         cuds.get('dem_integration_time').final = self.final
 
-        for particles in cuds.iter(ABCParticles):
+        for particles in cuds.iter(item_type=CUBA.PARTICLES):
 
             group = meshDict[mesh.name]
 
