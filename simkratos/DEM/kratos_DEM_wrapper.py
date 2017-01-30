@@ -276,7 +276,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for point in src.iter_points():
+        for point in src.iter(item_type=CUBA.POINT):
 
             data = point.data
 
@@ -312,7 +312,7 @@ class DEMWrapper(KratosWrapper):
         # If they belong to a different group, add them
         if group != 0:
             nodes = NodesArray()
-            for point in src.iter_points():
+            for point in src.iter(item_type=CUBA.POINT):
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[point.uid]]
                 )
@@ -329,7 +329,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for particle in src.iter_particles():
+        for particle in src.iter(item_tyme=CUBA.PARTICLES):
 
             data = particle.data
 
@@ -381,7 +381,7 @@ class DEMWrapper(KratosWrapper):
         if group != 0:
             nodes = NodesArray()
             elements = ElementsArray()
-            for particle in src.iter_particles():
+            for particle in src.iter(item_type=CUBA.PARTICLES):
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[particle.uid]]
                 )
@@ -402,7 +402,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for element in src.iter_cells():
+        for element in src.iter(item_type=CUBA.CELL):
 
             if element.uid not in self.uuid_to_id_element_map.keys():
                 self.uuid_to_id_element_map.update(
@@ -422,7 +422,7 @@ class DEMWrapper(KratosWrapper):
         # If they belong to a different group, add them
         if group != 0:
             elements = ElementsArray()
-            for elem in src.iter_cells():
+            for elem in src.iter(item_type=CUBA.CELL):
                 elements.append(
                     dst.Elements[self.uuid_to_id_element_map[elem.uid]]
                 )
@@ -439,7 +439,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for condition in src.iter_faces():
+        for condition in src.iter(item_type=CUBA.FACE):
 
             if condition.uid not in self.uuid_to_id_condition_map.keys():
                 self.uuid_to_id_condition_map.update(
@@ -459,7 +459,7 @@ class DEMWrapper(KratosWrapper):
         # If they belong to a different group, add them
         if group != 0:
             conditions = ConditionsArray()
-            for cnd in src.iter_faces():
+            for cnd in src.iter(item_type=CUBA.FACE):
                 conditions.append(
                     dst.Conditions[self.uuid_to_id_condition_map[cnd.uid]]
                 )
