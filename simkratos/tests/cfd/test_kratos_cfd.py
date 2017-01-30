@@ -54,13 +54,13 @@ class TestKratosCFDWrapper(unittest.TestCase):
         model = utils.read_modelpart(path)
 
         # Add the datasets readed from the conversor.
-        cuds.add(list(model['datasets'])
+        cuds.add(list(model['datasets']))
 
         # Add the boundary contitions from the conversor
-        cuds.add(list(model['conditions'])
+        cuds.add(list(model['conditions']))
 
         # Add the materials contitions from the conversor
-        cuds.add(list(model["materials"])
+        cuds.add(list(model["materials"]))
 
         # Create the simulation and run the problem
         sim = Simulation(cuds, "KRATOS_CFD", engine_interface=True)
