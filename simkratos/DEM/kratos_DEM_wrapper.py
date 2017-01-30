@@ -329,7 +329,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for particle in src.iter(item_type=CUBA.PARTICLES):
+        for particle in src.iter(item_type=CUBA.PARTICLE):
 
             data = particle.data
 
@@ -381,7 +381,7 @@ class DEMWrapper(KratosWrapper):
         if group != 0:
             nodes = NodesArray()
             elements = ElementsArray()
-            for particle in src.iter(item_type=CUBA.PARTICLES):
+            for particle in src.iter(item_type=CUBA.PARTICLE):
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[particle.uid]]
                 )
@@ -618,7 +618,7 @@ class DEMWrapper(KratosWrapper):
         meshNumber = 1
         meshDict = {}
 
-        for particles in cuds.iter(item_type=CUBA.PARTICLES):
+        for particles in cuds.iter(item_type=CUBA.PARTICLE):
 
             group = meshNumber
 
@@ -671,7 +671,7 @@ class DEMWrapper(KratosWrapper):
         cuds.get('dem_integration_time').time = self.time
         cuds.get('dem_integration_time').final = self.final
 
-        for particles in cuds.iter(item_type=CUBA.PARTICLES):
+        for particles in cuds.iter(item_type=CUBA.PARTICLE):
 
             group = meshDict[mesh.name]
 
