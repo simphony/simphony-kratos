@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 with open('README.rst', 'r') as readme:
     README_TEXT = readme.read()
 
-VERSION = '0.3.0'
+VERSION = '0.4.0.dev0'
 
 
 def write_version_py(filename=None):
@@ -38,5 +38,5 @@ setup(
     package_data={'simkratos': ['tests/dem/*.mdpa',
                                 'tests/cfd/*.mdpa']},
 
-    install_requires=["simphony~=0.5"]
+    install_requires=["simphony>=0.5"]
 )
