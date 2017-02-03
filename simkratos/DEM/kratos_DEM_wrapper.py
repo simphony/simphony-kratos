@@ -668,8 +668,8 @@ class DEMWrapper(KratosWrapper):
             self.step += 1
             self.time = self.time + self.dt
 
-        cuds.get('dem_integration_time').time = self.time
-        cuds.get('dem_integration_time').final = self.final
+        cuds.get_by_name('dem_integration_time').time = self.time
+        cuds.get_by_name('dem_integration_time').final = self.final
 
         for particles in cuds.iter(item_type=CUBA.PARTICLE):
 
