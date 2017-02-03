@@ -562,8 +562,8 @@ class CFDWrapper(KratosWrapper):
             self.solver.Solve()
             self.time = self.time + Dt
 
-        cuds.get('cfd_integration_time').time = self.time
-        cuds.get('cfd_integration_time').final = self.final
+        cuds.get_by_name('cfd_integration_time').time = self.time
+        cuds.get_by_name('cfd_integration_time').final = self.final
 
         # Resotre the information to SimPhoNy
         for mesh in cuds.iter(item_type=CUBA.MESH):
