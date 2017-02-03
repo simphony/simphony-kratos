@@ -643,17 +643,17 @@ class DEMWrapper(KratosWrapper):
 
         self.solver.Initialize()
 
-        self.dt = cuds.get('dem_integration_time').step
+        self.dt = cuds.get_by_name('dem_integration_time').step
 
         # Start the simulation itself
-        self.time = cuds.get('dem_integration_time').time
-        self.final = cuds.get('dem_integration_time').final
+        self.time = cuds.get_by_name('dem_integration_time').time
+        self.final = cuds.get_by_name('dem_integration_time').final
 
         # Solve
         while self.time < self.final:
 
             self.dt = self.spheres_model_part.ProcessInfo.GetValue(DELTA_TIME)
-            cuds.get('dem_integration_time').step = self.dt
+            cuds.get_by_name('dem_integration_time').step = self.dt
 
             self.spheres_model_part.ProcessInfo[TIME] = self.time
             self.spheres_model_part.ProcessInfo[DELTA_TIME] = self.dt

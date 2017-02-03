@@ -409,7 +409,7 @@ class CFDWrapper(KratosWrapper):
 
     def importKratosDof(self, src, dst, group):
 
-        bc = self.get_cuds().get(src.data[CUBA.CONDITION])
+        bc = self.get_cuds().get_by_name(src.data[CUBA.CONDITION])
 
         mesh_prop = Properties(group)
         mesh_prop.SetValue(IS_SLIP, 0)
