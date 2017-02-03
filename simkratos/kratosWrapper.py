@@ -389,8 +389,8 @@ class KratosWrapper(ABCModelingEngine):
 
         c_particles = Particles(name=src.name)
 
-        c_particles.add_particles(src.iter_particles())
-        c_particles.add_bonds(src.iter_bonds())
+        c_particles.add(src.iter(item_type=CUBA.PARTICLE))
+        c_particles.add(src.iter(item_type=CUBA.BOND))
 
         c_particles.data = src.data
 
