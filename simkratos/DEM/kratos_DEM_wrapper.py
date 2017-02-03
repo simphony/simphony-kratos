@@ -9,9 +9,6 @@ from __future__ import print_function, absolute_import, division
 from simphony.core.cuba import CUBA
 from simphony.core.data_container import DataContainer
 
-from simphony.cuds.abc_mesh import ABCMesh
-from simphony.cuds.abc_particles import ABCParticles
-
 from simphony.cuds.mesh import Point as SPoint
 from simphony.cuds.mesh import Face as SFace
 from simphony.cuds.mesh import Cell as SCell
@@ -81,7 +78,7 @@ class DEMWrapper(KratosWrapper):
         if not cuds:
             return
 
-        for component in cuds.iter(ABCMesh):
+        for component in cuds.iter(item_type=CUBA.MESH):
             self.add_dataset(component)
 
     def getNodalData(self, data, node, model):
@@ -279,7 +276,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for point in src.iter_points():
+        for point in src.iter(item_type=CUBA.POINT):
 
             data = point.data
 
@@ -315,7 +312,7 @@ class DEMWrapper(KratosWrapper):
         # If they belong to a different group, add them
         if group != 0:
             nodes = NodesArray()
-            for point in src.iter_points():
+            for point in src.iter(item_type=CUBA.POINT):
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[point.uid]]
                 )
@@ -332,7 +329,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for particle in src.iter_particles():
+        for particle in src.iter(item_type=CUBA.PARTICLE):
 
             data = particle.data
 
@@ -384,7 +381,7 @@ class DEMWrapper(KratosWrapper):
         if group != 0:
             nodes = NodesArray()
             elements = ElementsArray()
-            for particle in src.iter_particles():
+            for particle in src.iter(item_type=CUBA.PARTICLE):
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[particle.uid]]
                 )
@@ -405,7 +402,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for element in src.iter_cells():
+        for element in src.iter(item_type=CUBA.CELL):
 
             if element.uid not in self.uuid_to_id_element_map.keys():
                 self.uuid_to_id_element_map.update(
@@ -425,7 +422,7 @@ class DEMWrapper(KratosWrapper):
         # If they belong to a different group, add them
         if group != 0:
             elements = ElementsArray()
-            for elem in src.iter_cells():
+            for elem in src.iter(item_type=CUBA.CELL):
                 elements.append(
                     dst.Elements[self.uuid_to_id_element_map[elem.uid]]
                 )
@@ -442,7 +439,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        for condition in src.iter_faces():
+        for condition in src.iter(item_type=CUBA.FACE):
 
             if condition.uid not in self.uuid_to_id_condition_map.keys():
                 self.uuid_to_id_condition_map.update(
@@ -462,7 +459,7 @@ class DEMWrapper(KratosWrapper):
         # If they belong to a different group, add them
         if group != 0:
             conditions = ConditionsArray()
-            for cnd in src.iter_faces():
+            for cnd in src.iter(item_type=CUBA.FACE):
                 conditions.append(
                     dst.Conditions[self.uuid_to_id_condition_map[cnd.uid]]
                 )
@@ -621,7 +618,7 @@ class DEMWrapper(KratosWrapper):
         meshNumber = 1
         meshDict = {}
 
-        for particles in cuds.iter(ABCParticles):
+        for particles in cuds.iter(item_type=CUBA.PARTICLE):
 
             group = meshNumber
 
@@ -646,17 +643,17 @@ class DEMWrapper(KratosWrapper):
 
         self.solver.Initialize()
 
-        self.dt = cuds.get('dem_integration_time').step
+        self.dt = cuds.get_by_name('dem_integration_time').step
 
         # Start the simulation itself
-        self.time = cuds.get('dem_integration_time').time
-        self.final = cuds.get('dem_integration_time').final
+        self.time = cuds.get_by_name('dem_integration_time').time
+        self.final = cuds.get_by_name('dem_integration_time').final
 
         # Solve
         while self.time < self.final:
 
             self.dt = self.spheres_model_part.ProcessInfo.GetValue(DELTA_TIME)
-            cuds.get('dem_integration_time').step = self.dt
+            cuds.get_by_name('dem_integration_time').step = self.dt
 
             self.spheres_model_part.ProcessInfo[TIME] = self.time
             self.spheres_model_part.ProcessInfo[DELTA_TIME] = self.dt
@@ -671,10 +668,10 @@ class DEMWrapper(KratosWrapper):
             self.step += 1
             self.time = self.time + self.dt
 
-        cuds.get('dem_integration_time').time = self.time
-        cuds.get('dem_integration_time').final = self.final
+        cuds.get_by_name('dem_integration_time').time = self.time
+        cuds.get_by_name('dem_integration_time').final = self.final
 
-        for particles in cuds.iter(ABCParticles):
+        for particles in cuds.iter(item_type=CUBA.PARTICLE):
 
             group = meshDict[mesh.name]
 

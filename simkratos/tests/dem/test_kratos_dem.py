@@ -49,7 +49,7 @@ class TestKratosCFDWrapper(unittest.TestCase):
         itime.time = 0.0001
         itime.step = 0.001
         itime.final = 60 * itime.step
-        cuds.add(itime)
+        cuds.add([itime])
 
         # Utils are used to read an existing Kratos model as raw data so we can
         # initialize the correct simphony datasets
@@ -62,16 +62,13 @@ class TestKratosCFDWrapper(unittest.TestCase):
         # Add all models
         for model in [model_particles, model_solid]:
             # Add the datasets readed from the conversor.
-            for dataset in model['datasets']:
-                cuds.add(dataset)
+            cuds.add(list(model['datasets']))
 
             # Add the boundary contitions from the conversor
-            for condition in model['conditions']:
-                cuds.add(condition)
+            cuds.add(list(model['conditions']))
 
             # Add the materials contitions from the conversor
-            for material in model['materials']:
-                cuds.add(material)
+            cuds.add(list(model['materials']))
 
         # Create the simulation and run the problem
         sim = Simulation(cuds, "KRATOS_DEM", engine_interface=True)
