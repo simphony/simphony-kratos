@@ -630,7 +630,7 @@ class DEMWrapper(KratosWrapper):
                 group
             )
 
-            meshDict[mesh.name] = meshNumber
+            meshDict[particles.name] = meshNumber
             meshNumber += 1
 
         self.updateBackwardDicc()
@@ -675,7 +675,7 @@ class DEMWrapper(KratosWrapper):
 
         for particles in cuds.iter(item_type=CUBA.PARTICLE):
 
-            group = meshDict[mesh.name]
+            group = meshDict[particles.name]
 
             self.exportKratosParticles(
                 self.spheres_model_part,
