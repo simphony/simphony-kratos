@@ -19,8 +19,8 @@ from simkratos.kratosWrapper import KratosWrapper
 from simkratos.DEM import DEM_explicit_solver_var as DEM_parameters
 
 # Kratos Imports
-from KratosMultiphysics import *                                                # noqa: F403
-from KratosMultiphysics.DEMApplication import *                                 # noqa: F403
+import KratosMultiphysics as KRTS
+import KratosMultiphysics.DEMApplication as KRTSDEM
 
 import sphere_strategy as SolverStrategy
 import DEM_procedures
@@ -41,32 +41,32 @@ class DEMWrapper(KratosWrapper):
         self.variables_dictionary = {
             "RADIUS": [
                 CUBA.RADIUS,
-                RADIUS
+                KRTS.RADIUS
             ],
             "NODAL_MASS": [
                 None,
-                NODAL_MASS
+                KRTS.NODAL_MASS
             ],
             "VELOCITY": [
                 CUBA.VELOCITY,
-                VELOCITY,
-                VELOCITY_X,
-                VELOCITY_Y,
-                VELOCITY_Z
+                KRTS.VELOCITY,
+                KRTS.VELOCITY_X,
+                KRTS.VELOCITY_Y,
+                KRTS.VELOCITY_Z
             ],
             "DISPLACEMENT": [
                 None,
-                DISPLACEMENT,
-                DISPLACEMENT_X,
-                DISPLACEMENT_Y,
-                DISPLACEMENT_Z
+                KRTS.DISPLACEMENT,
+                KRTS.DISPLACEMENT_X,
+                KRTS.DISPLACEMENT_Y,
+                KRTS.DISPLACEMENT_Z
             ],
             "TOTAL_FORCES": [
                 None,
-                TOTAL_FORCES,
-                TOTAL_FORCES_X,
-                TOTAL_FORCES_Y,
-                TOTAL_FORCES_Z
+                KRTS.TOTAL_FORCES,
+                KRTS.TOTAL_FORCES_X,
+                KRTS.TOTAL_FORCES_Y,
+                KRTS.TOTAL_FORCES_Z
             ]
         }
 
@@ -313,7 +313,7 @@ class DEMWrapper(KratosWrapper):
 
         # If they belong to a different group, add them
         if group != 0:
-            nodes = NodesArray()
+            nodes = KRTS.NodesArray()
             for point in src.iter(item_type=CUBA.POINT):
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[point.uid]]
@@ -381,8 +381,8 @@ class DEMWrapper(KratosWrapper):
 
         # If they belong to a different group, add them
         if group != 0:
-            nodes = NodesArray()
-            elements = ElementsArray()
+            nodes = KRTS.NodesArray()
+            elements = KRTS.ElementsArray()
             for particle in src.iter(item_type=CUBA.PARTICLE):
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[particle.uid]]
@@ -423,7 +423,7 @@ class DEMWrapper(KratosWrapper):
 
         # If they belong to a different group, add them
         if group != 0:
-            elements = ElementsArray()
+            elements = KRTS.ElementsArray()
             for elem in src.iter(item_type=CUBA.CELL):
                 elements.append(
                     dst.Elements[self.uuid_to_id_element_map[elem.uid]]
@@ -460,7 +460,7 @@ class DEMWrapper(KratosWrapper):
 
         # If they belong to a different group, add them
         if group != 0:
-            conditions = ConditionsArray()
+            conditions = KRTS.ConditionsArray()
             for cnd in src.iter(item_type=CUBA.FACE):
                 conditions.append(
                     dst.Conditions[self.uuid_to_id_condition_map[cnd.uid]]
@@ -488,43 +488,43 @@ class DEMWrapper(KratosWrapper):
 
     def setElementData(self):
         self.element_properties.SetValue(
-            PARTICLE_DENSITY,
+            KRTS.PARTICLE_DENSITY,
             self.SP[CUBA.DENSITY]
         )
         self.element_properties.SetValue(
-            YOUNG_MODULUS,
+            KRTS.YOUNG_MODULUS,
             self.SP[CUBA.YOUNG_MODULUS]
         )
         self.element_properties.SetValue(
-            POISSON_RATIO,
+            KRTS.POISSON_RATIO,
             self.SP[CUBA.POISSON_RATIO]
         )
         self.element_properties.SetValue(
-            PARTICLE_FRICTION,
+            KRTS.PARTICLE_FRICTION,
             self.PARTICLE_FRICTION
         )
         self.element_properties.SetValue(
-            PARTICLE_COHESION,
+            KRTS.PARTICLE_COHESION,
             self.PARTICLE_COHESION
         )
         self.element_properties.SetValue(
-            LN_OF_RESTITUTION_COEFF,
+            KRTS.LN_OF_RESTITUTION_COEFF,
             self.LN_OF_RESTITUTION_COEFF
         )
         self.element_properties.SetValue(
-            PARTICLE_MATERIAL,
+            KRTS.PARTICLE_MATERIAL,
             self.PARTICLE_MATERIAL
         )
         self.element_properties.SetValue(
-            ROLLING_FRICTION,
+            KRTS.ROLLING_FRICTION,
             self.SP[CUBA.ROLLING_FRICTION]
         )
         self.element_properties.SetValue(
-            DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME,
+            KRTS.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME,
             self.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME
         )
         self.element_properties.SetValue(
-            DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME,
+            KRTS.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME,
             self.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME
         )
 
@@ -532,7 +532,7 @@ class DEMWrapper(KratosWrapper):
         cmesh = self.get_dataset("Conditions")
 
         self.condition_properties.SetValue(
-            WALL_FRICTION,
+            KRTS.WALL_FRICTION,
             cmesh.data[CUBA.WALL_FRICTION]
         )
 
@@ -547,16 +547,16 @@ class DEMWrapper(KratosWrapper):
         self.procedures = DEM_procedures.Procedures(DEM_parameters)
         self.parallelutils = DEM_procedures.ParallelUtils()
         self.materialTest = DEM_procedures.MaterialTest()
-        self.creator_destructor = ParticleCreatorDestructor()
+        self.creator_destructor = KRTSDEM.ParticleCreatorDestructor()
 
         # Prepare ModelParts
-        self.spheres_model_part = ModelPart("Particles")
-        self.rigid_face_model_part = ModelPart("Conditions")
-        self.mixed_model_part = ModelPart("")
-        self.cluster_model_part = ModelPart("")
-        self.DEM_inlet_model_part = ModelPart("")
-        self.mapping_model_part = ModelPart("")
-        self.contact_model_part = ModelPart("")
+        self.spheres_model_part = KRTS.ModelPart("Particles")
+        self.rigid_face_model_part = KRTS.ModelPart("Conditions")
+        self.mixed_model_part = KRTS.ModelPart("")
+        self.cluster_model_part = KRTS.ModelPart("")
+        self.DEM_inlet_model_part = KRTS.ModelPart("")
+        self.mapping_model_part = KRTS.ModelPart("")
+        self.contact_model_part = KRTS.ModelPart("")
 
         # Create solver
         self.solver = SolverStrategy.ExplicitStrategy(
@@ -569,8 +569,8 @@ class DEMWrapper(KratosWrapper):
         )
 
         # Prepare properties
-        self.element_properties = Properties(0)
-        self.condition_properties = Properties(1)
+        self.element_properties = KRTS.Properties(0)
+        self.condition_properties = KRTS.Properties(1)
 
         self._setMeshData()
         self.setElementData()
@@ -616,7 +616,7 @@ class DEMWrapper(KratosWrapper):
         self.spheres_model_part.GetMesh(len(fluid_particles))
         self.rigid_face_model_part.GetMesh(len(solid_meshes))
 
-        fluid_properties = PropertiesArray()
+        fluid_properties = KRTS.PropertiesArray()
         meshNumber = 1
         meshDict = {}
 
@@ -654,16 +654,16 @@ class DEMWrapper(KratosWrapper):
         # Solve
         while self.time < self.final:
 
-            self.dt = self.spheres_model_part.ProcessInfo.GetValue(DELTA_TIME)
+            self.dt = self.spheres_model_part.ProcessInfo.GetValue(KRTS.DELTA_TIME)
             cuds.get_by_name('dem_integration_time').step = self.dt
 
-            self.spheres_model_part.ProcessInfo[TIME] = self.time
-            self.spheres_model_part.ProcessInfo[DELTA_TIME] = self.dt
-            self.spheres_model_part.ProcessInfo[TIME_STEPS] = self.step
+            self.spheres_model_part.ProcessInfo[KRTS.TIME] = self.time
+            self.spheres_model_part.ProcessInfo[KRTS.DELTA_TIME] = self.dt
+            self.spheres_model_part.ProcessInfo[KRTS.TIME_STEPS] = self.step
 
-            self.rigid_face_model_part.ProcessInfo[TIME] = self.time
-            self.rigid_face_model_part.ProcessInfo[DELTA_TIME] = self.dt
-            self.rigid_face_model_part.ProcessInfo[TIME_STEPS] = self.step
+            self.rigid_face_model_part.ProcessInfo[KRTS.TIME] = self.time
+            self.rigid_face_model_part.ProcessInfo[KRTS.DELTA_TIME] = self.dt
+            self.rigid_face_model_part.ProcessInfo[KRTS.TIME_STEPS] = self.step
 
             self.solver.Solve()
 
