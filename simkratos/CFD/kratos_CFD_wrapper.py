@@ -16,7 +16,7 @@ from simphony.cuds.mesh import Cell as SCell
 # Wrapper Imports
 from simkratos.kratosWrapper import KratosWrapper
 
-from KratosMultiphysics import *                                                # noqa: F403
+import KratosMultiphysics as KRTS
 from KratosMultiphysics.IncompressibleFluidApplication import *                 # noqa: F403
 from KratosMultiphysics.FluidDynamicsApplication import *                       # noqa: F403
 from KratosMultiphysics.ExternalSolversApplication import *                     # noqa: F403
@@ -41,53 +41,53 @@ class CFDWrapper(KratosWrapper):
         self.variables_dictionary = {
             "PRESSURE": [
                 CUBA.PRESSURE,
-                PRESSURE
+                KRTS.PRESSURE
             ],
             "VELOCITY": [
                 CUBA.VELOCITY,
-                VELOCITY,
-                VELOCITY_X,
-                VELOCITY_Y,
-                VELOCITY_Z
+                KRTS.VELOCITY,
+                KRTS.VELOCITY_X,
+                KRTS.VELOCITY_Y,
+                KRTS.VELOCITY_Z
             ],
             "REACTION": [
                 None,
-                REACTION
+                KRTS.REACTION
             ],
             "DISTANCE": [
                 None,
-                DISTANCE
+                KRTS.DISTANCE
             ],
             "DISPLACEMENT": [
                 None,
-                DISPLACEMENT,
-                DISPLACEMENT_X,
-                DISPLACEMENT_Y,
-                DISPLACEMENT_Z
+                KRTS.DISPLACEMENT,
+                KRTS.DISPLACEMENT_X,
+                KRTS.DISPLACEMENT_Y,
+                KRTS.DISPLACEMENT_Z
             ],
             "VISCOSITY": [
                 None,
-                VISCOSITY
+                KRTS.VISCOSITY
             ],
             "DENSITY": [
                 CUBA.DENSITY,
-                DENSITY
+                KRTS.DENSITY
             ],
             "BODY_FORCE": [
                 None,
-                BODY_FORCE
+                KRTS.BODY_FORCE
             ],
             "FLAG_VARIABLE": [
                 None,
-                FLAG_VARIABLE
+                KRTS.FLAG_VARIABLE
             ],
             "IS_STRUCTURE": [
                 None,
-                IS_STRUCTURE
+                KRTS.IS_STRUCTURE
             ],
             "IS_SLIP": [
                 None,
-                IS_SLIP
+                KRTS.IS_SLIP
             ]
         }
 
@@ -112,9 +112,9 @@ class CFDWrapper(KratosWrapper):
         """
 
         if "REACTION" in ProjectParameters.nodal_results:
-            modelPart.AddNodalSolutionStepVariable(REACTION)
+            modelPart.AddNodalSolutionStepVariable(KRTS.REACTION)
         if "DISTANCE" in ProjectParameters.nodal_results:
-            modelPart.AddNodalSolutionStepVariable(DISTANCE)
+            modelPart.AddNodalSolutionStepVariable(KRTS.DISTANCE)
 
     # gets data for the nodes
 
@@ -326,7 +326,7 @@ class CFDWrapper(KratosWrapper):
 
         # If they belong to a different group, add them
         if group != 0:
-            nodes = NodesArray()
+            nodes = KRTS.NodesArray()
             for point in src.iter(item_type=CUBA.POINT):
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[point.uid]]
@@ -363,7 +363,7 @@ class CFDWrapper(KratosWrapper):
 
         # If they belong to a different group, add them
         if group != 0:
-            elements = ElementsArray()
+            elements = KRTS.ElementsArray()
             for elem in src.iter(item_type=CUBA.CELL):
                 elements.append(
                     dst.Elements[self.uuid_to_id_element_map[elem.uid]]
@@ -400,7 +400,7 @@ class CFDWrapper(KratosWrapper):
 
         # If they belong to a different group, add them
         if group != 0:
-            conditions = ConditionsArray()
+            conditions = KRTS.ConditionsArray()
             for cnd in src.iter(item_type=CUBA.FACE):
                 conditions.append(
                     dst.Conditions[self.uuid_to_id_condition_map[cnd.uid]]
@@ -411,54 +411,54 @@ class CFDWrapper(KratosWrapper):
 
         bc = self.get_cuds().get_by_name(src.data[CUBA.CONDITION])
 
-        mesh_prop = Properties(group)
-        mesh_prop.SetValue(IS_SLIP, 0)
+        mesh_prop = KRTS.Properties(group)
+        mesh_prop.SetValue(KRTS.IS_SLIP, 0)
 
         if CUBA.PRESSURE not in bc.data:
-            mesh_prop.SetValue(IMPOSED_PRESSURE, 0)
+            mesh_prop.SetValue(KRTS.IMPOSED_PRESSURE, 0)
         else:
-            mesh_prop.SetValue(IMPOSED_PRESSURE, 1)
-            mesh_prop.SetValue(PRESSURE, bc.data[CUBA.PRESSURE])
+            mesh_prop.SetValue(KRTS.IMPOSED_PRESSURE, 1)
+            mesh_prop.SetValue(KRTS.PRESSURE, bc.data[CUBA.PRESSURE])
 
             for node in self.fluid_model_part.GetNodes(group):
-                node.Fix(PRESSURE)
-                node.SetValue(PRESSURE, bc.data[CUBA.PRESSURE])
+                node.Fix(KRTS.PRESSURE)
+                node.SetValue(KRTS.PRESSURE, bc.data[CUBA.PRESSURE])
 
         if CUBA.VELOCITY not in bc.data:
-            mesh_prop.SetValue(IMPOSED_VELOCITY_X, 0)
-            mesh_prop.SetValue(IMPOSED_VELOCITY_Y, 0)
-            mesh_prop.SetValue(IMPOSED_VELOCITY_Z, 0)
+            mesh_prop.SetValue(KRTS.IMPOSED_VELOCITY_X, 0)
+            mesh_prop.SetValue(KRTS.IMPOSED_VELOCITY_Y, 0)
+            mesh_prop.SetValue(KRTS.IMPOSED_VELOCITY_Z, 0)
         else:
             imposedVel = bc.data[CUBA.VELOCITY]
             if imposedVel[0] is not None:
-                mesh_prop.SetValue(IMPOSED_VELOCITY_X, 1)
+                mesh_prop.SetValue(KRTS.IMPOSED_VELOCITY_X, 1)
                 mesh_prop.SetValue(
-                    IMPOSED_VELOCITY_X_VALUE,
+                    KRTS.IMPOSED_VELOCITY_X_VALUE,
                     bc.data[CUBA.VELOCITY][0]
                 )
             if imposedVel[1] is not None:
-                mesh_prop.SetValue(IMPOSED_VELOCITY_Y, 1)
+                mesh_prop.SetValue(KRTS.IMPOSED_VELOCITY_Y, 1)
                 mesh_prop.SetValue(
-                    IMPOSED_VELOCITY_Y_VALUE,
+                    KRTS.IMPOSED_VELOCITY_Y_VALUE,
                     bc.data[CUBA.VELOCITY][1]
                 )
             if imposedVel[2] is not None:
-                mesh_prop.SetValue(IMPOSED_VELOCITY_Z, 1)
+                mesh_prop.SetValue(KRTS.IMPOSED_VELOCITY_Z, 1)
                 mesh_prop.SetValue(
-                    IMPOSED_VELOCITY_Z_VALUE,
+                    KRTS.IMPOSED_VELOCITY_Z_VALUE,
                     bc.data[CUBA.VELOCITY][2]
                 )
 
             for node in self.fluid_model_part.GetNodes(group):
                 if imposedVel[0] is not None:
-                    node.Fix(VELOCITY_X)
-                    node.SetValue(VELOCITY_X, bc.data[CUBA.VELOCITY][0])
+                    node.Fix(KRTS.VELOCITY_X)
+                    node.SetValue(KRTS.VELOCITY_X, bc.data[CUBA.VELOCITY][0])
                 if imposedVel[1] is not None:
-                    node.Fix(VELOCITY_Y)
-                    node.SetValue(VELOCITY_Y, bc.data[CUBA.VELOCITY][1])
+                    node.Fix(KRTS.VELOCITY_Y)
+                    node.SetValue(KRTS.VELOCITY_Y, bc.data[CUBA.VELOCITY][1])
                 if imposedVel[2] is not None:
-                    node.Fix(VELOCITY_Z)
-                    node.SetValue(VELOCITY_Z, bc.data[CUBA.VELOCITY][2])
+                    node.Fix(KRTS.VELOCITY_Z)
+                    node.SetValue(KRTS.VELOCITY_Z, bc.data[CUBA.VELOCITY][2])
 
         return mesh_prop
 
@@ -477,20 +477,20 @@ class CFDWrapper(KratosWrapper):
             execute Kratos' CFD solver
         """
 
-        self.fluid_model_part = ModelPart("")
+        self.fluid_model_part = KRTS.ModelPart("")
         self.fluid_model_part.SetBufferSize(3)
 
         self.addNodalVariablesToModelpart(self.fluid_model_part)
 
         self.SolverSettings = ProjectParameters.FluidSolverConfiguration
-        self.solver_module = import_solver(self.SolverSettings)
+        self.solver_module = KRTS.import_solver(self.SolverSettings)
 
         self.solver_module.AddVariables(
             self.fluid_model_part,
             self.SolverSettings
         )
 
-        self.element_properties = Properties(0)
+        self.element_properties = KRTS.Properties(0)
 
     def run(self):
         """ Run a step of the wrapper """
@@ -501,7 +501,7 @@ class CFDWrapper(KratosWrapper):
 
         self.fluid_model_part.GetMesh(len(fluid_meshes))
 
-        properties = PropertiesArray()
+        properties = KRTS.PropertiesArray()
         meshNumber = 1
         meshDict = {}
 
@@ -533,8 +533,8 @@ class CFDWrapper(KratosWrapper):
         self.solver_module.AddDofs(self.fluid_model_part, self.SolverSettings)
 
         for node in self.fluid_model_part.Nodes:
-            y = node.GetSolutionStepValue(Y_WALL, 0)
-            node.SetValue(Y_WALL, y)
+            y = node.GetSolutionStepValue(KRTS.Y_WALL, 0)
+            node.SetValue(KRTS.Y_WALL, y)
 
         self.solver = self.solver_module.CreateSolver(
             self.fluid_model_part,
@@ -544,7 +544,7 @@ class CFDWrapper(KratosWrapper):
 
         Dt = cuds.get_by_name('cfd_integration_time').step
 
-        self.fluid_model_part.ProcessInfo.SetValue(DELTA_TIME, Dt)
+        self.fluid_model_part.ProcessInfo.SetValue(KRTS.DELTA_TIME, Dt)
 
         # Start the simulation itself
         self.time = cuds.get_by_name('cfd_integration_time').time
@@ -553,7 +553,7 @@ class CFDWrapper(KratosWrapper):
         # Init the temporal db without starting the simulation since we
         # cannot make sure this is the first execution of kratos or not.
         # NOTE: Temporal db from previous kratos steps is lost.
-        for i in xrange(0, 3):
+        for i in xrange(0, 3):                                                  # noqa: from future import
             self.fluid_model_part.CloneTimeStep(self.time)
             self.time = self.time + Dt
 
