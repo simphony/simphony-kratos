@@ -16,11 +16,11 @@ from simphony.cuds.mesh import Cell as SCell
 # Wrapper Imports
 from simkratos.kratosWrapper import KratosWrapper
 
-from KratosMultiphysics import *
-from KratosMultiphysics.IncompressibleFluidApplication import *
-from KratosMultiphysics.FluidDynamicsApplication import *
-from KratosMultiphysics.ExternalSolversApplication import *
-from KratosMultiphysics.MeshingApplication import *
+from KratosMultiphysics import *                                                # noqa: F403
+from KratosMultiphysics.IncompressibleFluidApplication import *                 # noqa: F403
+from KratosMultiphysics.FluidDynamicsApplication import *                       # noqa: F403
+from KratosMultiphysics.ExternalSolversApplication import *                     # noqa: F403
+from KratosMultiphysics.MeshingApplication import *                             # noqa: F403
 
 # Kratos Imports
 from simkratos.CFD import ProjectParameters

@@ -19,8 +19,10 @@ from simkratos.kratosWrapper import KratosWrapper
 from simkratos.DEM import DEM_explicit_solver_var as DEM_parameters
 
 # Kratos Imports
-from KratosMultiphysics import *
-from KratosMultiphysics.DEMApplication import *
+from KratosMultiphysics import *                                                # noqa: F403
+from KratosMultiphysics.DEMApplication import *                                 # noqa: F403
+
+
 
 import sphere_strategy as SolverStrategy
 import DEM_procedures
@@ -226,6 +228,8 @@ class DEMWrapper(KratosWrapper):
 
             else:
 
+                # No data is stored in the element yet
+
                 pass
 
     def exportKratosConditions(self, src, dst, group):
@@ -263,6 +267,8 @@ class DEMWrapper(KratosWrapper):
 
             else:
 
+                # No data is stored in the condition yet
+
                 pass
 
     def importKratosNodes(self, src, dst, group):
@@ -276,9 +282,9 @@ class DEMWrapper(KratosWrapper):
 
         """
 
+        # Add the points in case they don't exist and update their value in
+        # case they do.
         for point in src.iter(item_type=CUBA.POINT):
-
-            data = point.data
 
             if point.uid not in self.uuid_to_id_node_map.keys():
                 self.uuid_to_id_node_map.update(
@@ -288,6 +294,8 @@ class DEMWrapper(KratosWrapper):
                 self.free_id += 1
 
                 node_id = self.uuid_to_id_node_map[point.uid]
+
+                data = point.data
 
                 node = dst.CreateNewNode(
                     node_id,
@@ -301,12 +309,8 @@ class DEMWrapper(KratosWrapper):
 
             else:
 
-                node = self.id_to_ref_node[
-                    self.uuid_to_id_node_map[point.uid]
-                ]
-
+                node = self.id_to_ref_node[self.uuid_to_id_node_map[point.uid]]
                 data = point.data
-
                 self.setNodalData(data, node, dst.Name)
 
         # If they belong to a different group, add them
