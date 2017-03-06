@@ -22,8 +22,6 @@ from simkratos.DEM import DEM_explicit_solver_var as DEM_parameters
 from KratosMultiphysics import *                                                # noqa: F403
 from KratosMultiphysics.DEMApplication import *                                 # noqa: F403
 
-
-
 import sphere_strategy as SolverStrategy
 import DEM_procedures
 
