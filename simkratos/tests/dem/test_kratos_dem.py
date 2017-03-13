@@ -11,7 +11,7 @@ from simphony.api import CUDS, Simulation
 from simphony.cuds.meta import api
 
 # TODO: Utils now belong to probably another package
-from simphony.engine import kratos_dem_utils as utils
+from simphony.engine import kratos_dem_utils
 
 
 def abs_path(relPath):
@@ -50,6 +50,10 @@ class TestKratosCFDWrapper(unittest.TestCase):
         itime.step = 0.001
         itime.final = 60 * itime.step
         cuds.add([itime])
+
+        # Utils are used to read an existing Kratos model as raw data so we can
+        # initialize the correct simphony datasets
+        utils = kratos_dem_utils.DEM_Utils()
 
         # Reads Kratos mpda as a simphony data.
         model_particles = utils.read_modelpart_as_particles(pathParticles)

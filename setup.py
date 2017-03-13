@@ -34,8 +34,8 @@ setup(
     entry_points={
         'simphony.engine': [
             'kratos = simkratos',
-            'kratos_cfd_utils = simkratos.CFD.kratos_CFD_utils:CFD_Utils',
-            'kratos_dem_utils = simkratos.DEM.kratos_DEM_utils:DEM_Utils'
+            'kratos_cfd_utils = simkratos.CFD.kratos_CFD_utils',
+            'kratos_dem_utils = simkratos.DEM.kratos_DEM_utils'
         ]},
     packages=find_packages(),
     package_data={'simkratos': ['tests/dem/*.mdpa',

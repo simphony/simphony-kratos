@@ -11,7 +11,7 @@ from simphony.api import CUDS, Simulation
 from simphony.cuds.meta import api
 
 # TODO: Utils now belong to probably another package
-from simphony.engine import kratos_cfd_utils as utils
+from simphony.engine import kratos_cfd_utils
 
 
 class TestKratosCFDWrapper(unittest.TestCase):
@@ -45,6 +45,10 @@ class TestKratosCFDWrapper(unittest.TestCase):
         itime.step = 0.0025
         itime.final = 0.0075  # 5 Kratos Timesteps
         cuds.add([itime])
+
+        # Utils are used to read an existing Kratos model as raw data so we can
+        # initialize the correct simphony datasets
+        utils = kratos_cfd_utils.CFD_Utils()
 
         # Reads Kratos mpda as a simphony data.
         model = utils.read_modelpart(path)

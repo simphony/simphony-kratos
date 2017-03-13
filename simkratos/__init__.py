@@ -68,10 +68,8 @@ class SimkratosExtension(ABCEngineExtension):
 
         if engine_name == 'KRATOS_CFD':
             from .CFD.kratos_CFD_wrapper import CFDWrapper
-            from .kratos_utils import CFD_Utils
             return CFDWrapper(cuds=cuds, use_internal_interface=True)
 
         if engine_name == 'KRATOS_DEM':
             from .DEM.kratos_DEM_wrapper import DEMWrapper
-            from .kratos_utils import DEM_Utils
             return DEMWrapper(cuds=cuds, use_internal_interface=True)
