@@ -9,11 +9,11 @@ from simphony.cuds.mesh import Cell as SCell
 from simphony.cuds.particles import Particle as SParticle
 from simphony.cuds.particles import Particles as SParticles
 
-from KratosMultiphysics import *
-from KratosMultiphysics.FluidDynamicsApplication import *
-from KratosMultiphysics.ExternalSolversApplication import *
-from KratosMultiphysics.MeshingApplication import *
-from KratosMultiphysics.DEMApplication import *
+from KratosMultiphysics import *                                                # noqa
+from KratosMultiphysics.FluidDynamicsApplication import *                       # noqa
+from KratosMultiphysics.ExternalSolversApplication import *                     # noqa
+from KratosMultiphysics.MeshingApplication import *                             # noqa
+from KratosMultiphysics.DEMApplication import *                                 # noqa
 
 
 class DEM_Utils(object):

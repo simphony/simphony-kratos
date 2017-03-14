@@ -6,8 +6,6 @@ from simphony.cuds.mesh import Point as SPoint
 from simphony.cuds.mesh import Mesh as SMesh
 from simphony.cuds.mesh import Face as SFace
 from simphony.cuds.mesh import Cell as SCell
-from simphony.cuds.particles import Particle as SParticle
-from simphony.cuds.particles import Particles as SParticles
 
 from KratosMultiphysics import *
 from KratosMultiphysics.IncompressibleFluidApplication import *
