@@ -488,7 +488,7 @@ class DEMWrapper(KratosWrapper):
 
     def setElementData(self):
         self.element_properties.SetValue(
-            KRTS.PARTICLE_DENSITY,
+            KRTSDEM.PARTICLE_DENSITY,
             self.SP[CUBA.DENSITY]
         )
         self.element_properties.SetValue(
