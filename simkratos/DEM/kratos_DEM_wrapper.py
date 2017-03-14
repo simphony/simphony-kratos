@@ -63,10 +63,10 @@ class DEMWrapper(KratosWrapper):
             ],
             "TOTAL_FORCES": [
                 None,
-                KRTS.TOTAL_FORCES,
-                KRTS.TOTAL_FORCES_X,
-                KRTS.TOTAL_FORCES_Y,
-                KRTS.TOTAL_FORCES_Z
+                KRTSDEM.TOTAL_FORCES,
+                KRTSDEM.TOTAL_FORCES_X,
+                KRTSDEM.TOTAL_FORCES_Y,
+                KRTSDEM.TOTAL_FORCES_Z
             ]
         }
 
@@ -654,7 +654,10 @@ class DEMWrapper(KratosWrapper):
         # Solve
         while self.time < self.final:
 
-            self.dt = self.spheres_model_part.ProcessInfo.GetValue(KRTS.DELTA_TIME)
+            self.dt = self.spheres_model_part.ProcessInfo.GetValue(
+                KRTS.DELTA_TIME
+            )
+
             cuds.get_by_name('dem_integration_time').step = self.dt
 
             self.spheres_model_part.ProcessInfo[KRTS.TIME] = self.time
