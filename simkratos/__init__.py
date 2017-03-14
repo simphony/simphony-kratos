@@ -2,6 +2,13 @@ from simphony.engine import ABCEngineExtension
 from simphony.engine import EngineInterface
 from simphony.engine.decorators import register
 
+from KratosMultiphysics import *                                                # noqa
+from KratosMultiphysics.IncompressibleFluidApplication import *                 # noqa
+from KratosMultiphysics.FluidDynamicsApplication import *                       # noqa
+from KratosMultiphysics.ExternalSolversApplication import *                     # noqa
+from KratosMultiphysics.MeshingApplication import *                             # noqa
+from KratosMultiphysics.DEMApplication import *                                 # noqa
+
 
 @register
 class SimkratosExtension(ABCEngineExtension):
