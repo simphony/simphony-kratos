@@ -7,11 +7,11 @@ from simphony.cuds.mesh import Mesh as SMesh
 from simphony.cuds.mesh import Face as SFace
 from simphony.cuds.mesh import Cell as SCell
 
-from KratosMultiphysics import *
-from KratosMultiphysics.IncompressibleFluidApplication import *
-from KratosMultiphysics.FluidDynamicsApplication import *
-from KratosMultiphysics.ExternalSolversApplication import *
-from KratosMultiphysics.MeshingApplication import *
+from KratosMultiphysics import *                                                # noqa
+from KratosMultiphysics.IncompressibleFluidApplication import *                 # noqa
+from KratosMultiphysics.FluidDynamicsApplication import *                       # noqa
+from KratosMultiphysics.ExternalSolversApplication import *                     # noqa
+from KratosMultiphysics.MeshingApplication import *                             # noqa
 
 
 class CFD_Utils(object):
