@@ -9,9 +9,6 @@ from __future__ import print_function, absolute_import, division
 from simphony.core.cuba import CUBA
 from simphony.core.data_container import DataContainer
 
-from simphony.cuds.mesh import Point as SPoint
-from simphony.cuds.mesh import Face as SFace
-from simphony.cuds.mesh import Cell as SCell
 
 # Wrapper Imports
 from simkratos.kratosWrapper import KratosWrapper
@@ -34,6 +31,8 @@ class CFDWrapper(KratosWrapper):
 
         self.time = 0
         self.step = 0
+        self.element_type = "FractionalStep3D"
+        self.condition_type = "WallCondition3D"
 
         # The dictionary defines the relation between CUBA and
         # kratos variables
@@ -118,7 +117,7 @@ class CFDWrapper(KratosWrapper):
 
     # gets data for the nodes
 
-    def getNodalData(self, data, node):
+    def getNodalData(self, data, node, model):
         """ Extracts the node data
 
         Extracts the node data and puts in ina format readable
@@ -139,7 +138,7 @@ class CFDWrapper(KratosWrapper):
         self.getSolutionStepVariable1D(data, node, "FLAG_VARIABLE")
         self.getSolutionStepVariable1D(data, node, "IS_STRUCTURE")
 
-    def setNodalData(self, data, node):
+    def setNodalData(self, data, node, model):
         """ Assembles the point data
 
         Assembles the point data and puts in ina format readable
@@ -170,131 +169,6 @@ class CFDWrapper(KratosWrapper):
         """
 
         pass
-
-    def importKratosNodes(self, src, dst, group):
-        """ Parses all simphony points to kratos nodes
-
-        Iterates over all points in the simphony mesh (src) and
-        converts them to kratos nodes (dst).
-        While doing this operation any point/node pair that has not
-        currently mapped will have  his uuid added in the 'id_map'
-        of the wrapper
-
-        """
-
-        # Add the points in case they don't exist and update their value in
-        # case they do.
-        for point in src.iter(item_type=CUBA.POINT):
-
-            if point.uid not in self.uuid_to_id_node_map.keys():
-                self.uuid_to_id_node_map.update(
-                    {point.uid: self.free_id}
-                )
-
-                self.free_id += 1
-
-                node_id = self.uuid_to_id_node_map[point.uid]
-
-                data = point.data
-
-                node = dst.CreateNewNode(
-                    node_id,
-                    point.coordinates[0],
-                    point.coordinates[1],
-                    point.coordinates[2])
-
-                self.setNodalData(data, node)
-
-                self.id_to_ref_node[node_id] = node
-
-            else:
-
-                node = self.id_to_ref_node[self.uuid_to_id_node_map[point.uid]]
-                data = point.data
-                self.setNodalData(data, node)
-
-        # If they belong to a different group, add them
-        if group != 0:
-            nodes = KRTS.NodesArray()
-            for point in src.iter(item_type=CUBA.POINT):
-                nodes.append(
-                    dst.Nodes[self.uuid_to_id_node_map[point.uid]]
-                )
-            dst.SetNodes(nodes, group)
-
-    def importKratosElements(self, src, dst, group):
-        """ Parses all simphony cells to kratos elements
-
-        Iterates over all cells in the simphony mesh (src) and
-        converts them to kratos FractionalStep3D elements (dst).
-        While doing this operation any cell/element pair that has not
-        currently mapped will have  his uuid added in the 'id_map'
-        of the wrapper
-
-        """
-
-        for element in src.iter(item_type=CUBA.CELL):
-
-            if element.uid not in self.uuid_to_id_element_map.keys():
-                self.uuid_to_id_element_map.update(
-                    {element.uid: self.free_id}
-                )
-
-                self.free_id += 1
-
-                element_id = self.uuid_to_id_element_map[element.uid]
-
-                dst.CreateNewElement(
-                    "FractionalStep3D",
-                    element_id,
-                    [self.uuid_to_id_node_map[p] for p in element.points],
-                    self.element_properties)
-
-        # If they belong to a different group, add them
-        if group != 0:
-            elements = KRTS.ElementsArray()
-            for elem in src.iter(item_type=CUBA.CELL):
-                elements.append(
-                    dst.Elements[self.uuid_to_id_element_map[elem.uid]]
-                )
-            dst.SetElements(elements, group)
-
-    def importKratosConditions(self, src, dst, group):
-        """ Parses all simphony faces to kratos conditions
-
-        Iterates over all faces in the simphony mesh (src) and
-        converts them to kratos WallCondition3D conditions (dst).
-        While doing this operation any face/condition pair that has not
-        currently mapped will have  his uuid added in the 'id_map'
-        of the wrapper
-
-        """
-
-        for condition in src.iter(item_type=CUBA.FACE):
-
-            if condition.uid not in self.uuid_to_id_condition_map.keys():
-                self.uuid_to_id_condition_map.update(
-                    {condition.uid: self.free_id}
-                )
-
-                self.free_id += 1
-
-                condition_id = self.uuid_to_id_condition_map[condition.uid]
-
-                dst.CreateNewCondition(
-                    "WallCondition3D",
-                    condition_id,
-                    [self.uuid_to_id_node_map[p] for p in condition.points],
-                    self.element_properties)
-
-        # If they belong to a different group, add them
-        if group != 0:
-            conditions = KRTS.ConditionsArray()
-            for cnd in src.iter(item_type=CUBA.FACE):
-                conditions.append(
-                    dst.Conditions[self.uuid_to_id_condition_map[cnd.uid]]
-                )
-            dst.SetConditions(conditions, group)
 
     def importKratosDof(self, src, dst, group):
 
@@ -398,9 +272,18 @@ class CFDWrapper(KratosWrapper):
 
             group = meshNumber
 
-            self.importKratosNodes(mesh, self.fluid_model_part, group)
-            self.importKratosElements(mesh, self.fluid_model_part, group)
-            self.importKratosConditions(mesh, self.fluid_model_part, group)
+            self.importKratosNodes(
+                mesh, self.fluid_model_part,
+                group
+            )
+            self.importKratosElements(
+                mesh, self.fluid_model_part,
+                group, self.element_type
+            )
+            self.importKratosConditions(
+                mesh, self.fluid_model_part,
+                group, self.condition_type
+            )
 
             mesh_prop = self.importKratosDof(
                 mesh, self.fluid_model_part, group
