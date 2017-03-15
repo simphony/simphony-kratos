@@ -271,9 +271,8 @@ class DEMWrapper(KratosWrapper):
             group = meshNumber
 
             self.importKratosParticles(
-                particles,
-                self.spheres_model_part,
-                group
+                particles, self.spheres_model_part,
+                group, self.particle_type
             )
 
             meshDict[particles.name] = meshNumber
