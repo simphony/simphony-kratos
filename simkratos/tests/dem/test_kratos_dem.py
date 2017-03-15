@@ -27,7 +27,7 @@ class TestKratosDEMWrapper(unittest.TestCase):
 
         self.path = os.path.join(
             os.path.dirname(__file__),
-            "CFD_exampleFluid"
+            "DEM_exampleFluid"
         )
 
         self.time_step = 0.001

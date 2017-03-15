@@ -491,25 +491,25 @@ class KratosWrapper(ABCModelingEngine):
 
         """
 
-        for particle in src.GetNodes(group):
+        for element in src.GetNodes(group):
 
             data = {}
 
-            self.getNodalData(data, particle, src.Name)
+            self.getNodalData(data, element, src.Name)
 
             particle_uid = None
 
-            if particle.Id not in self.id_to_uuid_node_map:
+            if element.Id not in self.id_to_uuid_node_map:
 
                 particle = SParticle(
-                    coordinates=(particle.X, particle.Y, particle.Z),
+                    coordinates=(element.X, element.Y, element.Z),
                     data=DataContainer(data),
                     uid=particle_uid
                 )
 
                 pid = dst.add([particle])
 
-                self.id_to_uuid_node_map[particle.Id] = pid[0]
+                self.id_to_uuid_node_map[element.Id] = pid[0]
 
             else:
 
