@@ -400,45 +400,6 @@ class KratosWrapper(ABCModelingEngine):
 
                 dst.update([point])
 
-    def exportKratosConditions(self, src, dst, group):
-        """ Parses all kratos conditions to simphony faces
-
-        Iterates over all nodes in the kratos mesh ( src ) and
-        converts them to simphony faces (dst). While doing this operation
-        any point that has not currently mapped will have his uuid
-        added in the 'id_map' of the weapper
-
-        """
-
-        for condition in src.GetConditions(group):
-
-            condition_uid = None
-
-            data = {}
-
-            if condition.Id not in self.id_to_uuid_condition_map:
-
-                point_list = [
-                    self.id_to_uuid_node_map[point.Id]
-                    for point in condition.GetNodes()
-                ]
-
-                face = SFace(
-                    points=point_list,
-                    data=DataContainer(data),
-                    uid=condition_uid
-                )
-
-                fid = dst.add(face)
-
-                self.id_to_uuid_condition_map[condition.Id] = fid[0]
-
-            else:
-
-                # No data is stored in the condition yet
-
-                pass
-
     def exportKratosElements(self, src, dst, group):
         """ Parses all kratos elements to simphony cells
 
@@ -475,6 +436,45 @@ class KratosWrapper(ABCModelingEngine):
             else:
 
                 # No data is stored in the element yet
+
+                pass
+
+    def exportKratosConditions(self, src, dst, group):
+        """ Parses all kratos conditions to simphony faces
+
+        Iterates over all nodes in the kratos mesh ( src ) and
+        converts them to simphony faces (dst). While doing this operation
+        any point that has not currently mapped will have his uuid
+        added in the 'id_map' of the weapper
+
+        """
+
+        for condition in src.GetConditions(group):
+
+            condition_uid = None
+
+            data = {}
+
+            if condition.Id not in self.id_to_uuid_condition_map:
+
+                point_list = [
+                    self.id_to_uuid_node_map[point.Id]
+                    for point in condition.GetNodes()
+                ]
+
+                face = SFace(
+                    points=point_list,
+                    data=DataContainer(data),
+                    uid=condition_uid
+                )
+
+                fid = dst.add(face)
+
+                self.id_to_uuid_condition_map[condition.Id] = fid[0]
+
+            else:
+
+                # No data is stored in the condition yet
 
                 pass
 
