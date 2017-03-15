@@ -23,6 +23,7 @@ from simphony.core.data_container import DataContainer
 from simphony.cuds.mesh import Point as SPoint
 from simphony.cuds.mesh import Face as SFace
 from simphony.cuds.mesh import Cell as SCell
+from simphony.cuds.particles import Particle as SParticle
 
 # Kratos Imports
 import KratosMultiphysics as KRTS
