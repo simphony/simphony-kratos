@@ -500,15 +500,15 @@ class DEMWrapper(KratosWrapper):
             self.SP[CUBA.POISSON_RATIO]
         )
         self.element_properties.SetValue(
-            KRTS.PARTICLE_FRICTION,
+            KRTSDEM.PARTICLE_FRICTION,
             self.PARTICLE_FRICTION
         )
         self.element_properties.SetValue(
-            KRTS.PARTICLE_COHESION,
+            KRTSDEM.PARTICLE_COHESION,
             self.PARTICLE_COHESION
         )
         self.element_properties.SetValue(
-            KRTS.LN_OF_RESTITUTION_COEFF,
+            KRTSDEM.LN_OF_RESTITUTION_COEFF,
             self.LN_OF_RESTITUTION_COEFF
         )
         self.element_properties.SetValue(
@@ -516,15 +516,15 @@ class DEMWrapper(KratosWrapper):
             self.PARTICLE_MATERIAL
         )
         self.element_properties.SetValue(
-            KRTS.ROLLING_FRICTION,
+            KRTSDEM.ROLLING_FRICTION,
             self.SP[CUBA.ROLLING_FRICTION]
         )
         self.element_properties.SetValue(
-            KRTS.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME,
+            KRTSDEM.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME,
             self.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME
         )
         self.element_properties.SetValue(
-            KRTS.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME,
+            KRTSDEM.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME,
             self.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME
         )
 
