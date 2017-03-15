@@ -111,44 +111,6 @@ class DEMWrapper(KratosWrapper):
             self.setSolutionStepVariable3D(data, node, "DISPLACEMENT")
             self.setSolutionStepVariable3D(data, node, "TOTAL_FORCES")
 
-    def exportKratosNodes(self, src, dst, group):
-        """ Parses all kratos nodes to simphony points
-
-        Iterates over all nodes in the kratos mesh (src) and
-        converts them to simphony points (dst). While doing this operation
-        any node/point that has not currently been mapped will have his uuid
-        added in the 'id_map' of the wrapper
-
-        """
-
-        for node in src.GetNodes(group):
-
-            data = {}
-
-            self.getNodalData(data, node, src.Name)
-
-            point_uid = None
-
-            if node.Id not in self.id_to_uuid_node_map:
-
-                point = SPoint(
-                    coordinates=(node.X, node.Y, node.Z),
-                    data=DataContainer(data),
-                    uid=point_uid
-                )
-
-                pid = dst.add([point])
-
-                self.id_to_uuid_node_map[node.Id] = pid[0]
-
-            else:
-
-                point = dst.get(uid=self.id_to_uuid_node_map[node.Id])
-
-                point.data = DataContainer(data)
-
-                dst.update_points([point])
-
     def exportKratosParticles(self, src, dst, group):
         """ Parses all kratos nodes to simphony Particles
 
@@ -227,45 +189,6 @@ class DEMWrapper(KratosWrapper):
             else:
 
                 # No data is stored in the element yet
-
-                pass
-
-    def exportKratosConditions(self, src, dst, group):
-        """ Parses all kratos conditions to simphony faces
-
-        Iterates over all nodes in the kratos mesh ( src ) and
-        converts them to simphony faces (dst). While doing this operation
-        any point that has not currently mapped will have his uuid
-        added in the 'id_map' of the weapper
-
-        """
-
-        for condition in src.GetConditions(group):
-
-            condition_uid = None
-
-            data = {}
-
-            if condition.Id not in self.id_to_uuid_condition_map:
-
-                point_list = [
-                    self.id_to_uuid_node_map[point.Id]
-                    for point in condition.GetNodes()
-                ]
-
-                face = SFace(
-                    points=point_list,
-                    data=DataContainer(data),
-                    uid=condition_uid
-                )
-
-                fid = dst.add(face)
-
-                self.id_to_uuid_condition_map[condition.Id] = fid[0]
-
-            else:
-
-                # No data is stored in the condition yet
 
                 pass
 

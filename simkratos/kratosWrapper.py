@@ -20,6 +20,9 @@ from simphony.cuds.abc_particles import ABCParticles
 from simphony.cuds.mesh import Mesh
 from simphony.cuds.particles import Particles
 from simphony.core.data_container import DataContainer
+from simphony.cuds.mesh import Point as SPoint
+from simphony.cuds.mesh import Face as SFace
+from simphony.cuds.mesh import Cell as SCell
 
 
 class KratosWrapper(ABCModelingEngine):
@@ -352,6 +355,125 @@ class KratosWrapper(ABCModelingEngine):
             self.id_to_uuid_condition_map = {
                 v: k for k, v in self.uuid_to_id_condition_map.items()
             }
+
+    # Common
+
+    def exportKratosNodes(self, src, dst, group):
+        """ Parses all kratos nodes to simphony points
+
+        Iterates over all nodes in the kratos mesh (src) and
+        converts them to simphony points (dst). While doing this operation
+        any node/point that has not currently been mapped will have his uuid
+        added in the 'id_map' of the wrapper
+
+        """
+
+        for node in src.GetNodes(group):
+
+            data = {}
+
+            self.getNodalData(data, node)
+
+            point_uid = None
+
+            if node.Id not in self.id_to_uuid_node_map:
+
+                point = SPoint(
+                    coordinates=(node.X, node.Y, node.Z),
+                    data=DataContainer(data),
+                    uid=point_uid
+                )
+
+                pid = dst.add([point])
+
+                self.id_to_uuid_node_map[node.Id] = pid[0]
+
+            else:
+
+                point = dst.get(uid=self.id_to_uuid_node_map[node.Id])
+
+                # iterate over the correct data
+                point.data = DataContainer(data)
+
+                dst.update([point])
+
+    def exportKratosConditions(self, src, dst, group):
+        """ Parses all kratos conditions to simphony faces
+
+        Iterates over all nodes in the kratos mesh ( src ) and
+        converts them to simphony faces (dst). While doing this operation
+        any point that has not currently mapped will have his uuid
+        added in the 'id_map' of the weapper
+
+        """
+
+        for condition in src.GetConditions(group):
+
+            condition_uid = None
+
+            data = {}
+
+            if condition.Id not in self.id_to_uuid_condition_map:
+
+                point_list = [
+                    self.id_to_uuid_node_map[point.Id]
+                    for point in condition.GetNodes()
+                ]
+
+                face = SFace(
+                    points=point_list,
+                    data=DataContainer(data),
+                    uid=condition_uid
+                )
+
+                fid = dst.add(face)
+
+                self.id_to_uuid_condition_map[condition.Id] = fid[0]
+
+            else:
+
+                # No data is stored in the condition yet
+
+                pass
+
+    def exportKratosElements(self, src, dst, group):
+        """ Parses all kratos elements to simphony cells
+
+        Iterates over all nodes in the kratos mesh (src) and
+        converts them to simphony cells (dst). While doing this operation
+        any point that has not currently mapped will have his uuid
+        added in the 'id_map' of the weapper
+
+        """
+
+        for element in src.GetElements(group):
+
+            element_uid = None
+
+            data = {}
+
+            if element.Id not in self.id_to_uuid_element_map:
+
+                point_list = [
+                    self.id_to_uuid_node_map[pointl.Id]
+                    for pointl in element.GetNodes()
+                ]
+
+                cell = SCell(
+                    points=point_list,
+                    data=DataContainer(data),
+                    uid=element_uid
+                )
+
+                cid = dst.add([cell])
+
+                self.id_to_uuid_element_map[element.Id] = cid[0]
+
+            else:
+
+                # No data is stored in the element yet
+
+                pass
 
     def run(self, mesh):
         pass
