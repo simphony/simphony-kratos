@@ -12,7 +12,7 @@ import KratosMultiphysics as KRTS
 class CFD_Utils(CFDWrapper):
 
     def __init__(self, use_internal_interface=True, **kwargs):
-        super(CFDWrapper, self).__init__(use_internal_interface, **kwargs)
+        super(CFD_Utils, self).__init__(use_internal_interface, **kwargs)
 
         self.supportedMaterialProp = {
         }
@@ -108,9 +108,9 @@ class CFD_Utils(CFDWrapper):
             mesh = SMesh(name=mesh_name)
 
             # Export mesh data to Simphony
-            self._exportKratosNodes(model_part, mesh, i)
-            self._exportKratosElements(model_part, mesh, i)
-            self._exportKratosConditions(model_part, mesh, i)
+            self.exportKratosNodes(model_part, mesh, i)
+            self.exportKratosElements(model_part, mesh, i)
+            self.exportKratosConditions(model_part, mesh, i)
 
             properties = model_part.GetProperties(0)[i]
 
