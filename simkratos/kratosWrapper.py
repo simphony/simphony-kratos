@@ -380,7 +380,12 @@ class KratosWrapper(ABCModelingEngine):
 
             point_uid = None
 
-            if node.Id not in self.id_to_uuid_node_map:
+            if node.Id in self.id_to_uuid_node_map:
+                point_uid = self.id_to_uuid_node_map[node.Id]
+
+            hasNode = point_uid is not None and dst.has(point_uid)
+
+            if not hasNode:
 
                 point = SPoint(
                     coordinates=(node.X, node.Y, node.Z),
