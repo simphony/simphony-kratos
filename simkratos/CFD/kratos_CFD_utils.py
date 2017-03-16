@@ -1,71 +1,21 @@
 from simphony.core.cuba import CUBA
 from simphony.cuds.meta import api
-from simphony.core.data_container import DataContainer
 
-from simphony.cuds.mesh import Point as SPoint
 from simphony.cuds.mesh import Mesh as SMesh
-from simphony.cuds.mesh import Face as SFace
-from simphony.cuds.mesh import Cell as SCell
 
-from KratosMultiphysics import *                                                # noqa
-from KratosMultiphysics.IncompressibleFluidApplication import *                 # noqa
-from KratosMultiphysics.FluidDynamicsApplication import *                       # noqa
-from KratosMultiphysics.ExternalSolversApplication import *                     # noqa
-from KratosMultiphysics.MeshingApplication import *                             # noqa
+from simkratos.CFD.kratos_CFD_wrapper import CFDWrapper
+
+# Kratos Imports
+import KratosMultiphysics as KRTS
 
 
-class CFD_Utils(object):
+class CFD_Utils(CFDWrapper):
 
-    def __init__(self):
-        self.id_to_uuid_node_map = {}
-        self.uuid_to_id_node_map = {}
-        self.id_to_uuid_element_map = {}
-        self.uuid_to_id_element_map = {}
-        self.id_to_uuid_condition_map = {}
-        self.uuid_to_id_condition_map = {}
-
-        self.variables_dictionary = {
-            "PRESSURE": [
-                CUBA.PRESSURE,
-                PRESSURE
-            ],
-            "VELOCITY": [
-                CUBA.VELOCITY,
-                VELOCITY,
-                VELOCITY_X,
-                VELOCITY_Y,
-                VELOCITY_Z
-            ],
-            "VISCOSITY": [
-                None,
-                VISCOSITY
-            ],
-            "DENSITY": [
-                CUBA.DENSITY,
-                DENSITY
-            ]
-        }
+    def __init__(self, use_internal_interface=True, **kwargs):
+        super(CFDWrapper, self).__init__(use_internal_interface, **kwargs)
 
         self.supportedMaterialProp = {
         }
-
-    def _getSolutionStepVariable1D(self, data, entity, variable):
-        pair = self.variables_dictionary[variable]
-        if(pair[0] is not None):
-            data.update({
-                pair[0]: entity.GetSolutionStepValue(pair[1])
-            })
-
-    def _getSolutionStepVariable3D(self, data, entity, variable):
-        pair = self.variables_dictionary[variable]
-        if(pair[0] is not None):
-            data.update({
-                pair[0]: [
-                    entity.GetSolutionStepValue(pair[2]),
-                    entity.GetSolutionStepValue(pair[3]),
-                    entity.GetSolutionStepValue(pair[4])
-                ]
-            })
 
     def _getNodalData(self, data, node):
         """ Extracts the node data
@@ -80,121 +30,28 @@ class CFD_Utils(object):
         self._getSolutionStepVariable1D(data, node, "VISCOSITY")
         self._getSolutionStepVariable1D(data, node, "DENSITY")
 
-    def _exportKratosNodes(self, src, dst, group):
-        """ Parses all kratos nodes to simphony points
-
-        Iterates over all nodes in the kratos mesh (src) and
-        converts them to simphony points (dst). While doing this operation
-        any node/point that has not currently been mapped will have his uuid
-        added in the 'id_map' of the wrapper
-
-        """
-
-        for node in src.GetNodes(group):
-
-            data = {}
-
-            self._getNodalData(data, node)
-
-            point_uid = None
-
-            if node.Id in self.id_to_uuid_node_map:
-                point_uid = self.id_to_uuid_node_map[node.Id]
-
-            point = SPoint(
-                coordinates=(node.X, node.Y, node.Z),
-                data=DataContainer(data),
-                uid=point_uid
-            )
-
-            pid = dst.add([point])
-
-            self.id_to_uuid_node_map[node.Id] = pid[0]
-
-    def _exportKratosElements(self, src, dst, group):
-        """ Parses all kratos elements to simphony cells
-
-        Iterates over all elements in the kratos mesh (src) and
-        converts them to simphony cells (dst). While doing this operation
-        any element/cell that has not currently been mapped will have his uuid
-        added in the 'id_map' of the wrapper
-
-        """
-
-        for element in src.GetElements(group):
-
-            element_uid = None
-
-            if element.Id in self.id_to_uuid_element_map:
-                element_uid = self.id_to_uuid_element_map[element.Id]
-
-            point_list = [
-                self.id_to_uuid_node_map[pointl.Id]
-                for pointl in element.GetNodes()
-            ]
-
-            cell = SCell(
-                points=point_list,
-                uid=element_uid
-            )
-
-            cid = dst.add([cell])
-
-            self.id_to_uuid_element_map[element.Id] = cid[0]
-
-    def _exportKratosConditions(self, src, dst, group):
-        """ Parses all kratos conditions to simphony faces
-
-        Iterates over all conditions in the kratos mesh (src) and
-        converts them to simphony faces (dst). While doing this operation
-        any condition/face that has not currently been mapped will have
-        his uuid added in the 'id_map' of the wrapper
-
-        """
-
-        for condition in src.GetConditions(group):
-
-            condition_uid = None
-
-            if condition.Id in self.id_to_uuid_condition_map:
-                condition_uid = self.id_to_uuid_condition_map[condition.Id]
-
-            point_list = [
-                self.id_to_uuid_node_map[point.Id]
-                for point in condition.GetNodes()
-            ]
-
-            face = SFace(
-                points=point_list,
-                uid=condition_uid
-            )
-
-            fid = dst.add([face])
-
-            self.id_to_uuid_condition_map[condition.Id] = fid[0]
-
     def _convertBc(self, properties, mesh_name):
         condition = api.Condition(name='condition_' + mesh_name)
         conditionData = condition.data
 
         velocityCondition = [None, None, None]
 
-        if properties.GetValue(IMPOSED_PRESSURE) == 1:
+        if properties.GetValue(KRTS.IMPOSED_PRESSURE) == 1:
             conditionData[CUBA.PRESSURE] = properties.GetValue(
-                PRESSURE
+                KRTS.PRESSURE
             )
 
-        if properties.GetValue(IMPOSED_VELOCITY_X) == 1:
+        if properties.GetValue(KRTS.IMPOSED_VELOCITY_X) == 1:
             velocityCondition[0] = properties.GetValue(
-                IMPOSED_VELOCITY_X_VALUE
+                KRTS.IMPOSED_VELOCITY_X_VALUE
             )
-        if properties.GetValue(IMPOSED_VELOCITY_Y) == 1:
+        if properties.GetValue(KRTS.IMPOSED_VELOCITY_Y) == 1:
             velocityCondition[1] = properties.GetValue(
-                IMPOSED_VELOCITY_Y_VALUE
+                KRTS.IMPOSED_VELOCITY_Y_VALUE
             )
-        if properties.GetValue(IMPOSED_VELOCITY_Z) == 1:
+        if properties.GetValue(KRTS.IMPOSED_VELOCITY_Z) == 1:
             velocityCondition[2] = properties.GetValue(
-                IMPOSED_VELOCITY_Z_VALUE
+                KRTS.IMPOSED_VELOCITY_Z_VALUE
             )
 
         if not (None in velocityCondition):
@@ -230,14 +87,14 @@ class CFD_Utils(object):
 
         """
 
-        model_part = ModelPart("FluidPart")
+        model_part = KRTS.ModelPart("FluidPart")
 
-        model_part.AddNodalSolutionStepVariable(PRESSURE)
-        model_part.AddNodalSolutionStepVariable(VELOCITY)
-        model_part.AddNodalSolutionStepVariable(VISCOSITY)
-        model_part.AddNodalSolutionStepVariable(DENSITY)
+        model_part.AddNodalSolutionStepVariable(KRTS.PRESSURE)
+        model_part.AddNodalSolutionStepVariable(KRTS.VELOCITY)
+        model_part.AddNodalSolutionStepVariable(KRTS.VISCOSITY)
+        model_part.AddNodalSolutionStepVariable(KRTS.DENSITY)
 
-        model_part_io_fluid = ModelPartIO(filename)
+        model_part_io_fluid = KRTS.ModelPartIO(filename)
         model_part_io_fluid.ReadModelPart(model_part)
 
         smp_meshes = []
