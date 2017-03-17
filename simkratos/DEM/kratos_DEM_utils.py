@@ -14,7 +14,7 @@ import KratosMultiphysics.DEMApplication as KRTSDEM
 class DEM_Utils(DEMWrapper):
 
     def __init__(self, use_internal_interface=True, **kwargs):
-        super(DEMWrapper, self).__init__(use_internal_interface, **kwargs)
+        super(DEM_Utils, self).__init__(use_internal_interface, **kwargs)
 
         self.supportedMaterialProp = {
             CUBA.DENSITY: KRTSDEM.PARTICLE_DENSITY,
@@ -82,7 +82,7 @@ class DEM_Utils(DEMWrapper):
 
         """
 
-        model_part = KRTS.ModelPart("FluidPart")
+        model_part = KRTS.ModelPart("Fluid")
 
         model_part.AddNodalSolutionStepVariable(KRTS.RADIUS)
         model_part.AddNodalSolutionStepVariable(KRTS.DENSITY)
@@ -136,7 +136,8 @@ class DEM_Utils(DEMWrapper):
 
         """
 
-        model_part = KRTS.ModelPart("FluidPart")
+        # ModelPart MUST have this name.
+        model_part = KRTS.ModelPart("Particles")
 
         model_part.AddNodalSolutionStepVariable(KRTS.RADIUS)
         model_part.AddNodalSolutionStepVariable(KRTS.DENSITY)
