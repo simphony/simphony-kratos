@@ -13,11 +13,7 @@ from simphony.core.data_container import DataContainer
 # Wrapper Imports
 from simkratos.kratosWrapper import KratosWrapper
 
-import KratosMultiphysics as KRTS
-from KratosMultiphysics.IncompressibleFluidApplication import *                 # noqa
-from KratosMultiphysics.FluidDynamicsApplication import *                       # noqa
-from KratosMultiphysics.ExternalSolversApplication import *                     # noqa
-from KratosMultiphysics.MeshingApplication import *                             # noqa
+import KratosMultiphysics as KRTS                # noqa                         # noqa
 
 # Kratos Imports
 from simkratos.CFD import ProjectParameters
