@@ -84,6 +84,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
+        print("GET: Modelname", model)
         if model == "Particles":
             self.getSolutionStepVariable1D(data, node, "RADIUS")
             self.getSolutionStepVariable1D(data, node, "NODAL_MASS")
@@ -98,6 +99,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
+        print("SET: Modelname", model)
         if model == "Particles":
             self.setSolutionStepVariable1D(data, node, "RADIUS")
             self.setSolutionStepVariable1D(data, node, "NODAL_MASS")
@@ -144,10 +146,10 @@ class DEMWrapper(KratosWrapper):
             KRTSDEM.PARTICLE_COHESION,
             self.PARTICLE_COHESION
         )
-        self.element_properties.SetValue(
-            KRTSDEM.LN_OF_RESTITUTION_COEFF,
-            self.LN_OF_RESTITUTION_COEFF
-        )
+        # self.element_properties.SetValue(
+        #     KRTSDEM.LN_OF_RESTITUTION_COEFF,
+        #     self.LN_OF_RESTITUTION_COEFF
+        # )
         self.element_properties.SetValue(
             KRTS.PARTICLE_MATERIAL,
             self.PARTICLE_MATERIAL
@@ -181,7 +183,11 @@ class DEMWrapper(KratosWrapper):
         """
 
         # DEMPack SubClasses
+        self.creator_destructor = KRTSDEM.ParticleCreatorDestructor()
+        self.dem_fem_search = KRTSDEM.DEM_FEM_Search()
         self.procedures = DEM_procedures.Procedures(DEM_parameters)
+        self.scheme = self.procedures.SetScheme()
+
         self.parallelutils = DEM_procedures.ParallelUtils()
         self.materialTest = DEM_procedures.MaterialTest()
         self.creator_destructor = KRTSDEM.ParticleCreatorDestructor()
@@ -194,15 +200,16 @@ class DEMWrapper(KratosWrapper):
         self.DEM_inlet_model_part = KRTS.ModelPart("")
         self.mapping_model_part = KRTS.ModelPart("")
         self.contact_model_part = KRTS.ModelPart("")
+        self.all_model_parts = DEM_procedures.SetOfModelParts(self.spheres_model_part, self.rigid_face_model_part, self.cluster_model_part, self.DEM_inlet_model_part, self.mapping_model_part, self.contact_model_part)
 
         # Create solver
         self.solver = SolverStrategy.ExplicitStrategy(
-            self.spheres_model_part,
-            self.rigid_face_model_part,
-            self.cluster_model_part,
-            self.DEM_inlet_model_part,
+            self.all_model_parts,
             self.creator_destructor,
-            DEM_parameters
+            self.dem_fem_search,
+            self.scheme,
+            DEM_parameters,
+            self.procedures
         )
 
         # Prepare properties
@@ -217,6 +224,9 @@ class DEMWrapper(KratosWrapper):
             self.spheres_model_part,
             DEM_parameters
         )
+
+        self.procedures.solver = self.solver
+
         self.procedures.AddCommonVariables(
             self.spheres_model_part,
             DEM_parameters
@@ -240,6 +250,7 @@ class DEMWrapper(KratosWrapper):
             self.spheres_model_part
         )
 
+        self.solver.BeforeInitialize()
         self.solver.Initialize()
 
     def run(self):
@@ -257,7 +268,7 @@ class DEMWrapper(KratosWrapper):
         meshNumber = 1
         meshDict = {}
 
-        for particles in cuds.iter(item_type=CUBA.PARTICLE):
+        for particles in cuds.iter(item_type=CUBA.PARTICLES):
 
             group = meshNumber
 
@@ -277,15 +288,24 @@ class DEMWrapper(KratosWrapper):
         self.spheres_model_part.SetProperties(fluid_properties)
         # self.rigid_face_model_part.SetProperties(solid_properties)
 
-        SolverStrategy.AddDofs(self.spheres_model_part)
+        self.solver.AddDofs(self.spheres_model_part)
 
         self.solver.Initialize()
 
-        self.dt = cuds.get_by_name('dem_integration_time').step
+        iTime = [
+            it for it in cuds.iter(item_type=CUBA.INTEGRATION_TIME)
+        ]
+
+        if(len(iTime) != 1):
+            raise "Error: Cuds has more than one or zero integration times."
+
+        iTime = iTime[0]
+
+        self.dt = iTime.step
 
         # Start the simulation itself
-        self.time = cuds.get_by_name('dem_integration_time').time
-        self.final = cuds.get_by_name('dem_integration_time').final
+        self.time = iTime.time
+        self.final = iTime.final
 
         # Solve
         while self.time < self.final:
@@ -294,7 +314,7 @@ class DEMWrapper(KratosWrapper):
                 KRTS.DELTA_TIME
             )
 
-            cuds.get_by_name('dem_integration_time').step = self.dt
+            iTime.step = self.dt
 
             self.spheres_model_part.ProcessInfo[KRTS.TIME] = self.time
             self.spheres_model_part.ProcessInfo[KRTS.DELTA_TIME] = self.dt
@@ -304,15 +324,17 @@ class DEMWrapper(KratosWrapper):
             self.rigid_face_model_part.ProcessInfo[KRTS.DELTA_TIME] = self.dt
             self.rigid_face_model_part.ProcessInfo[KRTS.TIME_STEPS] = self.step
 
+            # print(self.spheres_model_part)
+
             self.solver.Solve()
 
             self.step += 1
             self.time = self.time + self.dt
 
-        cuds.get_by_name('dem_integration_time').time = self.time
-        cuds.get_by_name('dem_integration_time').final = self.final
+        iTime.time = self.time
+        iTime.final = self.final
 
-        for particles in cuds.iter(item_type=CUBA.PARTICLE):
+        for particles in cuds.iter(item_type=CUBA.PARTICLES):
 
             group = meshDict[particles.name]
 

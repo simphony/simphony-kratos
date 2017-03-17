@@ -242,6 +242,7 @@ class KratosWrapper(ABCModelingEngine):
         """
 
         pair = self.variables_dictionary[variable]
+        print("GET", pair[0], pair[1])
         if(pair[0] is not None):
             data.update({
                 pair[0]: entity.GetSolutionStepValue(pair[1])
@@ -496,25 +497,27 @@ class KratosWrapper(ABCModelingEngine):
 
         """
 
-        for element in src.GetNodes(group):
+        for node in src.GetNodes(group):
 
             data = {}
 
-            self.getNodalData(data, element, src.Name)
+            self.getNodalData(data, node, src.Name)
+
+            print(node, data)
 
             particle_uid = None
 
-            if element.Id not in self.id_to_uuid_node_map:
+            if node.Id not in self.id_to_uuid_node_map:
 
                 particle = SParticle(
-                    coordinates=(element.X, element.Y, element.Z),
+                    coordinates=(node.X, node.Y, node.Z),
                     data=DataContainer(data),
                     uid=particle_uid
                 )
 
                 pid = dst.add([particle])
 
-                self.id_to_uuid_node_map[element.Id] = pid[0]
+                self.id_to_uuid_node_map[node.Id] = pid[0]
 
             else:
 
