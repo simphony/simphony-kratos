@@ -62,13 +62,6 @@ class DEMWrapper(KratosWrapper):
                 KRTS.DISPLACEMENT_X,
                 KRTS.DISPLACEMENT_Y,
                 KRTS.DISPLACEMENT_Z
-            ],
-            "TOTAL_FORCES": [
-                None,
-                KRTSDEM.TOTAL_FORCES,
-                KRTSDEM.TOTAL_FORCES_X,
-                KRTSDEM.TOTAL_FORCES_Y,
-                KRTSDEM.TOTAL_FORCES_Z
             ]
         }
 
@@ -96,7 +89,6 @@ class DEMWrapper(KratosWrapper):
             self.getSolutionStepVariable1D(data, node, "NODAL_MASS")
             self.getSolutionStepVariable3D(data, node, "VELOCITY")
             self.getSolutionStepVariable3D(data, node, "DISPLACEMENT")
-            self.getSolutionStepVariable3D(data, node, "TOTAL_FORCES")
 
     def setNodalData(self, data, node, model):
         """ Assembles the point data
@@ -111,7 +103,6 @@ class DEMWrapper(KratosWrapper):
             self.setSolutionStepVariable1D(data, node, "NODAL_MASS")
             self.setSolutionStepVariable3D(data, node, "VELOCITY")
             self.setSolutionStepVariable3D(data, node, "DISPLACEMENT")
-            self.setSolutionStepVariable3D(data, node, "TOTAL_FORCES")
 
     def _setMeshData(self):
         " This probably needs to be done throug configuration"
