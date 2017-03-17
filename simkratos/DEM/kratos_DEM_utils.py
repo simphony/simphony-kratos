@@ -141,6 +141,7 @@ class DEM_Utils(DEMWrapper):
         model_part.AddNodalSolutionStepVariable(KRTS.RADIUS)
         model_part.AddNodalSolutionStepVariable(KRTS.DENSITY)
         model_part.AddNodalSolutionStepVariable(KRTS.VELOCITY)
+        model_part.AddNodalSolutionStepVariable(KRTSDEM.SKIN_SPHERE)
 
         model_part_io_fluid = KRTS.ModelPartIO(filename)
         model_part_io_fluid.ReadModelPart(model_part)
@@ -149,7 +150,7 @@ class DEM_Utils(DEMWrapper):
         smp_conditions = []
         smp_materials = []
 
-        for i in xrange(1, model_part.NumberOfMeshes()):
+        for i in xrange(0, model_part.NumberOfMeshes()):
 
             particles_name = 'particles_' + str(i)
 

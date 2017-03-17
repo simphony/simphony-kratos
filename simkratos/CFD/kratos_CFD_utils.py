@@ -101,7 +101,7 @@ class CFD_Utils(CFDWrapper):
         smp_conditions = []
         smp_materials = []
 
-        for i in xrange(1, model_part.NumberOfMeshes()):
+        for i in xrange(0, model_part.NumberOfMeshes()):
 
             mesh_name = 'fluid_' + str(i)
 
