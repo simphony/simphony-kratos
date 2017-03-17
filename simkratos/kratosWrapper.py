@@ -474,7 +474,7 @@ class KratosWrapper(ABCModelingEngine):
                     uid=condition_uid
                 )
 
-                fid = dst.add(face)
+                fid = dst.add([face])
 
                 self.id_to_uuid_condition_map[condition.Id] = fid[0]
 
@@ -724,8 +724,12 @@ class KratosWrapper(ABCModelingEngine):
             dst.SetNodes(nodes, group)
             dst.SetElements(elements, group)
 
+    # Run
+
     def run(self, mesh):
         pass
+
+    # Undefined
 
     def _add_mesh(self, src):
         """Adds a mesh
