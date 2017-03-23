@@ -603,7 +603,8 @@ class KratosWrapper(ABCModelingEngine):
                     element_type,
                     element_id,
                     [self.uuid_to_id_node_map[p] for p in element.points],
-                    self.element_properties)
+                    self.element_properties
+                )
 
         # If they belong to a different group, add them
         if group != 0:
@@ -640,7 +641,8 @@ class KratosWrapper(ABCModelingEngine):
                     condition_type,
                     condition_id,
                     [self.uuid_to_id_node_map[p] for p in condition.points],
-                    self.condition_properties)
+                    self.condition_properties
+                )
 
         # If they belong to a different group, add them
         if group != 0:
@@ -708,7 +710,8 @@ class KratosWrapper(ABCModelingEngine):
                     particle_type,
                     element_id,
                     [self.uuid_to_id_node_map[particle.uid]],
-                    self.element_properties)
+                    self.element_properties
+                )
 
         # If they belong to a different group, add them
         if group != 0:

@@ -373,7 +373,7 @@ class DEMWrapper(KratosWrapper):
 
         self.solver.Initialize()
 
-        print("Initialized completed ...")
+        print("DEM Solver correctly initialized ...")
 
         iTime = [
             it for it in cuds.iter(item_type=CUBA.INTEGRATION_TIME)

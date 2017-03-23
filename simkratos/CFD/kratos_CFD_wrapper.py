@@ -250,6 +250,7 @@ class CFDWrapper(KratosWrapper):
         )
 
         self.element_properties = KRTS.Properties(0)
+        self.condition_properties = KRTS.Properties(0)
 
     def run(self):
         """ Run a step of the wrapper """
@@ -310,13 +311,22 @@ class CFDWrapper(KratosWrapper):
 
         self.solver.Initialize()
 
-        Dt = cuds.get_by_name('cfd_integration_time').step
+        iTime = [
+            it for it in cuds.iter(item_type=CUBA.INTEGRATION_TIME)
+        ]
+
+        if(len(iTime) != 1):
+            raise "Error: Cuds has more than one or zero integration times."
+
+        iTime = iTime[0]
+
+        Dt = iTime.step
 
         self.fluid_model_part.ProcessInfo.SetValue(KRTS.DELTA_TIME, Dt)
 
         # Start the simulation itself
-        self.time = cuds.get_by_name('cfd_integration_time').time
-        self.final = cuds.get_by_name('cfd_integration_time').final
+        self.time = iTime.time
+        self.final = iTime.final
 
         # Init the temporal db without starting the simulation since we
         # cannot make sure this is the first execution of kratos or not.
@@ -325,13 +335,15 @@ class CFDWrapper(KratosWrapper):
             self.fluid_model_part.CloneTimeStep(self.time)
             self.time = self.time + Dt
 
+        print(self.time, self.final)
+
         while self.time < self.final:
             self.fluid_model_part.CloneTimeStep(self.time)
             self.solver.Solve()
             self.time = self.time + Dt
 
-        cuds.get_by_name('cfd_integration_time').time = self.time
-        cuds.get_by_name('cfd_integration_time').final = self.final
+        iTime.time = self.time
+        iTime.final = self.final
 
         # Resotre the information to SimPhoNy
         for mesh in cuds.iter(item_type=CUBA.MESH):
