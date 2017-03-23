@@ -242,7 +242,6 @@ class KratosWrapper(ABCModelingEngine):
         """
 
         pair = self.variables_dictionary[variable]
-        print("GET", pair[0], pair[1])
         if(pair[0] is not None):
             data.update({
                 pair[0]: entity.GetSolutionStepValue(pair[1])
@@ -503,8 +502,6 @@ class KratosWrapper(ABCModelingEngine):
 
             self.getNodalData(data, node, src.Name)
 
-            print(node, data)
-
             particle_uid = None
 
             if node.Id not in self.id_to_uuid_node_map:
@@ -522,12 +519,12 @@ class KratosWrapper(ABCModelingEngine):
             else:
 
                 particle = dst.get(
-                    uid=self.id_to_uuid_node_map[particle.Id]
+                    uid=self.id_to_uuid_node_map[node.Id]
                 )
 
                 particle.data = DataContainer(data)
 
-                dst.update_particles([particle])
+                dst.update([particle])
 
     def importKratosNodes(self, src, dst, group):
         """ Parses all simphony points to kratos nodes
