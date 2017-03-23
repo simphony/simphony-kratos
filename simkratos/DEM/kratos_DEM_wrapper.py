@@ -65,6 +65,25 @@ class DEMWrapper(KratosWrapper):
             ]
         }
 
+        # Set DEM parameters
+        self.solver_strategy = SolverStrategy
+        self.creator_destructor = KRTSDEM.ParticleCreatorDestructor()
+        self.dem_fem_search = KRTSDEM.DEM_FEM_Search()
+        self.procedures = DEM_procedures.Procedures(DEM_parameters)
+
+        # self.procedures.CheckInputParameters(DEM_parameters)
+
+        # Define some paths as they are nedded by some modules of them.
+        # These paths will NOT be used in this wrapper.
+        self.graphs_path = '.'
+
+        # This should not be nedded for Simphony
+        # self.demio = DEM_procedures.DEMIo(DEM_parameters, self.post_path)
+        # self.report = DEM_procedures.Report()
+        self.parallelutils = DEM_procedures.ParallelUtils()
+        # self.materialTest = DEM_procedures.MaterialTest()
+        self.scheme = self.procedures.SetScheme()
+
         self.initialize()
 
     def _load_cuds(self):
@@ -84,7 +103,6 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        print("GET: Modelname", model)
         if model == "Particles":
             self.getSolutionStepVariable1D(data, node, "RADIUS")
             self.getSolutionStepVariable1D(data, node, "NODAL_MASS")
@@ -99,7 +117,6 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        print("SET: Modelname", model)
         if model == "Particles":
             self.setSolutionStepVariable1D(data, node, "RADIUS")
             self.setSolutionStepVariable1D(data, node, "NODAL_MASS")
@@ -109,8 +126,8 @@ class DEMWrapper(KratosWrapper):
     def _setMeshData(self):
         " This probably needs to be done throug configuration"
 
-        cLawString = "DEMContinuumConstitutiveLaw"
-        dLawString = "DEMDiscontinuumConstitutiveLaw"
+        cLawString = "DEM_KDEM"
+        dLawString = "DEM_D_Hertz_viscous_Coulomb"
 
         self.SP[CUBA.DENSITY] = 2500.0
         self.SP[CUBA.YOUNG_MODULUS] = 1.0e5
@@ -182,27 +199,24 @@ class DEMWrapper(KratosWrapper):
             execute Kratos' DEMPack solver
         """
 
-        # DEMPack SubClasses
-        self.creator_destructor = KRTSDEM.ParticleCreatorDestructor()
-        self.dem_fem_search = KRTSDEM.DEM_FEM_Search()
-        self.procedures = DEM_procedures.Procedures(DEM_parameters)
-        self.scheme = self.procedures.SetScheme()
-
-        self.parallelutils = DEM_procedures.ParallelUtils()
-        self.materialTest = DEM_procedures.MaterialTest()
-        self.creator_destructor = KRTSDEM.ParticleCreatorDestructor()
-
         # Prepare ModelParts
         self.spheres_model_part = KRTS.ModelPart("Particles")
         self.rigid_face_model_part = KRTS.ModelPart("Conditions")
-        self.mixed_model_part = KRTS.ModelPart("")
-        self.cluster_model_part = KRTS.ModelPart("")
-        self.DEM_inlet_model_part = KRTS.ModelPart("")
-        self.mapping_model_part = KRTS.ModelPart("")
-        self.contact_model_part = KRTS.ModelPart("")
-        self.all_model_parts = DEM_procedures.SetOfModelParts(self.spheres_model_part, self.rigid_face_model_part, self.cluster_model_part, self.DEM_inlet_model_part, self.mapping_model_part, self.contact_model_part)
+        self.cluster_model_part = KRTS.ModelPart("Cluster")
+        self.DEM_inlet_model_part = KRTS.ModelPart("DENInlet1")
+        self.mapping_model_part = KRTS.ModelPart("Mapping")
+        self.contact_model_part = KRTS.ModelPart("Contact")
 
-        # Create solver
+        self.all_model_parts = DEM_procedures.SetOfModelParts(
+            self.spheres_model_part,
+            self.rigid_face_model_part,
+            self.cluster_model_part,
+            self.DEM_inlet_model_part,
+            self.mapping_model_part,
+            self.contact_model_part
+        )
+
+        # Prepare the solver
         self.solver = SolverStrategy.ExplicitStrategy(
             self.all_model_parts,
             self.creator_destructor,
@@ -212,12 +226,36 @@ class DEMWrapper(KratosWrapper):
             self.procedures
         )
 
+        # Honestly I don't know what this does
+        self.procedures.AddAllVariablesInAllModelParts(
+            self.solver,
+            self.scheme,
+            self.all_model_parts,
+            DEM_parameters
+        )
+
+        # Read the modelparts.
+        # This part is skipped and its done once the run is called.
+        # Instead we:
+
+        # ###################### #
+        # ##     Simphony     ## #
+        # ###################### #
+
         # Prepare properties
         self.element_properties = KRTS.Properties(0)
         self.condition_properties = KRTS.Properties(1)
 
+        element_properties_array = KRTS.PropertiesArray()
+
         self._setMeshData()
         self.setElementData()
+
+        element_properties_array.append(self.element_properties)
+        # solid_properties.append(self.condition_properties)
+
+        self.spheres_model_part.SetProperties(element_properties_array)
+        # self.rigid_face_model_part.SetProperties(solid_properties)
 
         # Prepare variables
         self.solver.AddAdditionalVariables(
@@ -244,14 +282,64 @@ class DEMWrapper(KratosWrapper):
             DEM_parameters
         )
 
+        # ###################### #
+        # ##     Simphony     ## #
+        # ###################### #
+
+        # Set Buffers for historical data
+        self.procedures.SetUpBufferSizeInAllModelParts(
+            self.spheres_model_part, 1,
+            self.cluster_model_part, 1,
+            self.DEM_inlet_model_part, 1,
+            self.rigid_face_model_part, 1
+        )
+
+        # Adding dofs
+        self.solver.AddDofs(self.spheres_model_part)
+        self.solver.AddDofs(self.cluster_model_part)
+        self.solver.AddDofs(self.DEM_inlet_model_part)
+
         # Set a search strategy
         self.solver.search_strategy = self.parallelutils.GetSearchStrategy(
             self.solver,
             self.spheres_model_part
         )
 
+        # Prepare things before initialization
         self.solver.BeforeInitialize()
+        self.parallelutils.Repart(self.spheres_model_part)
+        self.bounding_box_time_limits = self.procedures.SetBoundingBoxLimits(
+            self.all_model_parts,
+            self.creator_destructor
+        )
+
+        # Finding the max id of the nodes
+        max_Id = self.procedures.FindMaxNodeIdAccrossModelParts(
+            self.creator_destructor,
+            self.all_model_parts
+        )
+
+        self.creator_destructor.SetMaxNodeId(max_Id)
+
+        # Initialize the solver
         self.solver.Initialize()
+
+        # Constructing the inlet and initializing it
+        if (DEM_parameters.dem_inlet_option):
+            self.DEM_inlet = DEM_Inlet(self.DEM_inlet_model_part)
+            self.DEM_inlet.InitializeDEM_Inlet(
+                self.spheres_model_part,
+                self.creator_destructor,
+                self.solver.continuum_type
+            )
+
+        # Enable this
+        # self.DEMFEMProcedures = DEM_procedures.DEMFEMProcedures(
+        #     DEM_parameters,
+        #     self.graphs_path,
+        #     self.spheres_model_part,
+        #     self.rigid_face_model_part
+        # )
 
     def run(self):
         """ Run a step of the wrapper """
@@ -264,7 +352,6 @@ class DEMWrapper(KratosWrapper):
         self.spheres_model_part.GetMesh(len(fluid_particles))
         self.rigid_face_model_part.GetMesh(len(solid_meshes))
 
-        fluid_properties = KRTS.PropertiesArray()
         meshNumber = 1
         meshDict = {}
 
@@ -282,15 +369,11 @@ class DEMWrapper(KratosWrapper):
 
         self.updateBackwardDicc()
 
-        fluid_properties.append(self.element_properties)
-        # solid_properties.append(self.condition_properties)
-
-        self.spheres_model_part.SetProperties(fluid_properties)
-        # self.rigid_face_model_part.SetProperties(solid_properties)
-
         self.solver.AddDofs(self.spheres_model_part)
 
         self.solver.Initialize()
+
+        print("Initialized completed ...")
 
         iTime = [
             it for it in cuds.iter(item_type=CUBA.INTEGRATION_TIME)
@@ -323,8 +406,6 @@ class DEMWrapper(KratosWrapper):
             self.rigid_face_model_part.ProcessInfo[KRTS.TIME] = self.time
             self.rigid_face_model_part.ProcessInfo[KRTS.DELTA_TIME] = self.dt
             self.rigid_face_model_part.ProcessInfo[KRTS.TIME_STEPS] = self.step
-
-            # print(self.spheres_model_part)
 
             self.solver.Solve()
 
