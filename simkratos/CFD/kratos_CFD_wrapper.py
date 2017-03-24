@@ -273,8 +273,6 @@ class CFDWrapper(KratosWrapper):
         meshNumber = 1
         meshDict = {}
 
-        # for mesh in cuds.iter(item_type=CUBA.MESH):
-
         # Get the CFD pe
         if cuds.count_of(item_type=CUBA.CFD) != 1:
             raise "KratosCFD needs exactly one CFD pe."
@@ -337,11 +335,6 @@ class CFDWrapper(KratosWrapper):
             raise Exception("Error: More than one integration time")
 
         iTime = [it for it in cuds.iter(item_type=CUBA.INTEGRATION_TIME)][0]
-        #
-        # if(len(iTime) != 1):
-        #     raise "Error: Cuds has more than one or zero integration times."
-        #
-        # iTime = iTime[0]
 
         Dt = iTime.step
 
