@@ -357,7 +357,7 @@ class DEMWrapper(KratosWrapper):
 
         # Get the CFD pe
         if cuds.count_of(item_type=CUBA.GRANULAR_DYNAMICS) != 1:
-            raise "KratosDEM needs exactly one GRANULAR_DYNAMICS pe."
+            raise Exception("KratosDEM needs exactly one GRANULAR_DYNAMICS pe.")
 
         for gd_pe in cuds.iter(item_type=CUBA.GRANULAR_DYNAMICS):
             if len(gd_pe.data[CUBA.DATA_SET]) < 1:
