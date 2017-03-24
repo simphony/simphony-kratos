@@ -91,9 +91,13 @@ class DEM_Utils(DEMWrapper):
         model_part_io_fluid = KRTS.ModelPartIO(filename)
         model_part_io_fluid.ReadModelPart(model_part)
 
+        smp_phisic_equations = []
         smp_meshes = []
         smp_conditions = []
         smp_materials = []
+
+        dem_fem_pe = api.GranularDynamics()
+        dem_fem_pe.data[CUBA.DATA_SET] = []
 
         for i in xrange(1, model_part.NumberOfMeshes()):
 
@@ -125,10 +129,14 @@ class DEM_Utils(DEMWrapper):
             smp_conditions.append(condition)
             smp_materials.append(material)
 
+            # Add to the pe?
+            dem_fem_pe.data[CUBA.DATA_SET].append(mesh.name)
+
         return {
             'datasets': smp_meshes,
             'conditions': smp_conditions,
             'materials': smp_materials,
+            'pe': dem_fem_pe,
         }
 
     def read_modelpart_as_particles(self, filename):
@@ -150,6 +158,9 @@ class DEM_Utils(DEMWrapper):
         smp_particles = []
         smp_conditions = []
         smp_materials = []
+
+        dem_pe = api.GranularDynamics()
+        dem_pe.data[CUBA.DATA_SET] = []
 
         for i in xrange(0, model_part.NumberOfMeshes()):
 
@@ -179,8 +190,11 @@ class DEM_Utils(DEMWrapper):
             smp_conditions.append(condition)
             smp_materials.append(material)
 
+            dem_pe.data[CUBA.DATA_SET].append(particles.name)
+
         return {
             'datasets': smp_particles,
             'conditions': smp_conditions,
             'materials': smp_materials,
+            'pe': dem_pe,
         }

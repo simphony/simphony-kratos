@@ -355,17 +355,27 @@ class DEMWrapper(KratosWrapper):
         meshNumber = 1
         meshDict = {}
 
-        for particles in cuds.iter(item_type=CUBA.PARTICLES):
+        # Get the CFD pe
+        if cuds.count_of(item_type=CUBA.GRANULAR_DYNAMICS) != 1:
+            raise "KratosDEM needs exactly one GRANULAR_DYNAMICS pe."
 
-            group = meshNumber
+        for gd_pe in cuds.iter(item_type=CUBA.GRANULAR_DYNAMICS):
+            if len(gd_pe.data[CUBA.DATA_SET]) < 1:
+                raise Exception("GD PE does not have any associated dataset")
 
-            self.importKratosParticles(
-                particles, self.spheres_model_part,
-                group, self.particle_type
-            )
+            for name in gd_pe.data[CUBA.DATA_SET]:
 
-            meshDict[particles.name] = meshNumber
-            meshNumber += 1
+                print('Particles name:', name)
+                particles = cuds.get_by_name(name)
+                group = meshNumber
+
+                self.importKratosParticles(
+                    particles, self.spheres_model_part,
+                    group, self.particle_type
+                )
+
+                meshDict[particles.name] = meshNumber
+                meshNumber += 1
 
         self.updateBackwardDicc()
 
@@ -375,14 +385,13 @@ class DEMWrapper(KratosWrapper):
 
         print("DEM Solver correctly initialized ...")
 
-        iTime = [
-            it for it in cuds.iter(item_type=CUBA.INTEGRATION_TIME)
-        ]
+        if cuds.count_of(item_type=CUBA.INTEGRATION_TIME) < 0:
+            raise Exception("Error: No integran time")
 
-        if(len(iTime) != 1):
-            raise "Error: Cuds has more than one or zero integration times."
+        if cuds.count_of(item_type=CUBA.INTEGRATION_TIME) > 1:
+            raise Exception("Error: More than one integration time")
 
-        iTime = iTime[0]
+        iTime = [it for it in cuds.iter(item_type=CUBA.INTEGRATION_TIME)][0]
 
         self.dt = iTime.step
 
@@ -415,14 +424,19 @@ class DEMWrapper(KratosWrapper):
         iTime.time = self.time
         iTime.final = self.final
 
-        for particles in cuds.iter(item_type=CUBA.PARTICLES):
+        for gd_pe in cuds.iter(item_type=CUBA.GRANULAR_DYNAMICS):
+            if len(gd_pe.data[CUBA.DATA_SET]) < 1:
+                raise Exception("GD PE does not have any associated dataset")
 
-            group = meshDict[particles.name]
+            for name in gd_pe.data[CUBA.DATA_SET]:
 
-            self.exportKratosParticles(
-                self.spheres_model_part,
-                particles,
-                group
-            )
+                particles = cuds.get_by_name(name)
+                group = meshDict[particles.name]
+
+                self.exportKratosParticles(
+                    self.spheres_model_part,
+                    particles,
+                    group
+                )
 
         self.updateForwardDicc()
