@@ -101,6 +101,9 @@ class CFD_Utils(CFDWrapper):
         smp_conditions = []
         smp_materials = []
 
+        cfd_pe = api.Cfd()
+        cfd_pe.data[CUBA.DATA_SET] = []
+
         for i in xrange(0, model_part.NumberOfMeshes()):
 
             mesh_name = 'fluid_' + str(i)
@@ -131,8 +134,12 @@ class CFD_Utils(CFDWrapper):
             smp_conditions.append(condition)
             smp_materials.append(material)
 
+            # Add to the pe?
+            cfd_pe.data[CUBA.DATA_SET].append(mesh.name)
+
         return {
             'datasets': smp_meshes,
             'conditions': smp_conditions,
             'materials': smp_materials,
+            'pe': cfd_pe,
         }

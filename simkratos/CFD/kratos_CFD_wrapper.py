@@ -168,6 +168,9 @@ class CFDWrapper(KratosWrapper):
 
     def importKratosDof(self, src, dst, group):
 
+        print("=================================================")
+        print("=================================================")
+
         bc = self.get_cuds().get_by_name(src.data[CUBA.CONDITION])
 
         mesh_prop = KRTS.Properties(group)
@@ -219,6 +222,9 @@ class CFDWrapper(KratosWrapper):
                     node.Fix(KRTS.VELOCITY_Z)
                     node.SetValue(KRTS.VELOCITY_Z, bc.data[CUBA.VELOCITY][2])
 
+        print("=================================================")
+        print("=================================================")
+
         return mesh_prop
 
     def setElementData(self):
@@ -236,8 +242,10 @@ class CFDWrapper(KratosWrapper):
             execute Kratos' CFD solver
         """
 
+        self.internal_step = 0
+        self.bufferSize = 3
         self.fluid_model_part = KRTS.ModelPart("")
-        self.fluid_model_part.SetBufferSize(3)
+        self.fluid_model_part.SetBufferSize(self.bufferSize)
 
         self.addNodalVariablesToModelpart(self.fluid_model_part)
 
@@ -265,31 +273,42 @@ class CFDWrapper(KratosWrapper):
         meshNumber = 1
         meshDict = {}
 
-        for mesh in cuds.iter(item_type=CUBA.MESH):
+        # for mesh in cuds.iter(item_type=CUBA.MESH):
 
-            group = meshNumber
+        # Get the CFD pe
+        if cuds.count_of(item_type=CUBA.CFD) != 1:
+            raise "KratosCFD needs exactly one CFD pe."
 
-            self.importKratosNodes(
-                mesh, self.fluid_model_part,
-                group
-            )
-            self.importKratosElements(
-                mesh, self.fluid_model_part,
-                group, self.element_type
-            )
-            self.importKratosConditions(
-                mesh, self.fluid_model_part,
-                group, self.condition_type
-            )
+        for cfd_pe in cuds.iter(item_type=CUBA.CFD):
+            if len(cfd_pe.data[CUBA.DATA_SET]) < 1:
+                raise "CFD PE does not have any associated dataset"
 
-            mesh_prop = self.importKratosDof(
-                mesh, self.fluid_model_part, group
-            )
+            for name in cfd_pe.data[CUBA.DATA_SET]:
 
-            meshDict[mesh.name] = meshNumber
+                mesh = cuds.get_by_name(name)
+                group = meshNumber
 
-            properties.append(mesh_prop)
-            meshNumber += 1
+                self.importKratosNodes(
+                    mesh, self.fluid_model_part,
+                    group
+                )
+                self.importKratosElements(
+                    mesh, self.fluid_model_part,
+                    group, self.element_type
+                )
+                self.importKratosConditions(
+                    mesh, self.fluid_model_part,
+                    group, self.condition_type
+                )
+
+                mesh_prop = self.importKratosDof(
+                    mesh, self.fluid_model_part, group
+                )
+
+                meshDict[mesh.name] = meshNumber
+
+                properties.append(mesh_prop)
+                meshNumber += 1
 
         self.fluid_model_part.SetProperties(properties)
 
@@ -297,7 +316,7 @@ class CFDWrapper(KratosWrapper):
         self.setElementData()
         self.setConditionData()
 
-        self.fluid_model_part.SetBufferSize(3)
+        self.fluid_model_part.SetBufferSize(self.bufferSize)
 
         self.solver_module.AddDofs(self.fluid_model_part, self.SolverSettings)
 
@@ -311,14 +330,18 @@ class CFDWrapper(KratosWrapper):
 
         self.solver.Initialize()
 
-        iTime = [
-            it for it in cuds.iter(item_type=CUBA.INTEGRATION_TIME)
-        ]
+        if cuds.count_of(item_type=CUBA.INTEGRATION_TIME) < 0:
+            raise Exception("Error: No integran time")
 
-        if(len(iTime) != 1):
-            raise "Error: Cuds has more than one or zero integration times."
+        if cuds.count_of(item_type=CUBA.INTEGRATION_TIME) > 1:
+            raise Exception("Error: More than one integration time")
 
-        iTime = iTime[0]
+        iTime = [it for it in cuds.iter(item_type=CUBA.INTEGRATION_TIME)][0]
+        #
+        # if(len(iTime) != 1):
+        #     raise "Error: Cuds has more than one or zero integration times."
+        #
+        # iTime = iTime[0]
 
         Dt = iTime.step
 
@@ -328,30 +351,35 @@ class CFDWrapper(KratosWrapper):
         self.time = iTime.time
         self.final = iTime.final
 
-        # Init the temporal db without starting the simulation since we
-        # cannot make sure this is the first execution of kratos or not.
-        # NOTE: Temporal db from previous kratos steps is lost.
-        for i in xrange(0, 3):                                                  # noqa: from future import
-            self.fluid_model_part.CloneTimeStep(self.time)
-            self.time = self.time + Dt
-
         print(self.time, self.final)
 
         while self.time < self.final:
             self.fluid_model_part.CloneTimeStep(self.time)
-            self.solver.Solve()
+
+            if self.internal_step >= self.bufferSize:
+                self.solver.Solve()
+
+            self.internal_step += 1
             self.time = self.time + Dt
 
         iTime.time = self.time
         iTime.final = self.final
 
         # Resotre the information to SimPhoNy
-        for mesh in cuds.iter(item_type=CUBA.MESH):
+        for cfd_pe in cuds.iter(item_type=CUBA.CFD):
+            if len(cfd_pe.data[CUBA.DATA_SET]) < 1:
+                raise "CFD PE does not have any associated dataset"
 
-            group = meshDict[mesh.name]
+            for name in cfd_pe.data[CUBA.DATA_SET]:
 
-            self.exportKratosNodes(self.fluid_model_part, mesh, group)
-            self.exportKratosElements(self.fluid_model_part, mesh, group)
-            self.exportKratosConditions(self.fluid_model_part, mesh, group)
+                mesh = cuds.get_by_name(name)
+                group = meshDict[mesh.name]
+
+                self.exportKratosNodes(self.fluid_model_part, mesh, group)
+                self.exportKratosElements(self.fluid_model_part, mesh, group)
+                self.exportKratosConditions(self.fluid_model_part, mesh, group)
 
         self.updateForwardDicc()
+
+        for p in mesh.iter(item_type=CUBA.POINT):
+            print(p.data[CUBA.VELOCITY])
