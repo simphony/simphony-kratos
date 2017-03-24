@@ -279,7 +279,7 @@ class CFDWrapper(KratosWrapper):
 
         for cfd_pe in cuds.iter(item_type=CUBA.CFD):
             if len(cfd_pe.data[CUBA.DATA_SET]) < 1:
-                raise "CFD PE does not have any associated dataset"
+                raise Exception("CFD PE does not have any associated dataset")
 
             for name in cfd_pe.data[CUBA.DATA_SET]:
 
