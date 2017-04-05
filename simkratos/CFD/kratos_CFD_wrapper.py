@@ -27,8 +27,8 @@ class CFDWrapper(KratosWrapper):
 
         self.time = 0
         self.step = 0
-        self.element_type = "FractionalStep3D"
-        self.condition_type = "WallCondition3D"
+        self.element_type = "VMS3D4N"
+        self.condition_type = "MonolithicWallCondition3D"
 
         # The dictionary defines the relation between CUBA and
         # kratos variables
@@ -44,6 +44,13 @@ class CFDWrapper(KratosWrapper):
                 KRTS.VELOCITY_X,
                 KRTS.VELOCITY_Y,
                 KRTS.VELOCITY_Z
+            ],
+            "ACCELERATION": [
+                CUBA.ACCELERATION,
+                KRTS.ACCELERATION,
+                KRTS.ACCELERATION_X,
+                KRTS.ACCELERATION_Y,
+                KRTS.ACCELERATION_Z
             ],
             "REACTION": [
                 None,
@@ -106,6 +113,8 @@ class CFDWrapper(KratosWrapper):
 
         """
 
+        modelPart.AddNodalSolutionStepVariable(KRTS.ACCELERATION)
+        modelPart.AddNodalSolutionStepVariable(KRTS.EXTERNAL_PRESSURE)
         if "REACTION" in ProjectParameters.nodal_results:
             modelPart.AddNodalSolutionStepVariable(KRTS.REACTION)
         if "DISTANCE" in ProjectParameters.nodal_results:
@@ -168,9 +177,6 @@ class CFDWrapper(KratosWrapper):
 
     def importKratosDof(self, src, dst, group):
 
-        print("=================================================")
-        print("=================================================")
-
         bc = self.get_cuds().get_by_name(src.data[CUBA.CONDITION])
 
         mesh_prop = KRTS.Properties(group)
@@ -221,9 +227,6 @@ class CFDWrapper(KratosWrapper):
                 if imposedVel[2] is not None:
                     node.Fix(KRTS.VELOCITY_Z)
                     node.SetValue(KRTS.VELOCITY_Z, bc.data[CUBA.VELOCITY][2])
-
-        print("=================================================")
-        print("=================================================")
 
         return mesh_prop
 
@@ -326,6 +329,10 @@ class CFDWrapper(KratosWrapper):
             self.fluid_model_part,
             self.SolverSettings)
 
+        self.solver_module.AddVariables(
+            self.fluid_model_part
+        )
+
         self.solver.Initialize()
 
         if cuds.count_of(item_type=CUBA.INTEGRATION_TIME) < 0:
@@ -345,6 +352,7 @@ class CFDWrapper(KratosWrapper):
         self.final = iTime.final
 
         print(self.time, self.final)
+        print(self.fluid_model_part)
 
         while self.time < self.final:
             self.fluid_model_part.CloneTimeStep(self.time)
