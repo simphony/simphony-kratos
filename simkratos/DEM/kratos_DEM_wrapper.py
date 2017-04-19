@@ -103,7 +103,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        if model == "Particles":
+        if model == "SpheresPart":
             self.getSolutionStepVariable1D(data, node, "RADIUS")
             self.getSolutionStepVariable1D(data, node, "NODAL_MASS")
             self.getSolutionStepVariable3D(data, node, "VELOCITY")
@@ -117,7 +117,7 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        if model == "Particles":
+        if model == "SpheresPart":
             self.setSolutionStepVariable1D(data, node, "RADIUS")
             self.setSolutionStepVariable1D(data, node, "NODAL_MASS")
             self.setSolutionStepVariable3D(data, node, "VELOCITY")
@@ -185,7 +185,7 @@ class DEMWrapper(KratosWrapper):
         )
 
     def setConditionData(self):
-        cmesh = self.get_dataset("Conditions")
+        cmesh = self.get_dataset("RigidFacePart")
 
         self.condition_properties.SetValue(
             KRTS.WALL_FRICTION,
@@ -200,21 +200,21 @@ class DEMWrapper(KratosWrapper):
         """
 
         # Prepare ModelParts
-        self.spheres_model_part = KRTS.ModelPart("Particles")
-        self.rigid_face_model_part = KRTS.ModelPart("Conditions")
-        self.cluster_model_part = KRTS.ModelPart("Cluster")
-        self.DEM_inlet_model_part = KRTS.ModelPart("DENInlet1")
-        self.mapping_model_part = KRTS.ModelPart("Mapping")
-        self.contact_model_part = KRTS.ModelPart("Contact")
+        self.spheres_model_part = KRTS.ModelPart("SpheresPart")
+        self.rigid_face_model_part = KRTS.ModelPart("RigidFacePart")
+        self.cluster_model_part = KRTS.ModelPart("ClusterPart")
+        self.DEM_inlet_model_part = KRTS.ModelPart("DEMInletPart")
+        self.mapping_model_part = KRTS.ModelPart("MappingPart")
+        self.contact_model_part = KRTS.ModelPart("ContactPart")
 
-        self.all_model_parts = DEM_procedures.SetOfModelParts(
+        self.all_model_parts = DEM_procedures.SetOfModelParts([
             self.spheres_model_part,
             self.rigid_face_model_part,
             self.cluster_model_part,
             self.DEM_inlet_model_part,
             self.mapping_model_part,
             self.contact_model_part
-        )
+        ])
 
         # Prepare the solver
         self.solver = SolverStrategy.ExplicitStrategy(

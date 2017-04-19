@@ -113,8 +113,13 @@ class CFDWrapper(KratosWrapper):
 
         """
 
-        modelPart.AddNodalSolutionStepVariable(KRTS.ACCELERATION)
+        modelPart.AddNodalSolutionStepVariable(KRTS.PRESSURE)
+        modelPart.AddNodalSolutionStepVariable(KRTS.VELOCITY)
+        modelPart.AddNodalSolutionStepVariable(KRTS.VISCOSITY)
+        modelPart.AddNodalSolutionStepVariable(KRTS.DENSITY)
+        modelPart.AddNodalSolutionStepVariable(KRTS.Y_WALL)
         modelPart.AddNodalSolutionStepVariable(KRTS.EXTERNAL_PRESSURE)
+
         if "REACTION" in ProjectParameters.nodal_results:
             modelPart.AddNodalSolutionStepVariable(KRTS.REACTION)
         if "DISTANCE" in ProjectParameters.nodal_results:
@@ -380,7 +385,7 @@ class CFDWrapper(KratosWrapper):
                 self.exportKratosElements(self.fluid_model_part, mesh, group)
                 self.exportKratosConditions(self.fluid_model_part, mesh, group)
 
-        self.updateForwardDicc()
+                # for p in mesh.iter(item_type=CUBA.POINT):
+                #     print(p.data[CUBA.VELOCITY])
 
-        for p in mesh.iter(item_type=CUBA.POINT):
-            print(p.data[CUBA.VELOCITY])
+        self.updateForwardDicc()

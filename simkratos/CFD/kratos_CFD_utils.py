@@ -89,10 +89,7 @@ class CFD_Utils(CFDWrapper):
 
         model_part = KRTS.ModelPart("FluidPart")
 
-        model_part.AddNodalSolutionStepVariable(KRTS.PRESSURE)
-        model_part.AddNodalSolutionStepVariable(KRTS.VELOCITY)
-        model_part.AddNodalSolutionStepVariable(KRTS.VISCOSITY)
-        model_part.AddNodalSolutionStepVariable(KRTS.DENSITY)
+        self.addNodalVariablesToModelpart(model_part)
 
         model_part_io_fluid = KRTS.ModelPartIO(filename)
         model_part_io_fluid.ReadModelPart(model_part)
