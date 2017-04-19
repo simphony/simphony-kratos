@@ -23,12 +23,13 @@ pathParticles = abs_path("fibers_and_ballsDEM")
 
 cuds = CUDS(name='Coupling')
 
-# Integration time:
+# Integration time for the fluid solver:
 CFDitime = api.IntegrationTime(name="CFD_Integration_time")
 CFDitime.time = 0.0001
-CFDitime.step = 0.0125
-CFDitime.final = 0.0125  # 1 Kratos Timesteps
+CFDitime.step = 0.01
+CFDitime.final = 2  # 1 Kratos Timesteps
 
+# Integration time for the particle solver
 DEMitime = api.IntegrationTime(name="DEM_Integration_time")
 DEMitime.time = 0.0001
 DEMitime.step = 0.0025
@@ -39,7 +40,8 @@ COUiTime = api.IntegrationTime(name="COU_Inetegration_time")
 cuds.add([COUiTime])
 
 # Utils are used to read an existing Kratos model as raw data so we can
-# initialize the correct simphony datasets
+# initialize the correct simphony datasets. We can also use manualy written
+# datasets.
 cfd_utils = CFD_Utils()
 dem_utils = DEM_Utils()
 
@@ -64,21 +66,52 @@ for model in [model_particles]:
 # Create the simulation and run the problem
 simCFD = Simulation(cuds, "KRATOS_CFD", engine_interface=True)
 simDEM = Simulation(cuds, "KRATOS_DEM", engine_interface=True)
+simPRO = Simulation(cuds, "KRATOS_PRO", engine_interface=True)
 
-for step in xrange(0, 4):
+for step in xrange(0, 5):
 
-    # Make sure the timestep between wrappers are consistent
-    COUiTime.time = 0.0125 * (step + 0)
+    print("\t====== ITERATION BEG ======")
+    # Set interval times
     CFDitime.final = 0.0125 * (step + 1)  # 5 Kratos Timesteps
     DEMitime.final = 0.0125 * (step + 1)  # 5 Kratos Timesteps
 
-    print("\t====== ITERATION BEG ======")
+    print("\t==== CFD ITERATION BEG ====")
+    # Make sure the timestep between wrappers are consistent
+    COUiTime.time = 0.0125 * (step + 0)
     COUiTime.step = CFDitime.step
     COUiTime.final = CFDitime.final
 
     simCFD.run()
     print("\t==== CFD ITERATION END ====")
 
+    print("\t==== COUPLING ITER BEG ====")
+
+    simPRO.run()
+
+    # for p in mesh.iter(item_type=CUBA.POINT):
+    #     print(p.data[CUBA.VELOCITY])
+    #
+    #
+    for node in spheres_model_part.Nodes:
+        velocity_factor = 0.02
+        vx = -1.0 * velocity_factor * node.Y
+        vy = velocity_factor * node.X
+        vz = velocity_factor * 0.0
+
+        radius = node.GetSolutionStepValue(RADIUS)
+        viscosity = 1.0e-3
+        factor = 6.0 * math.pi * viscosity * radius  # falta densitat
+        fx = factor * vx
+        fy = factor * vy
+        fz = factor * vz
+
+        node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_X, fx)
+        node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_Y, fy)
+        node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_Z, fz)
+
+    print("\t==== COUPLING ITER END ====")
+
+    print("\t==== DEM ITERATION BEG ====")
     # Make sure the timestep between wrappers are consistent
     COUiTime.time = 0.0125 * (step + 0)
     COUiTime.step = DEMitime.step
@@ -87,21 +120,6 @@ for step in xrange(0, 4):
     simDEM.run()
     print("\t==== DEM ITERATION END ====")
 
-    print("\t====== ITERATION END ======")
+    print("All steps of the iteration executed correctly.")
 
-# for node in spheres_model_part.Nodes:
-#     velocity_factor = 0.02
-#     vx = -1.0 * velocity_factor* node.Y
-#     vy = velocity_factor * node.X
-#     vz = velocity_factor * 0.0
-#
-#     radius = node.GetSolutionStepValue(RADIUS)
-#     viscosity = 1.0e-3
-#     factor = 6.0 * math.pi * viscosity * radius
-#     fx = factor * vx
-#     fy = factor * vy
-#     fz = factor * vz
-#
-#     node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_X, fx)
-#     node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_Y, fy)
-#     node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_Z, fz)
+    print("\t====== ITERATION END ======")
