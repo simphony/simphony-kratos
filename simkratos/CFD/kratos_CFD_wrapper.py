@@ -281,7 +281,7 @@ class CFDWrapper(KratosWrapper):
 
         # Get the CFD pe
         if cuds.count_of(item_type=CUBA.CFD) != 1:
-            raise "KratosCFD needs exactly one CFD pe."
+            raise "KratosCFD only allows one CFD pe."
 
         for cfd_pe in cuds.iter(item_type=CUBA.CFD):
             if len(cfd_pe.data[CUBA.DATA_SET]) < 1:
@@ -339,10 +339,10 @@ class CFDWrapper(KratosWrapper):
         self.solver.Initialize()
 
         if cuds.count_of(item_type=CUBA.INTEGRATION_TIME) < 0:
-            raise Exception("Error: No integran time")
+            raise Exception("No integran time")
 
         if cuds.count_of(item_type=CUBA.INTEGRATION_TIME) > 1:
-            raise Exception("Error: More than one integration time")
+            raise Exception("More than one integration time")
 
         iTime = [it for it in cuds.iter(item_type=CUBA.INTEGRATION_TIME)][0]
 

@@ -91,7 +91,6 @@ class DEM_Utils(DEMWrapper):
         model_part_io_fluid = KRTS.ModelPartIO(filename)
         model_part_io_fluid.ReadModelPart(model_part)
 
-        smp_phisic_equations = []
         smp_meshes = []
         smp_conditions = []
         smp_materials = []

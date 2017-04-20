@@ -334,16 +334,22 @@ class PROJECTWrapper(KratosWrapper):
         self.spheres_model_part.GetMesh(len(fluid_particles))
         self.rigid_face_model_part.GetMesh(len(solid_meshes))
 
-        self.spheres_model_part.AddNodalSolutionStepVariable(KRTS.RADIUS)
-        self.spheres_model_part.AddNodalSolutionStepVariable(KRTS.VELOCITY)
-        self.spheres_model_part.AddNodalSolutionStepVariable(KRTS.FLUID_VEL_PROJECTED)
+        self.spheres_model_part.AddNodalSolutionStepVariable(
+            KRTS.RADIUS
+        )
+        self.spheres_model_part.AddNodalSolutionStepVariable(
+            KRTS.VELOCITY
+        )
+        self.spheres_model_part.AddNodalSolutionStepVariable(
+            KRTS.FLUID_VEL_PROJECTED
+        )
 
         meshNumber = 1
         meshDict = {}
 
         # Get the CFD pe
         if cuds.count_of(item_type=CUBA.CFD) != 1:
-            raise "KratosCFD needs exactly one CFD pe."
+            raise "KratosCFD only allows one CFD pe."
 
         for cfd_pe in cuds.iter(item_type=CUBA.CFD):
             if len(cfd_pe.data[CUBA.DATA_SET]) < 1:
@@ -378,7 +384,7 @@ class PROJECTWrapper(KratosWrapper):
 
         # Get the DEM pe
         if cuds.count_of(item_type=CUBA.GRANULAR_DYNAMICS) != 1:
-            raise Exception("KratosDEM needs exactly one GRANULAR_DYNAMICS pe.")
+            raise Exception("KratosDEM only allows one GRANULAR_DYNAMICS pe.")
 
         # Reset the mesh number while importing the DEM Modelpart
         meshNumber = 1
@@ -402,12 +408,20 @@ class PROJECTWrapper(KratosWrapper):
 
         self.updateBackwardDicc()
 
-        self.projector = KRTSSWDEM.BinBasedDEMFluidCoupledMapping3D(0.6, 1, 0, 1)
+        self.projector = KRTSSWDEM.BinBasedDEMFluidCoupledMapping3D(
+            0.6, 1, 0, 1
+        )
 
-        self.bin_of_objects_fluid = KRTS.BinBasedFastPointLocator3D(self.fluid_model_part)
+        self.bin_of_objects_fluid = KRTS.BinBasedFastPointLocator3D(
+            self.fluid_model_part
+        )
         self.bin_of_objects_fluid.UpdateSearchDatabase()
 
-        self.projector.InterpolateFromNewestFluidMesh(self.fluid_model_part, self.spheres_model_part, self.bin_of_objects_fluid)
+        self.projector.InterpolateFromNewestFluidMesh(
+            self.fluid_model_part,
+            self.spheres_model_part,
+            self.bin_of_objects_fluid
+        )
 
         for gd_pe in cuds.iter(item_type=CUBA.GRANULAR_DYNAMICS):
             if len(gd_pe.data[CUBA.DATA_SET]) < 1:

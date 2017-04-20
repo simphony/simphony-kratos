@@ -291,6 +291,8 @@ class KratosWrapper(ABCModelingEngine):
 
         pair = self.variables_dictionary[variable]
         if(pair[0] is not None):
+            if pair[0] not in data.keys():
+                data[pair[0]] = 0
             entity.SetSolutionStepValue(
                 pair[1],
                 data[pair[0]]
@@ -314,6 +316,8 @@ class KratosWrapper(ABCModelingEngine):
 
         pair = self.variables_dictionary[variable]
         if(pair[0] is not None):
+            if pair[0] not in data.keys():
+                data[pair[0]] = (0, 0, 0)
             for i in xrange(0, 3):
                 entity.SetSolutionStepValue(
                     pair[2 + i],
@@ -380,13 +384,12 @@ class KratosWrapper(ABCModelingEngine):
 
             point_uid = None
 
-            if node.Id in self.id_to_uuid_node_map:
+            if node.Id in self.id_to_uuid_node_map.keys():
                 point_uid = self.id_to_uuid_node_map[node.Id]
 
             hasNode = point_uid is not None and dst.has(point_uid)
 
             if not hasNode:
-
                 point = SPoint(
                     coordinates=(node.X, node.Y, node.Z),
                     data=DataContainer(data),
@@ -398,7 +401,6 @@ class KratosWrapper(ABCModelingEngine):
                 self.id_to_uuid_node_map[node.Id] = pid[0]
 
             else:
-
                 point = dst.get(uid=self.id_to_uuid_node_map[node.Id])
 
                 # iterate over the correct data
@@ -714,18 +716,18 @@ class KratosWrapper(ABCModelingEngine):
                 )
 
         # If they belong to a different group, add them
-        if group != 0:
-            nodes = KRTS.NodesArray()
-            elements = KRTS.ElementsArray()
-            for particle in src.iter(item_type=CUBA.PARTICLE):
-                nodes.append(
-                    dst.Nodes[self.uuid_to_id_node_map[particle.uid]]
-                )
-                elements.append(
-                    dst.Elements[self.uuid_to_id_element_map[particle.uid]]
-                )
-            dst.SetNodes(nodes, group)
-            dst.SetElements(elements, group)
+        # if group != 0:
+        #     nodes = KRTS.NodesArray()
+        #     elements = KRTS.ElementsArray()
+        #     for particle in src.iter(item_type=CUBA.PARTICLE):
+        #         nodes.append(
+        #             dst.Nodes[self.uuid_to_id_node_map[particle.uid]]
+        #         )
+        #         elements.append(
+        #             dst.Elements[self.uuid_to_id_element_map[particle.uid]]
+        #         )
+        #     dst.SetNodes(nodes, group)
+        #     dst.SetElements(elements, group)
 
     # Run
 

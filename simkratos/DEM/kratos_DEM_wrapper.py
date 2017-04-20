@@ -314,13 +314,13 @@ class DEMWrapper(KratosWrapper):
         self.solver.Initialize()
 
         # Constructing the inlet and initializing it
-        if (DEM_parameters.dem_inlet_option):
-            self.DEM_inlet = DEM_Inlet(self.DEM_inlet_model_part)
-            self.DEM_inlet.InitializeDEM_Inlet(
-                self.spheres_model_part,
-                self.creator_destructor,
-                self.solver.continuum_type
-            )
+        # if (DEM_parameters.dem_inlet_option):
+        #     self.DEM_inlet = DEM_Inlet(self.DEM_inlet_model_part)
+        #     self.DEM_inlet.InitializeDEM_Inlet(
+        #         self.spheres_model_part,
+        #         self.creator_destructor,
+        #         self.solver.continuum_type
+        #     )
 
         # Enable this
         # self.DEMFEMProcedures = DEM_procedures.DEMFEMProcedures(
@@ -346,7 +346,7 @@ class DEMWrapper(KratosWrapper):
 
         # Get the CFD pe
         if cuds.count_of(item_type=CUBA.GRANULAR_DYNAMICS) != 1:
-            raise Exception("KratosDEM needs exactly one GRANULAR_DYNAMICS pe.")
+            raise Exception("KratosDEM only allows one GRANULAR_DYNAMICS pe.")
 
         for gd_pe in cuds.iter(item_type=CUBA.GRANULAR_DYNAMICS):
             if len(gd_pe.data[CUBA.DATA_SET]) < 1:
@@ -374,10 +374,10 @@ class DEMWrapper(KratosWrapper):
         print("DEM Solver correctly initialized ...")
 
         if cuds.count_of(item_type=CUBA.INTEGRATION_TIME) < 0:
-            raise Exception("Error: No integran time")
+            raise Exception("No integran time")
 
         if cuds.count_of(item_type=CUBA.INTEGRATION_TIME) > 1:
-            raise Exception("Error: More than one integration time")
+            raise Exception("More than one integration time")
 
         iTime = [it for it in cuds.iter(item_type=CUBA.INTEGRATION_TIME)][0]
 

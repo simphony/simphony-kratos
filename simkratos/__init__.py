@@ -9,6 +9,7 @@ from KratosMultiphysics.MeshingApplication import *                             
 from KratosMultiphysics.DEMApplication import *                                 # noqa
 from KratosMultiphysics.SwimmingDEMApplication import *                         # noqa
 
+
 @register
 class SimkratosExtension(ABCEngineExtension):
     """ Simphony-Kratos extension.
