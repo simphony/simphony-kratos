@@ -5,6 +5,7 @@ Simphony for coupling CFD with DEM
 import os
 
 from simphony.api import CUDS, Simulation
+from simphony.core.cuba import CUBA
 from simphony.cuds.meta import api
 
 # This line is optional and only adds some tools to read kratos models
@@ -63,6 +64,10 @@ for model in [model_particles]:
     cuds.add(list(model['materials']))
     cuds.add([model['pe']])
 
+# Get a reference to the datasets that we will use in the coupling
+fluid_dataset = model_fluid['datasets'][0].name
+particles_dataset = model_particles['datasets'][0].name
+
 # Create the simulation and run the problem
 simCFD = Simulation(cuds, "KRATOS_CFD", engine_interface=True)
 simDEM = Simulation(cuds, "KRATOS_DEM", engine_interface=True)
@@ -81,33 +86,40 @@ for step in xrange(0, 5):
     COUiTime.step = CFDitime.step
     COUiTime.final = CFDitime.final
 
-    simCFD.run()
+    # simCFD.run()
     print("\t==== CFD ITERATION END ====")
 
     print("\t==== COUPLING ITER BEG ====")
-
+    # Projects the velocity from the fluid to the particles
     simPRO.run()
 
-    # for p in mesh.iter(item_type=CUBA.POINT):
-    #     print(p.data[CUBA.VELOCITY])
+    # print("Getting ", fluid_dataset)
+    # fluid_dataset = cuds.get_by_name(fluid_dataset)
+    # for node in fluid_dataset.iter(item_type=CUBA.NODE):
+    #     print(node.data)
     #
+    # # Simple coupling (Drag force)
+    # print("Getting ", particles_dataset)
+    # particles_dataset = cuds.get_by_name(particles_dataset)
+    # for particle in particles_dataset.iter(item_type=CUBA.PARTICLES):
+    #     print(particle.data)
+
+    # for node in spheres_model_part.Nodes:
+    #     velocity_factor = 0.02
+    #     vx = -1.0 * velocity_factor * node.Y
+    #     vy = velocity_factor * node.X
+    #     vz = velocity_factor * 0.0
     #
-    for node in spheres_model_part.Nodes:
-        velocity_factor = 0.02
-        vx = -1.0 * velocity_factor * node.Y
-        vy = velocity_factor * node.X
-        vz = velocity_factor * 0.0
-
-        radius = node.GetSolutionStepValue(RADIUS)
-        viscosity = 1.0e-3
-        factor = 6.0 * math.pi * viscosity * radius  # falta densitat
-        fx = factor * vx
-        fy = factor * vy
-        fz = factor * vz
-
-        node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_X, fx)
-        node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_Y, fy)
-        node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_Z, fz)
+    #     radius = node.GetSolutionStepValue(RADIUS)
+    #     viscosity = 1.0e-3
+    #     factor = 6.0 * math.pi * viscosity * radius  # falta densitat
+    #     fx = factor * vx
+    #     fy = factor * vy
+    #     fz = factor * vz
+    #
+    #     node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_X, fx)
+    #     node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_Y, fy)
+    #     node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_Z, fz)
 
     print("\t==== COUPLING ITER END ====")
 
