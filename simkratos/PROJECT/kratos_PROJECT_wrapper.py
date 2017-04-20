@@ -16,25 +16,11 @@ from simphony.cuds.particles import Particle as SParticle
 
 # Wrapper Imports
 from simkratos.kratosWrapper import KratosWrapper
-from simkratos.DEM import DEM_explicit_solver_var as DEM_parameters
 
 # Kratos Imports
 import KratosMultiphysics as KRTS
 import KratosMultiphysics.DEMApplication as KRTSDEM
 import KratosMultiphysics.SwimmingDEMApplication as KRTSSWDEM
-
-import sphere_strategy as SolverStrategy
-import DEM_procedures
-
-import simkratos.PROJECT.DEM_explicit_solver_var as DEM_parameters
-import simkratos.PROJECT.ProjectParameters as pp
-
-import swimming_DEM_algorithm
-import math
-import swimming_DEM_procedures as swim_proc
-import CFD_DEM_coupling
-import embedded
-import swimming_DEM_algorithm
 
 
 class PROJECTWrapper(KratosWrapper):
