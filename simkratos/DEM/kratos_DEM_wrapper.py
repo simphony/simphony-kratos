@@ -87,7 +87,7 @@ class DEMWrapper(KratosWrapper):
         self.initialize()
 
     def _load_cuds(self):
-        """Load CUDS data into lammps engine."""
+        """Load CUDS data into kratos engine."""
         cuds = self.get_cuds()
         if not cuds:
             return
