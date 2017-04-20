@@ -385,7 +385,4 @@ class CFDWrapper(KratosWrapper):
                 self.exportKratosElements(self.fluid_model_part, mesh, group)
                 self.exportKratosConditions(self.fluid_model_part, mesh, group)
 
-                # for p in mesh.iter(item_type=CUBA.POINT):
-                #     print(p.data[CUBA.VELOCITY])
-
         self.updateForwardDicc()
