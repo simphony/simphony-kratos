@@ -65,6 +65,10 @@ class PROJECTWrapper(KratosWrapper):
                 None,
                 KRTS.NODAL_AREA
             ],
+            "PRESSURE": [
+                CUBA.PRESSURE,
+                KRTS.PRESSURE
+            ],
             "VELOCITY": [
                 CUBA.VELOCITY,
                 KRTS.VELOCITY,
@@ -79,6 +83,30 @@ class PROJECTWrapper(KratosWrapper):
                 KRTS.DISPLACEMENT_Y,
                 KRTS.DISPLACEMENT_Z
             ],
+            "VISCOSITY": [
+                None,
+                KRTS.VISCOSITY
+            ],
+            "DENSITY": [
+                CUBA.DENSITY,
+                KRTS.DENSITY
+            ],
+            "BODY_FORCE": [
+                None,
+                KRTS.BODY_FORCE
+            ],
+            "FLAG_VARIABLE": [
+                None,
+                KRTS.FLAG_VARIABLE
+            ],
+            "IS_STRUCTURE": [
+                None,
+                KRTS.IS_STRUCTURE
+            ],
+            "IS_SLIP": [
+                None,
+                KRTS.IS_SLIP
+            ],
             "FLUID_VEL_PROJECTED": [
                 CUBA.RELATIVE_VELOCITY,
                 KRTS.FLUID_VEL_PROJECTED,
@@ -87,13 +115,6 @@ class PROJECTWrapper(KratosWrapper):
                 KRTS.FLUID_VEL_PROJECTED_Z
             ]
         }
-
-        # self.algorithm = swimming_DEM_algorithm
-        # self.varying_parameters = dict()
-        # self.pp = pp
-        # self.pp.CFD_DEM = DEM_parameters
-        # self.alg = self.algorithm.Algorithm(self.pp)
-        # self.alg.SetCustomBetaParamters(self.varying_parameters)
 
         self.initialize()
 
@@ -106,6 +127,29 @@ class PROJECTWrapper(KratosWrapper):
         for component in cuds.iter(item_type=CUBA.MESH):
             self.add_dataset(component)
 
+    def addNodalVariablesToModelpart(self, modelPart):
+        """ Adds the Kratos CFD nodal variables
+
+        Adds the Kratos CFD nodal variables to the particle and
+        solid Kratos modelparts in order to be usable later
+        while importing the mesh.
+
+        """
+
+        modelPart.AddNodalSolutionStepVariable(KRTS.VELOCITY)
+        modelPart.AddNodalSolutionStepVariable(KRTS.DISPLACEMENT)
+
+        if modelPart.Name == "Particles":
+            pass
+        else:
+            modelPart.AddNodalSolutionStepVariable(KRTS.PRESSURE)
+            modelPart.AddNodalSolutionStepVariable(KRTS.VISCOSITY)
+            modelPart.AddNodalSolutionStepVariable(KRTS.DENSITY)
+            modelPart.AddNodalSolutionStepVariable(KRTS.Y_WALL)
+            modelPart.AddNodalSolutionStepVariable(KRTS.EXTERNAL_PRESSURE)
+            modelPart.AddNodalSolutionStepVariable(KRTS.REACTION)
+            modelPart.AddNodalSolutionStepVariable(KRTS.DISTANCE)
+
     def getNodalData(self, data, node, model):
         """ Extracts the node data
 
@@ -114,14 +158,21 @@ class PROJECTWrapper(KratosWrapper):
 
         """
 
+        self.getSolutionStepVariable3D(data, node, "VELOCITY")
+        self.getSolutionStepVariable3D(data, node, "DISPLACEMENT")
+
         if model == "Particles":
             self.getSolutionStepVariable1D(data, node, "RADIUS")
             self.getSolutionStepVariable1D(data, node, "NODAL_MASS")
-            self.getSolutionStepVariable3D(data, node, "VELOCITY")
-            self.getSolutionStepVariable3D(data, node, "DISPLACEMENT")
             self.getSolutionStepVariable3D(data, node, "FLUID_VEL_PROJECTED")
         else:
+            self.getSolutionStepVariable1D(data, node, "PRESSURE")
             self.getSolutionStepVariable1D(data, node, "NODAL_AREA")
+            self.getSolutionStepVariable1D(data, node, "VISCOSITY")
+            self.getSolutionStepVariable1D(data, node, "DENSITY")
+            self.getSolutionStepVariable1D(data, node, "BODY_FORCE")
+            self.getSolutionStepVariable1D(data, node, "FLAG_VARIABLE")
+            self.getSolutionStepVariable1D(data, node, "IS_STRUCTURE")
 
     def setNodalData(self, data, node, model):
         """ Assembles the point data
@@ -131,14 +182,21 @@ class PROJECTWrapper(KratosWrapper):
 
         """
 
+        self.setSolutionStepVariable3D(data, node, "VELOCITY")
+        self.setSolutionStepVariable3D(data, node, "DISPLACEMENT")
+
         if model == "Particles":
             self.setSolutionStepVariable1D(data, node, "RADIUS")
             self.setSolutionStepVariable1D(data, node, "NODAL_MASS")
-            self.setSolutionStepVariable3D(data, node, "VELOCITY")
-            self.setSolutionStepVariable3D(data, node, "DISPLACEMENT")
             self.setSolutionStepVariable3D(data, node, "FLUID_VEL_PROJECTED")
         else:
+            self.setSolutionStepVariable1D(data, node, "PRESSURE")
             self.setSolutionStepVariable1D(data, node, "NODAL_AREA")
+            self.setSolutionStepVariable1D(data, node, "VISCOSITY")
+            self.setSolutionStepVariable1D(data, node, "DENSITY")
+            self.setSolutionStepVariable1D(data, node, "BODY_FORCE")
+            self.setSolutionStepVariable1D(data, node, "FLAG_VARIABLE")
+            self.setSolutionStepVariable1D(data, node, "IS_STRUCTURE")
 
     def _setMeshData(self):
         " This probably needs to be done throug configuration"
@@ -281,22 +339,8 @@ class PROJECTWrapper(KratosWrapper):
         self.rigid_face_model_part = KRTS.ModelPart("P_Conditions")
         self.mixed_model_part = KRTS.ModelPart("Mixed")
 
-        # self.alg.AddExtraVariables()
-
-        # self.bounding_box_time_limits = []
-        # if self.pp.CFD_DEM.BoundingBoxOption == "ON":
-        #     self.alg.procedures.SetBoundingBox(self.alg.spheres_model_part, self.alg.cluster_model_part, self.alg.rigid_face_model_part, self.alg.creator_destructor)
-        #     self.bounding_box_time_limits = [self.alg.solver.bounding_box_start_time, self.alg.solver.bounding_box_stop_time]
-
-        # Creating the fluid solver
-        # self.SolverSettings = self.pp.FluidSolverConfiguration
-
-        # Reading the timestep
-        # self.Dt_DEM = self.pp.CFD_DEM.MaxTimeStep
-
-        # reading the fluid part
-        # self.alg.Initialize()
-        # self.alg.SetFluidBufferSizeAndAddAdditionalDofs()
+        self.addNodalVariablesToModelpart(self.fluid_model_part)
+        self.addNodalVariablesToModelpart(self.spheres_model_part)
 
     def run(self):
         """ Run a step of the wrapper """
@@ -305,10 +349,6 @@ class PROJECTWrapper(KratosWrapper):
         solid_meshes = self.meshes
 
         cuds = self.get_cuds()
-
-        self.fluid_model_part = KRTS.ModelPart("Fluid")
-        self.spheres_model_part = KRTS.ModelPart("Particles")
-        self.rigid_face_model_part = KRTS.ModelPart("Bc")
 
         self.fluid_model_part.GetMesh(len(solid_meshes))
         self.spheres_model_part.GetMesh(len(fluid_particles))
@@ -382,32 +422,12 @@ class PROJECTWrapper(KratosWrapper):
 
         self.updateBackwardDicc()
 
-        print("Before proj")
+        self.projector = KRTSSWDEM.BinBasedDEMFluidCoupledMapping3D(0.6, 1, 0, 1)
 
-        print(self.fluid_model_part)
+        self.bin_of_objects_fluid = KRTS.BinBasedFastPointLocator3D(self.fluid_model_part)
+        self.bin_of_objects_fluid.UpdateSearchDatabase()
 
-        # self.projector = KRTSSWDEM.BinBasedDEMFluidCoupledMapping3D(0.6, 1, 0, 1)
-        #
-        # self.bin_of_objects_fluid = KRTS.BinBasedFastPointLocator3D(self.fluid_model_part)
-        # self.bin_of_objects_fluid.UpdateSearchDatabase()
-        #
-        # self.projector.InterpolateFromNewestFluidMesh(self.fluid_model_part, self.spheres_model_part, self.bin_of_objects_fluid)
-
-        print("After proj")
-
-        # Resotre the information to SimPhoNy
-        for cfd_pe in cuds.iter(item_type=CUBA.CFD):
-            if len(cfd_pe.data[CUBA.DATA_SET]) < 1:
-                raise "CFD PE does not have any associated dataset"
-
-            for name in cfd_pe.data[CUBA.DATA_SET]:
-
-                mesh = cuds.get_by_name(name)
-                group = meshDict[mesh.name]
-
-                self.exportKratosNodes(self.fluid_model_part, mesh, group)
-                self.exportKratosElements(self.fluid_model_part, mesh, group)
-                self.exportKratosConditions(self.fluid_model_part, mesh, group)
+        self.projector.InterpolateFromNewestFluidMesh(self.fluid_model_part, self.spheres_model_part, self.bin_of_objects_fluid)
 
         for gd_pe in cuds.iter(item_type=CUBA.GRANULAR_DYNAMICS):
             if len(gd_pe.data[CUBA.DATA_SET]) < 1:
