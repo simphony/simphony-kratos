@@ -7,12 +7,6 @@ from __future__ import print_function, absolute_import, division
 
 # Simphony Imports
 from simphony.core.cuba import CUBA
-from simphony.core.data_container import DataContainer
-
-from simphony.cuds.mesh import Point as SPoint
-from simphony.cuds.mesh import Face as SFace
-from simphony.cuds.mesh import Cell as SCell
-from simphony.cuds.particles import Particle as SParticle
 
 # Wrapper Imports
 from simkratos.kratosWrapper import KratosWrapper
