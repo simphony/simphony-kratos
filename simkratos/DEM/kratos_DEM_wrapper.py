@@ -365,7 +365,6 @@ class DEMWrapper(KratosWrapper):
 
             for name in gd_pe.data[CUBA.DATA_SET]:
 
-                print('Particles name:', name)
                 particles = cuds.get_by_name(name)
                 group = meshNumber
 
