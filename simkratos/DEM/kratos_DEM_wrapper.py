@@ -71,17 +71,12 @@ class DEMWrapper(KratosWrapper):
         self.dem_fem_search = KRTSDEM.DEM_FEM_Search()
         self.procedures = DEM_procedures.Procedures(DEM_parameters)
 
-        # self.procedures.CheckInputParameters(DEM_parameters)
-
         # Define some paths as they are nedded by some modules of them.
         # These paths will NOT be used in this wrapper.
         self.graphs_path = '.'
 
         # This should not be nedded for Simphony
-        # self.demio = DEM_procedures.DEMIo(DEM_parameters, self.post_path)
-        # self.report = DEM_procedures.Report()
         self.parallelutils = DEM_procedures.ParallelUtils()
-        # self.materialTest = DEM_procedures.MaterialTest()
         self.scheme = self.procedures.SetScheme()
 
         self.initialize()
