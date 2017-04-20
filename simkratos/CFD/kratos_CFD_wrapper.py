@@ -7,8 +7,6 @@ from __future__ import print_function, absolute_import, division
 
 # Simphony Imports
 from simphony.core.cuba import CUBA
-from simphony.core.data_container import DataContainer
-
 
 # Wrapper Imports
 from simkratos.kratosWrapper import KratosWrapper
