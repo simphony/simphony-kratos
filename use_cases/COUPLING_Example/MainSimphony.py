@@ -3,6 +3,7 @@ Simphony for coupling CFD with DEM
 
 """
 import os
+import math
 
 from simphony.api import CUDS, Simulation
 from simphony.core.cuba import CUBA
@@ -12,6 +13,26 @@ from simphony.cuds.meta import api
 # as simphony datasets rather than crating them in the script.
 from simkratos.CFD.kratos_CFD_utils import CFD_Utils
 from simkratos.DEM.kratos_DEM_utils import DEM_Utils
+
+
+def simple_coupling(cuds, particles_dataset_name):
+    viscosity = 1.0e-3
+    something_shaddy = 6.0
+    particle_dataset = cuds.get_by_name(name=particles_dataset_name)
+
+    for particle in particle_dataset.iter(item_type=CUBA.PARTICLES):
+        p_data = particle.data
+
+        vel = p_data[CUBA.VELOCITY]
+        rel_vel = p_data[CUBA.RELATIVE_VELOCITY]
+        radius = p_data[CUBA.RADIUS]
+
+        factor = something_shaddy * math.pi * viscosity * radius
+
+        external_force = [factor * (x - y) for x, y in zip(rel_vel, vel)]
+
+        particle.data[CUBA.EXTERNAL_APPLIED_FORCE] = external_force
+        particle_dataset.update([particle])
 
 
 def abs_path(relPath):
@@ -27,14 +48,14 @@ cuds = CUDS(name='Coupling')
 # Integration time for the fluid solver:
 CFDitime = api.IntegrationTime(name="CFD_Integration_time")
 CFDitime.time = 0.0001
-CFDitime.step = 0.01
-CFDitime.final = 2  # 1 Kratos Timesteps
+CFDitime.step = 0.005
+CFDitime.final = 0.0125  # 1 Kratos Timesteps
 
 # Integration time for the particle solver
 DEMitime = api.IntegrationTime(name="DEM_Integration_time")
 DEMitime.time = 0.0001
-DEMitime.step = 0.0025
-DEMitime.final = 0.0125  # 5 Kratos Timesteps
+DEMitime.step = 0.005
+DEMitime.final = 0.00125  # 5 Kratos Timesteps
 
 COUiTime = api.IntegrationTime(name="COU_Inetegration_time")
 
@@ -65,73 +86,42 @@ for model in [model_particles]:
     cuds.add([model['pe']])
 
 # Get a reference to the datasets that we will use in the coupling
-fluid_dataset = model_fluid['datasets'][0].name
-particles_dataset = model_particles['datasets'][0].name
+fluid_dataset_name = model_fluid['datasets'][0].name
+particles_dataset_name = model_particles['datasets'][0].name
 
 # Create the simulation and run the problem
 simCFD = Simulation(cuds, "KRATOS_CFD", engine_interface=True)
 simDEM = Simulation(cuds, "KRATOS_DEM", engine_interface=True)
 simPRO = Simulation(cuds, "KRATOS_PRO", engine_interface=True)
+simGID = Simulation(cuds, "KRATOS_GID", engine_interface=True)
 
-for step in xrange(0, 5):
+for step in xrange(0, 100):
 
-    print("\t====== ITERATION BEG ======")
     # Set interval times
     CFDitime.final = 0.0125 * (step + 1)  # 5 Kratos Timesteps
     DEMitime.final = 0.0125 * (step + 1)  # 5 Kratos Timesteps
 
-    print("\t==== CFD ITERATION BEG ====")
     # Make sure the timestep between wrappers are consistent
     COUiTime.time = 0.0125 * (step + 0)
     COUiTime.step = CFDitime.step
     COUiTime.final = CFDitime.final
 
-    # simCFD.run()
-    print("\t==== CFD ITERATION END ====")
+    # Run the CFD
+    simCFD.run()
 
-    print("\t==== COUPLING ITER BEG ====")
     # Projects the velocity from the fluid to the particles
     simPRO.run()
 
-    # print("Getting ", fluid_dataset)
-    # fluid_dataset = cuds.get_by_name(fluid_dataset)
-    # for node in fluid_dataset.iter(item_type=CUBA.NODE):
-    #     print(node.data)
-    #
-    # # Simple coupling (Drag force)
-    # print("Getting ", particles_dataset)
-    # particles_dataset = cuds.get_by_name(particles_dataset)
-    # for particle in particles_dataset.iter(item_type=CUBA.PARTICLES):
-    #     print(particle.data)
+    # Coupling
+    simple_coupling(cuds, particles_dataset_name)
 
-    # for node in spheres_model_part.Nodes:
-    #     velocity_factor = 0.02
-    #     vx = -1.0 * velocity_factor * node.Y
-    #     vy = velocity_factor * node.X
-    #     vz = velocity_factor * 0.0
-    #
-    #     radius = node.GetSolutionStepValue(RADIUS)
-    #     viscosity = 1.0e-3
-    #     factor = 6.0 * math.pi * viscosity * radius  # falta densitat
-    #     fx = factor * vx
-    #     fy = factor * vy
-    #     fz = factor * vz
-    #
-    #     node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_X, fx)
-    #     node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_Y, fy)
-    #     node.SetSolutionStepValue(EXTERNAL_APPLIED_FORCE_Z, fz)
-
-    print("\t==== COUPLING ITER END ====")
-
-    print("\t==== DEM ITERATION BEG ====")
     # Make sure the timestep between wrappers are consistent
     COUiTime.time = 0.0125 * (step + 0)
     COUiTime.step = DEMitime.step
     COUiTime.final = DEMitime.final
 
+    # Run the DEM
     simDEM.run()
-    print("\t==== DEM ITERATION END ====")
 
-    print("All steps of the iteration executed correctly.")
-
-    print("\t====== ITERATION END ======")
+    # Print using the GiD wrapper
+    simGID.run()
