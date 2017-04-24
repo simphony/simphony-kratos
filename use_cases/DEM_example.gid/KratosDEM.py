@@ -1,1 +1,0 @@
-/home/roigcarlo/cimne/kratos/applications/DEM_application/python_scripts/KratosDEM.py
