@@ -354,9 +354,6 @@ class CFDWrapper(KratosWrapper):
         self.time = iTime.time
         self.final = iTime.final
 
-        print(self.time, self.final)
-        print(self.fluid_model_part)
-
         while self.time < self.final:
             self.fluid_model_part.CloneTimeStep(self.time)
 
