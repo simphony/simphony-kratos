@@ -716,18 +716,18 @@ class KratosWrapper(ABCModelingEngine):
                 )
 
         # If they belong to a different group, add them
-        # if group != 0:
-        #     nodes = KRTS.NodesArray()
-        #     elements = KRTS.ElementsArray()
-        #     for particle in src.iter(item_type=CUBA.PARTICLE):
-        #         nodes.append(
-        #             dst.Nodes[self.uuid_to_id_node_map[particle.uid]]
-        #         )
-        #         elements.append(
-        #             dst.Elements[self.uuid_to_id_element_map[particle.uid]]
-        #         )
-        #     dst.SetNodes(nodes, group)
-        #     dst.SetElements(elements, group)
+        if group != 0:
+            nodes = KRTS.NodesArray()
+            elements = KRTS.ElementsArray()
+            for particle in src.iter(item_type=CUBA.PARTICLE):
+                nodes.append(
+                    dst.Nodes[self.uuid_to_id_node_map[particle.uid]]
+                )
+                elements.append(
+                    dst.Elements[self.uuid_to_id_element_map[particle.uid]]
+                )
+            dst.SetNodes(nodes, group)
+            dst.SetElements(elements, group)
 
     # Run
 
