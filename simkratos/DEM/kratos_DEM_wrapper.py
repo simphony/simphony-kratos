@@ -39,6 +39,10 @@ class DEMWrapper(KratosWrapper):
                 CUBA.RADIUS,
                 KRTS.RADIUS
             ],
+            "DENSITY": [
+                CUBA.DENSITY,
+                KRTSDEM.PARTICLE_DENSITY
+            ],
             "NODAL_MASS": [
                 None,
                 KRTS.NODAL_MASS
@@ -51,11 +55,18 @@ class DEMWrapper(KratosWrapper):
                 KRTS.VELOCITY_Z
             ],
             "DISPLACEMENT": [
-                None,
+                CUBA.DELTA_DISPLACEMENT,
                 KRTS.DISPLACEMENT,
                 KRTS.DISPLACEMENT_X,
                 KRTS.DISPLACEMENT_Y,
                 KRTS.DISPLACEMENT_Z
+            ],
+            "EXTERNAL_APPLIED_FORCE": [
+                CUBA.EXTERNAL_APPLIED_FORCE,
+                KRTSDEM.EXTERNAL_APPLIED_FORCE,
+                KRTSDEM.EXTERNAL_APPLIED_FORCE_X,
+                KRTSDEM.EXTERNAL_APPLIED_FORCE_Y,
+                KRTSDEM.EXTERNAL_APPLIED_FORCE_Z
             ]
         }
 
@@ -97,6 +108,7 @@ class DEMWrapper(KratosWrapper):
             self.getSolutionStepVariable1D(data, node, "NODAL_MASS")
             self.getSolutionStepVariable3D(data, node, "VELOCITY")
             self.getSolutionStepVariable3D(data, node, "DISPLACEMENT")
+            self.getSolutionStepVariable3D(data, node, "EXTERNAL_APPLIED_FORCE")
 
     def setNodalData(self, data, node, model):
         """ Assembles the point data
@@ -111,6 +123,7 @@ class DEMWrapper(KratosWrapper):
             self.setSolutionStepVariable1D(data, node, "NODAL_MASS")
             self.setSolutionStepVariable3D(data, node, "VELOCITY")
             self.setSolutionStepVariable3D(data, node, "DISPLACEMENT")
+            self.setSolutionStepVariable3D(data, node, "EXTERNAL_APPLIED_FORCE")
 
     def _setMeshData(self):
         " This probably needs to be done throug configuration"
@@ -251,6 +264,8 @@ class DEMWrapper(KratosWrapper):
             self.spheres_model_part,
             DEM_parameters
         )
+
+        self.spheres_model_part.AddNodalSolutionStepVariable(KRTSDEM.EXTERNAL_APPLIED_FORCE)
 
         self.procedures.solver = self.solver
 
