@@ -15,6 +15,8 @@ from simphony.cuds.meta import api
 from simphony.engine import EngineInterface
 from simphony.engine import kratos
 
+from simkratos.CFD.kratos_CFD_utils import CFD_Utils
+
 # Add the problem path to the script
 path = os.path.join(os.path.dirname(__file__), "CFD_exampleFluid")
 
@@ -25,36 +27,24 @@ itime = api.IntegrationTime(name="md_nve_integration_time")
 itime.time = 0.0001
 itime.step = 0.0025
 itime.final = 0.0125  # 5 Kratos Timesteps
-cuds.add(itime)
+cuds.add([itime])
 
 # Utils are used to read an existing Kratos model as raw data so we can
 # initialize the correct simphony datasets
-utils = kratos.CFD_Utils()
+cfd_utils = CFD_Utils()
 
 # Reads kratos data so its interpretable by simphony
-kratos_model = utils.read_modelpart(path)
+model_fluid = cfd_utils.read_modelpart(path)
 
 # Add the datasets readed from the conversor.
 # NOTE: That the 'mesh' variable is called that way because CFD is going to
 # use meshes, but it represents a dataset object.
-for mesh in kratos_model['meshes']:
-    cuds.add(mesh)
-
-# Add some boundary conditions readed from the conversor.
-for bc in kratos_model['bcs']:
-    conditionName = 'condition_'+bc['name']
-
-    # Generate a regular bondary condition
-    condition = api.Condition(name=conditionName)
-
-    # Apply the data
-    conditionData = condition.data
-    conditionData[CUBA.VELOCITY] = bc['velocity']
-    conditionData[CUBA.PRESSURE] = bc['pressure']
-    condition.data = conditionData
-
-    # Add it to the CUDS
-    cuds.add(condition)
+# Add all datasets from the fluid to the CFD wrapper
+for model in [model_fluid]:
+    cuds.add(list(model['datasets']))
+    cuds.add(list(model['conditions']))
+    cuds.add(list(model['materials']))
+    cuds.add([model['pe']])
 
 # Create the simulation and run the problem
 sim = Simulation(cuds, "KRATOS_CFD", engine_interface=True)
