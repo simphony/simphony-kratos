@@ -24,7 +24,7 @@ class DEM_Utils(DEMWrapper):
             CUBA.ROLLING_FRICTION: KRTSDEM.ROLLING_FRICTION
         }
 
-    def _getNodalData(self, data, node):
+    def getNodalData(self, data, node, model):
         """ Extracts the node data
 
         Extracts the node data and puts in ina format readable
@@ -32,11 +32,11 @@ class DEM_Utils(DEMWrapper):
 
         """
 
-        self._getSolutionStepVariable1D(data, node, "RADIUS")
-        self._getSolutionStepVariable1D(data, node, "DENSITY")
-        self._getSolutionStepVariable3D(data, node, "VELOCITY")
+        self.getSolutionStepVariable1D(data, node, "RADIUS")
+        self.getSolutionStepVariable1D(data, node, "DENSITY")
+        self.getSolutionStepVariable3D(data, node, "VELOCITY")
 
-    def _convertBc(self, properties, mesh_name):
+    def convertBc(self, properties, mesh_name):
         condition = api.Condition(name='condition_' + mesh_name)
         conditionData = condition.data
 
@@ -66,7 +66,7 @@ class DEM_Utils(DEMWrapper):
         condition.data = conditionData
         return condition
 
-    def _convertMaterial(self, properties, mesh_name):
+    def convertMaterial(self, properties, mesh_name):
         material = api.Material(name='material' + mesh_name)
         materialData = material.data
 
@@ -85,7 +85,7 @@ class DEM_Utils(DEMWrapper):
         model_part = KRTS.ModelPart("Fluid")
 
         model_part.AddNodalSolutionStepVariable(KRTS.RADIUS)
-        model_part.AddNodalSolutionStepVariable(KRTS.DENSITY)
+        model_part.AddNodalSolutionStepVariable(KRTSDEM.DENSITY)
         model_part.AddNodalSolutionStepVariable(KRTS.VELOCITY)
 
         model_part_io_fluid = KRTS.ModelPartIO(filename)
@@ -147,7 +147,7 @@ class DEM_Utils(DEMWrapper):
         model_part = KRTS.ModelPart("Particles")
 
         model_part.AddNodalSolutionStepVariable(KRTS.RADIUS)
-        model_part.AddNodalSolutionStepVariable(KRTS.DENSITY)
+        model_part.AddNodalSolutionStepVariable(KRTSDEM.PARTICLE_DENSITY)
         model_part.AddNodalSolutionStepVariable(KRTS.VELOCITY)
         model_part.AddNodalSolutionStepVariable(KRTSDEM.SKIN_SPHERE)
 
@@ -173,10 +173,10 @@ class DEM_Utils(DEMWrapper):
             properties = model_part.GetProperties(0)[i]
 
             # Fill the boundary condition for the mesh
-            condition = self._convertBc(properties, particles_name)
+            condition = self.convertBc(properties, particles_name)
 
             # Fill the material for the mesh
-            material = self._convertMaterial(properties, particles_name)
+            material = self.convertMaterial(properties, particles_name)
 
             # Save the relations
             particlesData = particles.data
