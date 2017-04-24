@@ -57,7 +57,7 @@ class PROJECTWrapper(KratosWrapper):
                 KRTS.VELOCITY_Z
             ],
             "DISPLACEMENT": [
-                None,
+                CUBA.DELTA_DISPLACEMENT,
                 KRTS.DISPLACEMENT,
                 KRTS.DISPLACEMENT_X,
                 KRTS.DISPLACEMENT_Y,
@@ -87,7 +87,7 @@ class PROJECTWrapper(KratosWrapper):
                 None,
                 KRTS.IS_SLIP
             ],
-            "FLUID_VEL_PROJECTED": [
+            "RELATIVE_VELOCITY": [
                 CUBA.RELATIVE_VELOCITY,
                 KRTS.FLUID_VEL_PROJECTED,
                 KRTS.FLUID_VEL_PROJECTED_X,
@@ -144,7 +144,7 @@ class PROJECTWrapper(KratosWrapper):
         if model == "Particles":
             self.getSolutionStepVariable1D(data, node, "RADIUS")
             self.getSolutionStepVariable1D(data, node, "NODAL_MASS")
-            self.getSolutionStepVariable3D(data, node, "FLUID_VEL_PROJECTED")
+            self.getSolutionStepVariable3D(data, node, "RELATIVE_VELOCITY")
         else:
             self.getSolutionStepVariable1D(data, node, "PRESSURE")
             self.getSolutionStepVariable1D(data, node, "NODAL_AREA")
@@ -168,7 +168,7 @@ class PROJECTWrapper(KratosWrapper):
         if model == "Particles":
             self.setSolutionStepVariable1D(data, node, "RADIUS")
             self.setSolutionStepVariable1D(data, node, "NODAL_MASS")
-            self.setSolutionStepVariable3D(data, node, "FLUID_VEL_PROJECTED")
+            self.setSolutionStepVariable3D(data, node, "RELATIVE_VELOCITY")
         else:
             self.setSolutionStepVariable1D(data, node, "PRESSURE")
             self.setSolutionStepVariable1D(data, node, "NODAL_AREA")
@@ -343,6 +343,9 @@ class PROJECTWrapper(KratosWrapper):
         self.spheres_model_part.AddNodalSolutionStepVariable(
             KRTS.FLUID_VEL_PROJECTED
         )
+        self.spheres_model_part.AddNodalSolutionStepVariable(
+            KRTSDEM.EXTERNAL_APPLIED_FORCE
+        )
 
         meshNumber = 1
         meshDict = {}
@@ -382,12 +385,12 @@ class PROJECTWrapper(KratosWrapper):
                 # properties.append(mesh_prop)
                 meshNumber += 1
 
+        # Reset the mesh number while importing the DEM Modelpart
+        meshNumber = 1
+
         # Get the DEM pe
         if cuds.count_of(item_type=CUBA.GRANULAR_DYNAMICS) != 1:
             raise Exception("KratosDEM only allows one GRANULAR_DYNAMICS pe.")
-
-        # Reset the mesh number while importing the DEM Modelpart
-        meshNumber = 1
 
         for gd_pe in cuds.iter(item_type=CUBA.GRANULAR_DYNAMICS):
             if len(gd_pe.data[CUBA.DATA_SET]) < 1:
@@ -412,6 +415,8 @@ class PROJECTWrapper(KratosWrapper):
             0.6, 1, 0, 1
         )
 
+        self.projector.AddDEMCouplingVariable(KRTS.FLUID_VEL_PROJECTED)
+
         self.bin_of_objects_fluid = KRTS.BinBasedFastPointLocator3D(
             self.fluid_model_part
         )
@@ -422,6 +427,21 @@ class PROJECTWrapper(KratosWrapper):
             self.spheres_model_part,
             self.bin_of_objects_fluid
         )
+
+        # for node in self.spheres_model_part.Nodes:
+        #     vx = node.GetSolutionStepValue(KRTS.FLUID_VEL_PROJECTED_X) - node.GetSolutionStepValue(KRTS.VELOCITY_X)
+        #     vy = node.GetSolutionStepValue(KRTS.FLUID_VEL_PROJECTED_Y) - node.GetSolutionStepValue(KRTS.VELOCITY_Y)
+        #     vz = node.GetSolutionStepValue(KRTS.FLUID_VEL_PROJECTED_Z) - node.GetSolutionStepValue(KRTS.VELOCITY_Z)
+        #     radius = node.GetSolutionStepValue(KRTS.RADIUS)
+        #     viscosity = 1.0e-3
+        #     factor = -60.0 * 3.1416 * viscosity * radius  # falta densitat
+        #     fx = -factor * vx
+        #     fy = -factor * vy
+        #     fz = -factor * vz
+        #
+        #     node.SetSolutionStepValue(KRTSDEM.EXTERNAL_APPLIED_FORCE_X, fx)
+        #     node.SetSolutionStepValue(KRTSDEM.EXTERNAL_APPLIED_FORCE_Y, fy)
+        #     node.SetSolutionStepValue(KRTSDEM.EXTERNAL_APPLIED_FORCE_Z, fz)
 
         for gd_pe in cuds.iter(item_type=CUBA.GRANULAR_DYNAMICS):
             if len(gd_pe.data[CUBA.DATA_SET]) < 1:
