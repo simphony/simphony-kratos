@@ -1,6 +1,14 @@
 language: python
 python:
   - "2.7"
+addons:
+  apt:
+    sources:
+      - sourceline: 'ppa:ubuntu-toolchain-r/test'
+      - sourceline: 'ppa:boost-latest/ppa'
+    packages:
+      - gcc-4.9
+      - g++-4.9
 virtualenv:
   system_site_packages: false
 env:
