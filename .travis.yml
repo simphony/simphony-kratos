@@ -9,7 +9,6 @@ addons:
     packages:
       - gcc-5
       - g++-5
-      - libstdc++6
 virtualenv:
   system_site_packages: false
 env:
@@ -19,6 +18,7 @@ matrix:
     allow_failures:
         - env: SIMPHONY_VERSION=master
 before_install:
+  - sudo apt-get upgrade libstdc++6
   - wget https://github.com/KratosMultiphysics/Kratos/releases/download/v5.0-Simphony/kratos-simphony.tgz -O /tmp/kratos.tgz
   - mkdir $PWD/kratos
   - tar -xzvf /tmp/kratos.tgz -C $PWD/kratos
