@@ -9,6 +9,7 @@ addons:
     packages:
       - gcc-5
       - g++-5
+      - libstdc++6
 virtualenv:
   system_site_packages: false
 env:
