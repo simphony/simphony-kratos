@@ -10,7 +10,7 @@ matrix:
     allow_failures:
         - env: SIMPHONY_VERSION=master
 before_install:
-  - wget https://web.cimne.upc.edu/users/croig/data/kratos-simphony.tgz -O /tmp/kratos.tgz
+  - wget https://github.com/KratosMultiphysics/Kratos/releases/download/v5.0-Simphony/kratos-simphony.tgz -O /tmp/kratos.tgz
   - mkdir $PWD/kratos
   - tar -xzvf /tmp/kratos.tgz -C $PWD/kratos
   - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/kratos/libs
