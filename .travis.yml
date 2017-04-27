@@ -7,11 +7,8 @@ addons:
       - sourceline: 'ppa:ubuntu-toolchain-r/test'
       - sourceline: 'ppa:boost-latest/ppa'
     packages:
-      - gcc-5
-      - g++-5
-      - libboost1.55-dev
-      - libboost-serialization1.55-dev
-      - libboost-python1.55-dev
+      - gcc-4.9
+      - g++-4.9
 virtualenv:
   system_site_packages: false
 env:
