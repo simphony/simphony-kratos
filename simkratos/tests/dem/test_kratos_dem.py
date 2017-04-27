@@ -32,11 +32,11 @@ class TestKratosDEMWrapper(unittest.TestCase):
         """
 
         pathParticles = os.path.join(
-            os.path.dirname(__file__),
+            "/home/travis/build/simphony/simphony-kratos/simkratos/tests/dem",
             "3balls"
         )
         pathSolid = os.path.join(
-            os.path.dirname(__file__),
+            "/home/travis/build/simphony/simphony-kratos/simkratos/tests/dem",
             "3ballsDEM_FEM_boundary"
         )
 
@@ -49,6 +49,8 @@ class TestKratosDEMWrapper(unittest.TestCase):
         cuds.add([itime])
 
         utils = DEM_Utils()
+
+        print(pathParticles)
 
         model_particles = utils.read_modelpart_as_particles(pathParticles)
         model_solid = utils.read_modelpart_as_mesh(pathSolid)
