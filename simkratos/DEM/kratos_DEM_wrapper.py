@@ -108,7 +108,9 @@ class DEMWrapper(KratosWrapper):
             self.getSolutionStepVariable1D(data, node, "NODAL_MASS")
             self.getSolutionStepVariable3D(data, node, "VELOCITY")
             self.getSolutionStepVariable3D(data, node, "DISPLACEMENT")
-            self.getSolutionStepVariable3D(data, node, "EXTERNAL_APPLIED_FORCE")
+            self.getSolutionStepVariable3D(
+                data, node, "EXTERNAL_APPLIED_FORCE"
+            )
 
     def setNodalData(self, data, node, model):
         """ Assembles the point data
@@ -123,7 +125,9 @@ class DEMWrapper(KratosWrapper):
             self.setSolutionStepVariable1D(data, node, "NODAL_MASS")
             self.setSolutionStepVariable3D(data, node, "VELOCITY")
             self.setSolutionStepVariable3D(data, node, "DISPLACEMENT")
-            self.setSolutionStepVariable3D(data, node, "EXTERNAL_APPLIED_FORCE")
+            self.setSolutionStepVariable3D(
+                data, node, "EXTERNAL_APPLIED_FORCE"
+            )
 
     def _setMeshData(self):
         " This probably needs to be done throug configuration"
@@ -265,7 +269,9 @@ class DEMWrapper(KratosWrapper):
             DEM_parameters
         )
 
-        self.spheres_model_part.AddNodalSolutionStepVariable(KRTSDEM.EXTERNAL_APPLIED_FORCE)
+        self.spheres_model_part.AddNodalSolutionStepVariable(
+            KRTSDEM.EXTERNAL_APPLIED_FORCE
+        )
 
         self.procedures.solver = self.solver
 

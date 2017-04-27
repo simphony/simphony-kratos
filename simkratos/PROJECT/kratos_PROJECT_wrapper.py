@@ -352,7 +352,7 @@ class PROJECTWrapper(KratosWrapper):
 
         # Get the CFD pe
         if cuds.count_of(item_type=CUBA.CFD) != 1:
-            raise "KratosCFD only allows one CFD pe."
+            raise Exception("KratosCFD only allows one CFD pe.")
 
         for cfd_pe in cuds.iter(item_type=CUBA.CFD):
             if len(cfd_pe.data[CUBA.DATA_SET]) < 1:
@@ -376,13 +376,8 @@ class PROJECTWrapper(KratosWrapper):
                     group, self.condition_type
                 )
 
-                # mesh_prop = self.importKratosDof(
-                #     mesh, self.fluid_model_part, group
-                # )
-
                 meshDict[mesh.name] = meshNumber
 
-                # properties.append(mesh_prop)
                 meshNumber += 1
 
         # Reset the mesh number while importing the DEM Modelpart
@@ -427,21 +422,6 @@ class PROJECTWrapper(KratosWrapper):
             self.spheres_model_part,
             self.bin_of_objects_fluid
         )
-
-        # for node in self.spheres_model_part.Nodes:
-        #     vx = node.GetSolutionStepValue(KRTS.FLUID_VEL_PROJECTED_X) - node.GetSolutionStepValue(KRTS.VELOCITY_X)
-        #     vy = node.GetSolutionStepValue(KRTS.FLUID_VEL_PROJECTED_Y) - node.GetSolutionStepValue(KRTS.VELOCITY_Y)
-        #     vz = node.GetSolutionStepValue(KRTS.FLUID_VEL_PROJECTED_Z) - node.GetSolutionStepValue(KRTS.VELOCITY_Z)
-        #     radius = node.GetSolutionStepValue(KRTS.RADIUS)
-        #     viscosity = 1.0e-3
-        #     factor = -60.0 * 3.1416 * viscosity * radius  # falta densitat
-        #     fx = -factor * vx
-        #     fy = -factor * vy
-        #     fz = -factor * vz
-        #
-        #     node.SetSolutionStepValue(KRTSDEM.EXTERNAL_APPLIED_FORCE_X, fx)
-        #     node.SetSolutionStepValue(KRTSDEM.EXTERNAL_APPLIED_FORCE_Y, fy)
-        #     node.SetSolutionStepValue(KRTSDEM.EXTERNAL_APPLIED_FORCE_Z, fz)
 
         for gd_pe in cuds.iter(item_type=CUBA.GRANULAR_DYNAMICS):
             if len(gd_pe.data[CUBA.DATA_SET]) < 1:

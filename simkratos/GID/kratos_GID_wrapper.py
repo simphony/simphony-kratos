@@ -343,11 +343,12 @@ class GIDWrapper(KratosWrapper):
         GiDPostMode = "Ascii"
         GiDWriteMeshFlag = True
         GiDWriteConditionsFlag = True
-        GiDWriteParticlesFlag = False
         GiDMultiFileFlag = "Single"
 
         # Out Settings
-        self.nodal_results = ["VELOCITY", "PRESSURE", "REACTION", "DISPLACEMENT"]
+        self.nodal_results = [
+            "VELOCITY", "PRESSURE", "REACTION", "DISPLACEMENT"
+        ]
         self.gauss_points_results = []
 
         self.gid_io_interfaces = {}
@@ -489,10 +490,13 @@ class GIDWrapper(KratosWrapper):
             gio_fluid.initialize_results(self.fluid_model_part)
 
             gio_part.InitializeMesh(0.0)
-            gio_part.WriteSphereMesh(self.spheres_model_part.GetCommunicator().LocalMesh())
+            gio_part.WriteSphereMesh(
+                self.spheres_model_part.GetCommunicator().LocalMesh()
+            )
             gio_part.FinalizeMesh()
-
-            gio_part.InitializeResults(0.0, self.spheres_model_part.GetCommunicator().LocalMesh())
+            gio_part.InitializeResults(
+                0.0, self.spheres_model_part.GetCommunicator().LocalMesh()
+            )
 
             self.initialized = True
 
@@ -505,5 +509,9 @@ class GIDWrapper(KratosWrapper):
             self.gauss_points_results
         )
 
-        gio_part.WriteNodalResults(KRTS.VELOCITY, self.spheres_model_part.Nodes, iTime.time, 0)
-        gio_part.WriteNodalResults(KRTS.DISPLACEMENT, self.spheres_model_part.Nodes, iTime.time, 0)
+        gio_part.WriteNodalResults(
+            KRTS.VELOCITY, self.spheres_model_part.Nodes, iTime.time, 0
+        )
+        gio_part.WriteNodalResults(
+            KRTS.DISPLACEMENT, self.spheres_model_part.Nodes, iTime.time, 0
+        )
