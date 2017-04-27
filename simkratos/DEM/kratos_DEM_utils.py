@@ -85,7 +85,7 @@ class DEM_Utils(DEMWrapper):
         model_part = KRTS.ModelPart("Fluid")
 
         model_part.AddNodalSolutionStepVariable(KRTS.RADIUS)
-        model_part.AddNodalSolutionStepVariable(KRTSDEM.DENSITY)
+        model_part.AddNodalSolutionStepVariable(KRTSDEM.PARTICLE_DENSITY)
         model_part.AddNodalSolutionStepVariable(KRTS.VELOCITY)
 
         model_part_io_fluid = KRTS.ModelPartIO(filename)
@@ -95,7 +95,7 @@ class DEM_Utils(DEMWrapper):
         smp_conditions = []
         smp_materials = []
 
-        dem_fem_pe = api.GranularDynamics()
+        dem_fem_pe = api.Cfd()
         dem_fem_pe.data[CUBA.DATA_SET] = []
 
         for i in xrange(1, model_part.NumberOfMeshes()):
@@ -112,10 +112,10 @@ class DEM_Utils(DEMWrapper):
             properties = model_part.GetProperties(0)[i]
 
             # Fill the boundary condition for the mesh
-            condition = self._convertBc(properties, mesh_name)
+            condition = self.convertBc(properties, mesh_name)
 
             # Fill the material for the mesh
-            material = self._convertMaterial(properties, mesh_name)
+            material = self.convertMaterial(properties, mesh_name)
 
             # Save the relations
             meshData = mesh.data
