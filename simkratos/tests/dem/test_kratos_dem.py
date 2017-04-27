@@ -14,10 +14,6 @@ from simphony.cuds.meta import api
 from simkratos.DEM.kratos_DEM_utils import DEM_Utils
 
 
-def abs_path(relPath):
-    return os.path.join(os.path.dirname(__file__), relPath)
-
-
 class TestKratosDEMWrapper(unittest.TestCase):
 
     def setUp(self):
@@ -30,16 +26,19 @@ class TestKratosDEMWrapper(unittest.TestCase):
             "DEM_exampleFluid"
         )
 
-        self.time_step = 0.001
-        self.num_steps = 5
-
     def test_run(self):
         """ Test if cfd can run
 
         """
 
-        pathParticles = abs_path("3balls")
-        pathSolid = abs_path("3ballsDEM_FEM_boundary")
+        pathParticles = os.path.join(
+            os.path.dirname(__file__),
+            "3balls"
+        )
+        pathSolid = os.path.join(
+            os.path.dirname(__file__),
+            "3ballsDEM_FEM_boundary"
+        )
 
         cuds = CUDS(name='example_kratos_dem_somulation')
 
