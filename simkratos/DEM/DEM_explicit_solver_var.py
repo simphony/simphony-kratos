@@ -19,7 +19,7 @@ BoundingBoxMinZ                  = -1e3
 dem_inlet_option                 = 0
 GravityX                         = 0.0
 GravityY                         = 0.0
-GravityZ                         = -9.8100000000000005
+GravityZ                         = 0.0
 
 VelocityTrapOption               = 0
 RotationOption                   = "ON"
@@ -41,7 +41,7 @@ ContactMeshOption                = "OFF"
 OutputFileType                   = "Binary"
 Multifile                        = "multiple_files"
 HorizontalFixVel                 = "ON"
- 
+
 # Solution Strategy
 IntegrationScheme                = "Forward_Euler"
 AutoReductionOfTimeStepOption    = "OFF"

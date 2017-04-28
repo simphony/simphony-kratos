@@ -7,20 +7,14 @@ from __future__ import print_function, absolute_import, division
 
 # Simphony Imports
 from simphony.core.cuba import CUBA
-from simphony.core.data_container import DataContainer
-
-from simphony.cuds.mesh import Point as SPoint
-from simphony.cuds.mesh import Face as SFace
-from simphony.cuds.mesh import Cell as SCell
-from simphony.cuds.particles import Particle as SParticle
 
 # Wrapper Imports
 from simkratos.kratosWrapper import KratosWrapper
 from simkratos.DEM import DEM_explicit_solver_var as DEM_parameters
 
 # Kratos Imports
-from KratosMultiphysics import *
-from KratosMultiphysics.DEMApplication import *
+import KratosMultiphysics as KRTS
+import KratosMultiphysics.DEMApplication as KRTSDEM
 
 import sphere_strategy as SolverStrategy
 import DEM_procedures
@@ -34,6 +28,8 @@ class DEMWrapper(KratosWrapper):
         self.time = 0
         self.step = 0
         self.substeps = 0
+        self.particle_type = "SphericParticle3D"
+        self.condition_type = "RigidFace3D3N"
 
         # The dictionary defines the relation between CUBA and
         # kratos variables
@@ -41,39 +37,57 @@ class DEMWrapper(KratosWrapper):
         self.variables_dictionary = {
             "RADIUS": [
                 CUBA.RADIUS,
-                RADIUS
+                KRTS.RADIUS
+            ],
+            "DENSITY": [
+                CUBA.DENSITY,
+                KRTSDEM.PARTICLE_DENSITY
             ],
             "NODAL_MASS": [
                 None,
-                NODAL_MASS
+                KRTS.NODAL_MASS
             ],
             "VELOCITY": [
                 CUBA.VELOCITY,
-                VELOCITY,
-                VELOCITY_X,
-                VELOCITY_Y,
-                VELOCITY_Z
+                KRTS.VELOCITY,
+                KRTS.VELOCITY_X,
+                KRTS.VELOCITY_Y,
+                KRTS.VELOCITY_Z
             ],
             "DISPLACEMENT": [
-                None,
-                DISPLACEMENT,
-                DISPLACEMENT_X,
-                DISPLACEMENT_Y,
-                DISPLACEMENT_Z
+                CUBA.DELTA_DISPLACEMENT,
+                KRTS.DISPLACEMENT,
+                KRTS.DISPLACEMENT_X,
+                KRTS.DISPLACEMENT_Y,
+                KRTS.DISPLACEMENT_Z
             ],
-            "TOTAL_FORCES": [
-                None,
-                TOTAL_FORCES,
-                TOTAL_FORCES_X,
-                TOTAL_FORCES_Y,
-                TOTAL_FORCES_Z
+            "EXTERNAL_APPLIED_FORCE": [
+                CUBA.EXTERNAL_APPLIED_FORCE,
+                KRTSDEM.EXTERNAL_APPLIED_FORCE,
+                KRTSDEM.EXTERNAL_APPLIED_FORCE_X,
+                KRTSDEM.EXTERNAL_APPLIED_FORCE_Y,
+                KRTSDEM.EXTERNAL_APPLIED_FORCE_Z
             ]
         }
+
+        # Set DEM parameters
+        self.solver_strategy = SolverStrategy
+        self.creator_destructor = KRTSDEM.ParticleCreatorDestructor()
+        self.dem_fem_search = KRTSDEM.DEM_FEM_Search()
+        self.procedures = DEM_procedures.Procedures(DEM_parameters)
+
+        # Define some paths as they are nedded by some modules of them.
+        # These paths will NOT be used in this wrapper.
+        self.graphs_path = '.'
+
+        # This should not be nedded for Simphony
+        self.parallelutils = DEM_procedures.ParallelUtils()
+        self.scheme = self.procedures.SetScheme()
 
         self.initialize()
 
     def _load_cuds(self):
-        """Load CUDS data into lammps engine."""
+        """Load CUDS data into kratos engine."""
         cuds = self.get_cuds()
         if not cuds:
             return
@@ -89,12 +103,14 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        if model == "Particles":
+        if model == "SpheresPart":
             self.getSolutionStepVariable1D(data, node, "RADIUS")
             self.getSolutionStepVariable1D(data, node, "NODAL_MASS")
             self.getSolutionStepVariable3D(data, node, "VELOCITY")
             self.getSolutionStepVariable3D(data, node, "DISPLACEMENT")
-            self.getSolutionStepVariable3D(data, node, "TOTAL_FORCES")
+            self.getSolutionStepVariable3D(
+                data, node, "EXTERNAL_APPLIED_FORCE"
+            )
 
     def setNodalData(self, data, node, model):
         """ Assembles the point data
@@ -104,372 +120,20 @@ class DEMWrapper(KratosWrapper):
 
         """
 
-        if model == "Particles":
+        if model == "SpheresPart":
             self.setSolutionStepVariable1D(data, node, "RADIUS")
             self.setSolutionStepVariable1D(data, node, "NODAL_MASS")
             self.setSolutionStepVariable3D(data, node, "VELOCITY")
             self.setSolutionStepVariable3D(data, node, "DISPLACEMENT")
-            self.setSolutionStepVariable3D(data, node, "TOTAL_FORCES")
-
-    def exportKratosNodes(self, src, dst, group):
-        """ Parses all kratos nodes to simphony points
-
-        Iterates over all nodes in the kratos mesh (src) and
-        converts them to simphony points (dst). While doing this operation
-        any node/point that has not currently been mapped will have his uuid
-        added in the 'id_map' of the wrapper
-
-        """
-
-        for node in src.GetNodes(group):
-
-            data = {}
-
-            self.getNodalData(data, node, src.Name)
-
-            point_uid = None
-
-            if node.Id not in self.id_to_uuid_node_map:
-
-                point = SPoint(
-                    coordinates=(node.X, node.Y, node.Z),
-                    data=DataContainer(data),
-                    uid=point_uid
-                )
-
-                pid = dst.add([point])
-
-                self.id_to_uuid_node_map[node.Id] = pid[0]
-
-            else:
-
-                point = dst.get(uid=self.id_to_uuid_node_map[node.Id])
-
-                point.data = DataContainer(data)
-
-                dst.update_points([point])
-
-    def exportKratosParticles(self, src, dst, group):
-        """ Parses all kratos nodes to simphony Particles
-
-        Iterates over all nodes in the kratos mesh (src) and
-        converts them to simphony Particles (dst). While doing this operation
-        any node/point that has not currently been mapped will have his uuid
-        added in the 'id_map' of the wrapper. Notice that Kratos Element
-        information will be not updated as Particles in Simphony are stand
-        alone objects
-
-        """
-
-        for particle in src.GetNodes(group):
-
-            data = {}
-
-            self.getNodalData(data, particle, src.Name)
-
-            particle_uid = None
-
-            if particle.Id not in self.id_to_uuid_node_map:
-
-                particle = SParticle(
-                    coordinates=(particle.X, particle.Y, particle.Z),
-                    data=DataContainer(data),
-                    uid=particle_uid
-                )
-
-                pid = dst.add([particle])
-
-                self.id_to_uuid_node_map[particle.Id] = pid[0]
-
-            else:
-
-                particle = dst.get(
-                    uid=self.id_to_uuid_node_map[particle.Id]
-                )
-
-                particle.data = DataContainer(data)
-
-                dst.update_particles([particle])
-
-    def exportKratosElements(self, src, dst, group):
-        """ Parses all kratos elements to simphony cells
-
-        Iterates over all nodes in the kratos mesh (src) and
-        converts them to simphony cells (dst). While doing this operation
-        any point that has not currently mapped will have his uuid
-        added in the 'id_map' of the weapper
-
-        """
-
-        for element in src.GetElements(group):
-
-            element_uid = None
-
-            data = {}
-
-            if element.Id not in self.id_to_uuid_element_map:
-
-                point_list = [
-                    self.id_to_uuid_node_map[pointl.Id]
-                    for pointl in element.GetNodes()
-                ]
-
-                cell = SCell(
-                    points=point_list,
-                    data=DataContainer(data),
-                    uid=element_uid
-                )
-
-                cid = dst.add([cell])
-
-                self.id_to_uuid_element_map[element.Id] = cid[0]
-
-            else:
-
-                pass
-
-    def exportKratosConditions(self, src, dst, group):
-        """ Parses all kratos conditions to simphony faces
-
-        Iterates over all nodes in the kratos mesh ( src ) and
-        converts them to simphony faces (dst). While doing this operation
-        any point that has not currently mapped will have his uuid
-        added in the 'id_map' of the weapper
-
-        """
-
-        for condition in src.GetConditions(group):
-
-            condition_uid = None
-
-            data = {}
-
-            if condition.Id not in self.id_to_uuid_condition_map:
-
-                point_list = [
-                    self.id_to_uuid_node_map[point.Id]
-                    for point in condition.GetNodes()
-                ]
-
-                face = SFace(
-                    points=point_list,
-                    data=DataContainer(data),
-                    uid=condition_uid
-                )
-
-                fid = dst.add(face)
-
-                self.id_to_uuid_condition_map[condition.Id] = fid[0]
-
-            else:
-
-                pass
-
-    def importKratosNodes(self, src, dst, group):
-        """ Parses all simphony points to kratos nodes
-
-        Iterates over all points in the simphony mesh (src) and
-        converts them to kratos nodes (dst).
-        While doing this operation any point/node pair that has not
-        currently mapped will have  his uuid added in the 'id_map'
-        of the wrapper
-
-        """
-
-        for point in src.iter(item_type=CUBA.POINT):
-
-            data = point.data
-
-            if point.uid not in self.uuid_to_id_node_map.keys():
-                self.uuid_to_id_node_map.update(
-                    {point.uid: self.free_id}
-                )
-
-                self.free_id += 1
-
-                node_id = self.uuid_to_id_node_map[point.uid]
-
-                node = dst.CreateNewNode(
-                    node_id,
-                    point.coordinates[0],
-                    point.coordinates[1],
-                    point.coordinates[2])
-
-                self.setNodalData(data, node, dst.Name)
-
-                self.id_to_ref_node[node_id] = node
-
-            else:
-
-                node = self.id_to_ref_node[
-                    self.uuid_to_id_node_map[point.uid]
-                ]
-
-                data = point.data
-
-                self.setNodalData(data, node, dst.Name)
-
-        # If they belong to a different group, add them
-        if group != 0:
-            nodes = NodesArray()
-            for point in src.iter(item_type=CUBA.POINT):
-                nodes.append(
-                    dst.Nodes[self.uuid_to_id_node_map[point.uid]]
-                )
-            dst.SetNodes(nodes, group)
-
-    def importKratosParticles(self, src, dst, group):
-        """ Parses all simphony particles to kratos particle elements
-
-        Iterates over all particles in the simphony mesh (src) and
-        converts them to kratos particle elements (dst).
-        While doing this operation any elements that has not
-        currently mapped will have  his uuid added in the 'id_map'
-        of the wrapper
-
-        """
-
-        for particle in src.iter(item_type=CUBA.PARTICLE):
-
-            data = particle.data
-
-            if particle.uid not in self.uuid_to_id_node_map.keys():
-                self.uuid_to_id_node_map.update(
-                    {particle.uid: self.free_id}
-                )
-
-                self.free_id += 1
-
-                node_id = self.uuid_to_id_node_map[particle.uid]
-
-                node = dst.CreateNewNode(
-                    node_id,
-                    particle.coordinates[0],
-                    particle.coordinates[1],
-                    particle.coordinates[2])
-
-                self.setNodalData(data, node, dst.Name)
-
-                self.id_to_ref_node[node_id] = node
-
-            else:
-
-                node = self.id_to_ref_node[
-                    self.uuid_to_id_node_map[particle.uid]
-                ]
-
-                data = particle.data
-
-                self.setNodalData(data, node, dst.Name)
-
-            if particle.uid not in self.uuid_to_id_element_map.keys():
-                self.uuid_to_id_element_map.update(
-                    {particle.uid: self.free_id}
-                )
-
-                self.free_id += 1
-
-                element_id = self.uuid_to_id_element_map[particle.uid]
-
-                dst.CreateNewElement(
-                    "SphericParticle3D",
-                    element_id,
-                    [self.uuid_to_id_node_map[particle.uid]],
-                    self.element_properties)
-
-        # If they belong to a different group, add them
-        if group != 0:
-            nodes = NodesArray()
-            elements = ElementsArray()
-            for particle in src.iter(item_type=CUBA.PARTICLE):
-                nodes.append(
-                    dst.Nodes[self.uuid_to_id_node_map[particle.uid]]
-                )
-                elements.append(
-                    dst.Elements[self.uuid_to_id_element_map[particle.uid]]
-                )
-            dst.SetNodes(nodes, group)
-            dst.SetElements(elements, group)
-
-    def importKratosElements(self, src, dst, group):
-        """ Parses all simphony cells to kratos elements
-
-        Iterates over all cells in the simphony mesh (src) and
-        converts them to kratos SphericContinuumParticle3D elements (dst).
-        While doing this operation any point/node pair that has not
-        currently mapped will have  his uuid added in the 'id_map'
-        of the wrapper
-
-        """
-
-        for element in src.iter(item_type=CUBA.CELL):
-
-            if element.uid not in self.uuid_to_id_element_map.keys():
-                self.uuid_to_id_element_map.update(
-                    {element.uid: self.free_id}
-                )
-
-                self.free_id += 1
-
-                element_id = self.uuid_to_id_element_map[element.uid]
-
-                dst.CreateNewElement(
-                    "SphericParticle3D",
-                    element_id,
-                    [self.uuid_to_id_node_map[p] for p in element.points],
-                    self.element_properties)
-
-        # If they belong to a different group, add them
-        if group != 0:
-            elements = ElementsArray()
-            for elem in src.iter(item_type=CUBA.CELL):
-                elements.append(
-                    dst.Elements[self.uuid_to_id_element_map[elem.uid]]
-                )
-            dst.SetElements(elements, group)
-
-    def importKratosConditions(self, src, dst, group):
-        """ Parses all simphony faces to kratos conditions
-
-        Iterates over all faces in the simphony mesh (src) and
-        converts them to kratos RigidFace3D3N conditions (dst).
-        While doing this operation any point/node pair that has not
-        currently mapped will have  his uuid added in the 'id_map'
-        of the wrapper
-
-        """
-
-        for condition in src.iter(item_type=CUBA.FACE):
-
-            if condition.uid not in self.uuid_to_id_condition_map.keys():
-                self.uuid_to_id_condition_map.update(
-                    {condition.uid: self.free_id}
-                )
-
-                self.free_id += 1
-
-                condition_id = self.uuid_to_id_condition_map[condition.uid]
-
-                dst.CreateNewCondition(
-                    "RigidFace3D3N",
-                    condition_id,
-                    [self.uuid_to_id_node_map[p] for p in condition.points],
-                    self.condition_properties)
-
-        # If they belong to a different group, add them
-        if group != 0:
-            conditions = ConditionsArray()
-            for cnd in src.iter(item_type=CUBA.FACE):
-                conditions.append(
-                    dst.Conditions[self.uuid_to_id_condition_map[cnd.uid]]
-                )
-            dst.SetConditions(conditions, group)
+            self.setSolutionStepVariable3D(
+                data, node, "EXTERNAL_APPLIED_FORCE"
+            )
 
     def _setMeshData(self):
         " This probably needs to be done throug configuration"
 
-        cLawString = "DEMContinuumConstitutiveLaw"
-        dLawString = "DEMDiscontinuumConstitutiveLaw"
+        cLawString = "DEM_KDEM"
+        dLawString = "DEM_D_Hertz_viscous_Coulomb"
 
         self.SP[CUBA.DENSITY] = 2500.0
         self.SP[CUBA.YOUNG_MODULUS] = 1.0e5
@@ -486,51 +150,51 @@ class DEMWrapper(KratosWrapper):
 
     def setElementData(self):
         self.element_properties.SetValue(
-            PARTICLE_DENSITY,
+            KRTSDEM.PARTICLE_DENSITY,
             self.SP[CUBA.DENSITY]
         )
         self.element_properties.SetValue(
-            YOUNG_MODULUS,
+            KRTS.YOUNG_MODULUS,
             self.SP[CUBA.YOUNG_MODULUS]
         )
         self.element_properties.SetValue(
-            POISSON_RATIO,
+            KRTS.POISSON_RATIO,
             self.SP[CUBA.POISSON_RATIO]
         )
         self.element_properties.SetValue(
-            PARTICLE_FRICTION,
+            KRTSDEM.PARTICLE_FRICTION,
             self.PARTICLE_FRICTION
         )
         self.element_properties.SetValue(
-            PARTICLE_COHESION,
+            KRTSDEM.PARTICLE_COHESION,
             self.PARTICLE_COHESION
         )
+        # self.element_properties.SetValue(
+        #     KRTSDEM.LN_OF_RESTITUTION_COEFF,
+        #     self.LN_OF_RESTITUTION_COEFF
+        # )
         self.element_properties.SetValue(
-            LN_OF_RESTITUTION_COEFF,
-            self.LN_OF_RESTITUTION_COEFF
-        )
-        self.element_properties.SetValue(
-            PARTICLE_MATERIAL,
+            KRTS.PARTICLE_MATERIAL,
             self.PARTICLE_MATERIAL
         )
         self.element_properties.SetValue(
-            ROLLING_FRICTION,
+            KRTSDEM.ROLLING_FRICTION,
             self.SP[CUBA.ROLLING_FRICTION]
         )
         self.element_properties.SetValue(
-            DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME,
+            KRTSDEM.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME,
             self.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME
         )
         self.element_properties.SetValue(
-            DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME,
+            KRTSDEM.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME,
             self.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME
         )
 
     def setConditionData(self):
-        cmesh = self.get_dataset("Conditions")
+        cmesh = self.get_dataset("RigidFacePart")
 
         self.condition_properties.SetValue(
-            WALL_FRICTION,
+            KRTS.WALL_FRICTION,
             cmesh.data[CUBA.WALL_FRICTION]
         )
 
@@ -541,43 +205,76 @@ class DEMWrapper(KratosWrapper):
             execute Kratos' DEMPack solver
         """
 
-        # DEMPack SubClasses
-        self.procedures = DEM_procedures.Procedures(DEM_parameters)
-        self.parallelutils = DEM_procedures.ParallelUtils()
-        self.materialTest = DEM_procedures.MaterialTest()
-        self.creator_destructor = ParticleCreatorDestructor()
-
         # Prepare ModelParts
-        self.spheres_model_part = ModelPart("Particles")
-        self.rigid_face_model_part = ModelPart("Conditions")
-        self.mixed_model_part = ModelPart("")
-        self.cluster_model_part = ModelPart("")
-        self.DEM_inlet_model_part = ModelPart("")
-        self.mapping_model_part = ModelPart("")
-        self.contact_model_part = ModelPart("")
+        self.spheres_model_part = KRTS.ModelPart("SpheresPart")
+        self.rigid_face_model_part = KRTS.ModelPart("RigidFacePart")
+        self.cluster_model_part = KRTS.ModelPart("ClusterPart")
+        self.DEM_inlet_model_part = KRTS.ModelPart("DEMInletPart")
+        self.mapping_model_part = KRTS.ModelPart("MappingPart")
+        self.contact_model_part = KRTS.ModelPart("ContactPart")
 
-        # Create solver
-        self.solver = SolverStrategy.ExplicitStrategy(
+        self.all_model_parts = DEM_procedures.SetOfModelParts([
             self.spheres_model_part,
             self.rigid_face_model_part,
             self.cluster_model_part,
             self.DEM_inlet_model_part,
+            self.mapping_model_part,
+            self.contact_model_part
+        ])
+
+        # Prepare the solver
+        self.solver = SolverStrategy.ExplicitStrategy(
+            self.all_model_parts,
             self.creator_destructor,
+            self.dem_fem_search,
+            self.scheme,
+            DEM_parameters,
+            self.procedures
+        )
+
+        # Honestly I don't know what this does
+        self.procedures.AddAllVariablesInAllModelParts(
+            self.solver,
+            self.scheme,
+            self.all_model_parts,
             DEM_parameters
         )
 
+        # Read the modelparts.
+        # This part is skipped and its done once the run is called.
+        # Instead we:
+
+        # ###################### #
+        # ##     Simphony     ## #
+        # ###################### #
+
         # Prepare properties
-        self.element_properties = Properties(0)
-        self.condition_properties = Properties(1)
+        self.element_properties = KRTS.Properties(0)
+        self.condition_properties = KRTS.Properties(1)
+
+        element_properties_array = KRTS.PropertiesArray()
 
         self._setMeshData()
         self.setElementData()
+
+        element_properties_array.append(self.element_properties)
+        # solid_properties.append(self.condition_properties)
+
+        self.spheres_model_part.SetProperties(element_properties_array)
+        # self.rigid_face_model_part.SetProperties(solid_properties)
 
         # Prepare variables
         self.solver.AddAdditionalVariables(
             self.spheres_model_part,
             DEM_parameters
         )
+
+        self.spheres_model_part.AddNodalSolutionStepVariable(
+            KRTSDEM.EXTERNAL_APPLIED_FORCE
+        )
+
+        self.procedures.solver = self.solver
+
         self.procedures.AddCommonVariables(
             self.spheres_model_part,
             DEM_parameters
@@ -595,13 +292,64 @@ class DEMWrapper(KratosWrapper):
             DEM_parameters
         )
 
+        # ###################### #
+        # ##     Simphony     ## #
+        # ###################### #
+
+        # Set Buffers for historical data
+        self.procedures.SetUpBufferSizeInAllModelParts(
+            self.spheres_model_part, 1,
+            self.cluster_model_part, 1,
+            self.DEM_inlet_model_part, 1,
+            self.rigid_face_model_part, 1
+        )
+
+        # Adding dofs
+        self.solver.AddDofs(self.spheres_model_part)
+        self.solver.AddDofs(self.cluster_model_part)
+        self.solver.AddDofs(self.DEM_inlet_model_part)
+
         # Set a search strategy
         self.solver.search_strategy = self.parallelutils.GetSearchStrategy(
             self.solver,
             self.spheres_model_part
         )
 
+        # Prepare things before initialization
+        self.solver.BeforeInitialize()
+        self.parallelutils.Repart(self.spheres_model_part)
+        self.bounding_box_time_limits = self.procedures.SetBoundingBoxLimits(
+            self.all_model_parts,
+            self.creator_destructor
+        )
+
+        # Finding the max id of the nodes
+        max_Id = self.procedures.FindMaxNodeIdAccrossModelParts(
+            self.creator_destructor,
+            self.all_model_parts
+        )
+
+        self.creator_destructor.SetMaxNodeId(max_Id)
+
+        # Initialize the solver
         self.solver.Initialize()
+
+        # Constructing the inlet and initializing it
+        # if (DEM_parameters.dem_inlet_option):
+        #     self.DEM_inlet = DEM_Inlet(self.DEM_inlet_model_part)
+        #     self.DEM_inlet.InitializeDEM_Inlet(
+        #         self.spheres_model_part,
+        #         self.creator_destructor,
+        #         self.solver.continuum_type
+        #     )
+
+        # Enable this
+        # self.DEMFEMProcedures = DEM_procedures.DEMFEMProcedures(
+        #     DEM_parameters,
+        #     self.graphs_path,
+        #     self.spheres_model_part,
+        #     self.rigid_face_model_part
+        # )
 
     def run(self):
         """ Run a step of the wrapper """
@@ -614,71 +362,90 @@ class DEMWrapper(KratosWrapper):
         self.spheres_model_part.GetMesh(len(fluid_particles))
         self.rigid_face_model_part.GetMesh(len(solid_meshes))
 
-        fluid_properties = PropertiesArray()
         meshNumber = 1
         meshDict = {}
 
-        for particles in cuds.iter(item_type=CUBA.PARTICLE):
+        # Get the CFD pe
+        if cuds.count_of(item_type=CUBA.GRANULAR_DYNAMICS) != 1:
+            raise Exception("KratosDEM only allows one GRANULAR_DYNAMICS pe.")
 
-            group = meshNumber
+        for gd_pe in cuds.iter(item_type=CUBA.GRANULAR_DYNAMICS):
+            if len(gd_pe.data[CUBA.DATA_SET]) < 1:
+                raise Exception("GD PE does not have any associated dataset")
 
-            self.importKratosParticles(
-                particles,
-                self.spheres_model_part,
-                group
-            )
+            for name in gd_pe.data[CUBA.DATA_SET]:
 
-            meshDict[mesh.name] = meshNumber
-            meshNumber += 1
+                particles = cuds.get_by_name(name)
+                group = meshNumber
+
+                self.importKratosParticles(
+                    particles, self.spheres_model_part,
+                    group, self.particle_type
+                )
+
+                meshDict[particles.name] = meshNumber
+                meshNumber += 1
 
         self.updateBackwardDicc()
 
-        fluid_properties.append(self.element_properties)
-        # solid_properties.append(self.condition_properties)
-
-        self.spheres_model_part.SetProperties(fluid_properties)
-        # self.rigid_face_model_part.SetProperties(solid_properties)
-
-        SolverStrategy.AddDofs(self.spheres_model_part)
+        self.solver.AddDofs(self.spheres_model_part)
 
         self.solver.Initialize()
 
-        self.dt = cuds.get_by_name('dem_integration_time').step
+        print("DEM Solver correctly initialized ...")
+
+        if cuds.count_of(item_type=CUBA.INTEGRATION_TIME) < 0:
+            raise Exception("No integran time")
+
+        if cuds.count_of(item_type=CUBA.INTEGRATION_TIME) > 1:
+            raise Exception("More than one integration time")
+
+        iTime = [it for it in cuds.iter(item_type=CUBA.INTEGRATION_TIME)][0]
+
+        self.dt = iTime.step
 
         # Start the simulation itself
-        self.time = cuds.get_by_name('dem_integration_time').time
-        self.final = cuds.get_by_name('dem_integration_time').final
+        self.time = iTime.time
+        self.final = iTime.final
 
         # Solve
         while self.time < self.final:
 
-            self.dt = self.spheres_model_part.ProcessInfo.GetValue(DELTA_TIME)
-            cuds.get_by_name('dem_integration_time').step = self.dt
+            self.dt = self.spheres_model_part.ProcessInfo.GetValue(
+                KRTS.DELTA_TIME
+            )
 
-            self.spheres_model_part.ProcessInfo[TIME] = self.time
-            self.spheres_model_part.ProcessInfo[DELTA_TIME] = self.dt
-            self.spheres_model_part.ProcessInfo[TIME_STEPS] = self.step
+            iTime.step = self.dt
 
-            self.rigid_face_model_part.ProcessInfo[TIME] = self.time
-            self.rigid_face_model_part.ProcessInfo[DELTA_TIME] = self.dt
-            self.rigid_face_model_part.ProcessInfo[TIME_STEPS] = self.step
+            self.spheres_model_part.ProcessInfo[KRTS.TIME] = self.time
+            self.spheres_model_part.ProcessInfo[KRTS.DELTA_TIME] = self.dt
+            self.spheres_model_part.ProcessInfo[KRTS.TIME_STEPS] = self.step
+
+            self.rigid_face_model_part.ProcessInfo[KRTS.TIME] = self.time
+            self.rigid_face_model_part.ProcessInfo[KRTS.DELTA_TIME] = self.dt
+            self.rigid_face_model_part.ProcessInfo[KRTS.TIME_STEPS] = self.step
 
             self.solver.Solve()
 
             self.step += 1
             self.time = self.time + self.dt
 
-        cuds.get_by_name('dem_integration_time').time = self.time
-        cuds.get_by_name('dem_integration_time').final = self.final
+        iTime.time = self.time
+        iTime.final = self.final
 
-        for particles in cuds.iter(item_type=CUBA.PARTICLE):
+        for gd_pe in cuds.iter(item_type=CUBA.GRANULAR_DYNAMICS):
+            if len(gd_pe.data[CUBA.DATA_SET]) < 1:
+                raise Exception("GD PE does not have any associated dataset")
 
-            group = meshDict[mesh.name]
+            for name in gd_pe.data[CUBA.DATA_SET]:
 
-            self.exportKratosParticles(
-                self.spheres_model_part,
-                particles,
-                group
-            )
+                particles = cuds.get_by_name(name)
+                group = meshDict[particles.name]
+
+                self.exportKratosParticles(
+                    self.spheres_model_part,
+                    particles,
+                    group
+                )
 
         self.updateForwardDicc()

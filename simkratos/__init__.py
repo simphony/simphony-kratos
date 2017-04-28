@@ -2,12 +2,12 @@ from simphony.engine import ABCEngineExtension
 from simphony.engine import EngineInterface
 from simphony.engine.decorators import register
 
-from .kratos_utils import CFD_Utils
-from .kratos_utils import DEM_Utils
-
-__all__ = [
-    "CFD_Utils", "DEM_Utils"
-]
+from KratosMultiphysics import *                                                # noqa               # noqa
+from KratosMultiphysics.FluidDynamicsApplication import *                       # noqa
+from KratosMultiphysics.ExternalSolversApplication import *                     # noqa
+from KratosMultiphysics.MeshingApplication import *                             # noqa
+from KratosMultiphysics.DEMApplication import *                                 # noqa
+from KratosMultiphysics.SwimmingDEMApplication import *                         # noqa
 
 
 @register
@@ -28,6 +28,8 @@ class SimkratosExtension(ABCEngineExtension):
 
         cfd_features = None
         dem_features = None
+        pro_features = None
+        gid_features = None
 
         kratos_cfd = self.create_engine_metadata(
             'KRATOS_CFD',
@@ -41,7 +43,19 @@ class SimkratosExtension(ABCEngineExtension):
             [EngineInterface.Internal]
         )
 
-        return [kratos_cfd, kratos_dem]
+        kratos_pro = self.create_engine_metadata(
+            'KRATOS_PRO',
+            pro_features,
+            [EngineInterface.Internal]
+        )
+
+        kratos_gid = self.create_engine_metadata(
+            'KRATOS_GID',
+            gid_features,
+            [EngineInterface.Internal]
+        )
+
+        return [kratos_cfd, kratos_dem, kratos_pro, kratos_gid]
 
     def create_wrapper(self, cuds, engine_name, engine_interface):
         """Creates a wrapper to the requested engine.
@@ -60,7 +74,10 @@ class SimkratosExtension(ABCEngineExtension):
         ABCEngineExtension: A wrapper configured with cuds and ready to run
         """
 
-        supported_engines = ['KRATOS_CFD', 'KRATOS_DEM']
+        supported_engines = [
+            'KRATOS_CFD', 'KRATOS_DEM',
+            'KRATOS_PRO', 'KRATOS_GID'
+        ]
 
         if engine_interface == EngineInterface.FileIO:
             raise Exception('Only Internal wrappers are supported for Kratos.')
@@ -80,3 +97,11 @@ class SimkratosExtension(ABCEngineExtension):
         if engine_name == 'KRATOS_DEM':
             from .DEM.kratos_DEM_wrapper import DEMWrapper
             return DEMWrapper(cuds=cuds, use_internal_interface=True)
+
+        if engine_name == 'KRATOS_PRO':
+            from .PROJECT.kratos_PROJECT_wrapper import PROJECTWrapper
+            return PROJECTWrapper(cuds=cuds, use_internal_interface=True)
+
+        if engine_name == 'KRATOS_GID':
+            from .GID.kratos_GID_wrapper import GIDWrapper
+            return GIDWrapper(cuds=cuds, use_internal_interface=True)

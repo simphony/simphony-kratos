@@ -31,9 +31,10 @@ setup(
     description='The Kratos-CFD and Kratos-DEMPack wrappers\
                  for the SimPhoNy framework',
     long_description=README_TEXT,
-    entry_points={'simphony.engine': [
-        'kratos = simkratos'
-    ]},
+    entry_points={
+        'simphony.engine': [
+            'kratos = simkratos',
+        ]},
     packages=find_packages(),
     package_data={'simkratos': ['tests/dem/*.mdpa',
                                 'tests/cfd/*.mdpa']},

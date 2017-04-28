@@ -1,6 +1,14 @@
 language: python
 python:
   - "2.7"
+addons:
+  apt:
+    sources:
+      - sourceline: 'ppa:ubuntu-toolchain-r/test'
+      - sourceline: 'ppa:boost-latest/ppa'
+    packages:
+      - gcc-4.9
+      - g++-4.9
 virtualenv:
   system_site_packages: false
 env:
@@ -10,7 +18,7 @@ matrix:
     allow_failures:
         - env: SIMPHONY_VERSION=master
 before_install:
-  - wget https://web.cimne.upc.edu/users/croig/data/kratos-simphony.tgz -O /tmp/kratos.tgz
+  - wget https://github.com/KratosMultiphysics/Kratos/releases/download/v5.0-Simphony/kratos-simphony.tgz -O /tmp/kratos.tgz
   - mkdir $PWD/kratos
   - tar -xzvf /tmp/kratos.tgz -C $PWD/kratos
   - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/kratos/libs
@@ -24,4 +32,4 @@ install:
 
 script:
   - flake8 . --ignore=E121,E123,E126,E226,E24,E704,W503,W504,F405,F401,F403
-  - python -m unittest discover
+  - python2 -m unittest discover
