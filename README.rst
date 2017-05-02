@@ -39,7 +39,7 @@ Both Kratos-CFD and DEMPack wrappers use KratosMultiphysics. A suitable version 
 
 - `KratosMultiphysics`_
 
-.. _KratosMultiphysics: https://web.cimne.upc.edu/users/croig/data/kratos-simphony.tgz
+.. _KratosMultiphysics: https://github.com/KratosMultiphysics/Kratos/releases/download/v5.0-Simphony/kratos-simphony.tgz
 
 This version is prepared for Ubuntu-12-04-LTS 64-bit. See http://kratos-wiki.cimne.upc.edu/index.php/Download for additional information on getting Kratos for a specific system.
 
