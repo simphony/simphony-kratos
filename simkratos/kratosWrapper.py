@@ -577,6 +577,7 @@ class KratosWrapper(ABCModelingEngine):
                 nodes.append(
                     dst.Nodes[self.uuid_to_id_node_map[point.uid]]
                 )
+            dst.GetMesh(group)
             dst.SetNodes(nodes, group)
 
     def importKratosElements(self, src, dst, group, element_type):
@@ -615,6 +616,7 @@ class KratosWrapper(ABCModelingEngine):
                 elements.append(
                     dst.Elements[self.uuid_to_id_element_map[elem.uid]]
                 )
+            dst.GetMesh(group)
             dst.SetElements(elements, group)
 
     def importKratosConditions(self, src, dst, group, condition_type):
@@ -653,6 +655,7 @@ class KratosWrapper(ABCModelingEngine):
                 conditions.append(
                     dst.Conditions[self.uuid_to_id_condition_map[cnd.uid]]
                 )
+            dst.GetMesh(group)
             dst.SetConditions(conditions, group)
 
     def importKratosParticles(self, src, dst, group, particle_type):
@@ -726,6 +729,7 @@ class KratosWrapper(ABCModelingEngine):
                 elements.append(
                     dst.Elements[self.uuid_to_id_element_map[particle.uid]]
                 )
+            dst.GetMesh(group)
             dst.SetNodes(nodes, group)
             dst.SetElements(elements, group)
 
