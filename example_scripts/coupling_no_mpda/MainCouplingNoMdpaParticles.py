@@ -56,6 +56,9 @@ def generate_particles(smp_particles, smp_conditions, smp_materials, smp_pe):
     material = api.Material(name='material_' + particles.name)
     materialData = material.data
 
+    # con_law = "DEM_KDEM"
+    # dis_law = "DEM_D_Hertz_viscous_Coulomb"
+
     materialData[CUBA.DENSITY] = 2500.0
     materialData[CUBA.YOUNG_MODULUS] = 35e9
     materialData[CUBA.POISSON_RATIO] = 0.20
@@ -63,8 +66,8 @@ def generate_particles(smp_particles, smp_conditions, smp_materials, smp_pe):
     # materialData[CUBA.PARTICLE_COHESION] = 0.0
     materialData[CUBA.RESTITUTION_COEFFICIENT] = 0.02
     materialData[CUBA.ROLLING_FRICTION] = 0.01
-    # materialData[CUBA.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] = "DEM_KDEMFabric"
-    # materialData[CUBA.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] = "DEM_D_Hertz_viscous_Coulomb"
+    # materialData[CUBA.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] = con_law
+    # materialData[CUBA.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] = dis_law
     # materialData[CUBA.CONTACT_TAU_ZERO] = 25
     # materialData[CUBA.CONTACT_SIGMA_MIN] = 5
     # materialData[CUBA.CONTACT_INTERNAL_FRICC] = 1
@@ -98,35 +101,47 @@ def generate_fibers(smp_particles, smp_conditions, smp_materials, smp_pe):
     data = DataContainer()
     data[CUBA.RADIUS] = 0.025
 
+    fiberCoords = [
+        (0.1166666666666666685, 0.5083333333333333037, 0.5166666666666666075),
+        (0.1499999999999999944, 0.5250000000000000222, 0.5500000000000000444),
+        (0.1833333333333333481, 0.5416666666666667407, 0.5833333333333332593),
+        (0.2166666666666666741, 0.5583333333333333481, 0.6166666666666666963),
+        (0.2500000000000000000, 0.5749999999999999556, 0.6499999999999999112),
+        (0.2833333333333333259, 0.5916666666666665630, 0.6833333333333333481)
+    ]
+
     fibers.add([
         SParticle(
-            coordinates=(0.1166666666666666685, 0.5083333333333333037, 0.5166666666666666075),
+            coordinates=fiberCoords[0],
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=(0.1499999999999999944, 0.5250000000000000222, 0.5500000000000000444),
+            coordinates=fiberCoords[1],
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=(0.1833333333333333481, 0.5416666666666667407, 0.5833333333333332593),
+            coordinates=fiberCoords[2],
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=(0.2166666666666666741, 0.5583333333333333481, 0.6166666666666666963),
+            coordinates=fiberCoords[3],
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=(0.2500000000000000000, 0.5749999999999999556, 0.6499999999999999112),
+            coordinates=fiberCoords[4],
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=(0.2833333333333333259, 0.5916666666666665630, 0.6833333333333333481),
+            coordinates=fiberCoords[5],
             data=DataContainer(data),
         )
     ])
 
     material = api.Material(name='material_' + fibers.name)
     materialData = material.data
+
+    # con_law = "DEM_KDEMFabric"
+    # dis_law = "DEM_D_Hertz_viscous_Coulomb"
 
     materialData[CUBA.DENSITY] = 2500.0
     materialData[CUBA.YOUNG_MODULUS] = 1.0e9
@@ -136,8 +151,8 @@ def generate_fibers(smp_particles, smp_conditions, smp_materials, smp_pe):
     materialData[CUBA.RESTITUTION_COEFFICIENT] = 0.02
     materialData[CUBA.ROLLING_FRICTION] = 0.01
     # materialData[CUBA.FABRIC_COEFFICIENT] = 0.1
-    # materialData[CUBA.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] = "DEM_KDEMFabric"
-    # materialData[CUBA.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] = "DEM_D_Hertz_viscous_Coulomb"
+    # materialData[CUBA.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] = con_law
+    # materialData[CUBA.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] = dis_law
     # materialData[CUBA.CONTACT_TAU_ZERO] = 25
     # materialData[CUBA.CONTACT_SIGMA_MIN] = 5
     # materialData[CUBA.CONTACT_INTERNAL_FRICC] = 1
