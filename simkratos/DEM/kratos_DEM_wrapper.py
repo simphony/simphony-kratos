@@ -245,10 +245,10 @@ class DEMWrapper(KratosWrapper):
         # ###################### #
 
         # Prepare properties
-        self.kratos_properties = {0: KRTS.Properties(0)}
+        self.kratos_props = {0: KRTS.Properties(0)}
         properties_array = KRTS.PropertiesArray()
 
-        properties_array.append(self.kratos_properties[0])
+        properties_array.append(self.kratos_props[0])
 
         self.spheres_model_part.SetProperties(properties_array)
         self.setDefaultElementData(properties_array[0])
@@ -335,7 +335,7 @@ class DEMWrapper(KratosWrapper):
         self.spheres_model_part.GetMesh(len(fluid_particles))
         self.rigid_face_model_part.GetMesh(len(solid_meshes))
 
-        meshNumber = 1
+        meshNbr = 1
         meshDict = {}
 
         # Get the CFD pe
@@ -349,7 +349,7 @@ class DEMWrapper(KratosWrapper):
             for name in gd_pe.data[CUBA.DATA_SET]:
 
                 particles = cuds.get_by_name(name)
-                group = meshNumber
+                group = meshNbr
 
                 self.importKratosParticles(
                     particles, self.spheres_model_part,
@@ -358,17 +358,17 @@ class DEMWrapper(KratosWrapper):
 
                 if(CUBA.MATERIAL in particles.data):
                     material = cuds.get_by_name(particles.data[CUBA.MATERIAL])
-                    model_properties = self.spheres_model_part.GetProperties()
+                    model_props = self.spheres_model_part.GetProperties()
 
-                    if meshNumber not in self.kratos_properties.keys():
-                        self.kratos_properties[meshNumber] = KRTS.Properties(meshNumber)
-                        model_properties[meshNumber] = self.kratos_properties[meshNumber]
-                        self.setDefaultElementData(model_properties[meshNumber])
+                    if meshNbr not in self.kratos_props.keys():
+                        self.kratos_props[meshNbr] = KRTS.Properties(meshNbr)
+                        model_props[meshNbr] = self.kratos_props[meshNbr]
+                        self.setDefaultElementData(model_props[meshNbr])
 
-                    self.setProperties(material, model_properties[meshNumber])
+                    self.setProperties(material, model_props[meshNbr])
 
-                meshDict[particles.name] = meshNumber
-                meshNumber += 1
+                meshDict[particles.name] = meshNbr
+                meshNbr += 1
 
         self.updateBackwardDicc()
 

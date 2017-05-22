@@ -198,39 +198,39 @@ class PROJECTWrapper(KratosWrapper):
         self.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME = dLawString
 
     def setElementData(self):
-        self.kratos_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTSDEM.PARTICLE_DENSITY,
             self.SP[CUBA.DENSITY]
         )
-        self.kratos_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTS.YOUNG_MODULUS,
             self.SP[CUBA.YOUNG_MODULUS]
         )
-        self.kratos_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTS.POISSON_RATIO,
             self.SP[CUBA.POISSON_RATIO]
         )
-        self.kratos_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTSDEM.PARTICLE_FRICTION,
             self.PARTICLE_FRICTION
         )
-        self.kratos_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTSDEM.PARTICLE_COHESION,
             self.PARTICLE_COHESION
         )
-        self.kratos_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTS.PARTICLE_MATERIAL,
             self.PARTICLE_MATERIAL
         )
-        self.kratos_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTSDEM.ROLLING_FRICTION,
             self.SP[CUBA.ROLLING_FRICTION]
         )
-        self.kratos_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTSDEM.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME,
             self.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME
         )
-        self.kratos_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTSDEM.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME,
             self.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME
         )
@@ -311,7 +311,7 @@ class PROJECTWrapper(KratosWrapper):
 
     def initialize(self):
         # Prepare properties
-        self.kratos_properties = {
+        self.kratos_props = {
             0: KRTS.Properties(0),
             1: KRTS.Properties(1)
         }

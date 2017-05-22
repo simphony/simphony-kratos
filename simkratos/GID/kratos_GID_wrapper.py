@@ -327,7 +327,7 @@ class GIDWrapper(KratosWrapper):
         cuds = self.get_cuds()
 
         # Prepare properties
-        self.kratos_properties = {
+        self.kratos_props = {
             0: KRTS.Properties(0),
             1: KRTS.Properties(1)
         }

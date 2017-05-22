@@ -628,14 +628,14 @@ class KratosWrapper(ABCModelingEngine):
                 element_id = self.uuid_to_id_element_map[element.uid]
 
                 property_range = 0
-                if group in self.kratos_properties.keys():
+                if group in self.kratos_props.keys():
                     property_range = group
 
                 dst.CreateNewElement(
                     element_type,
                     element_id,
                     [self.uuid_to_id_node_map[p] for p in element.points],
-                    self.kratos_properties[property_range]
+                    self.kratos_props[property_range]
                 )
 
         # If they belong to a different group, add them
@@ -741,14 +741,14 @@ class KratosWrapper(ABCModelingEngine):
                 element_id = self.uuid_to_id_element_map[particle.uid]
 
                 property_range = 0
-                if group in self.kratos_properties.keys():
+                if group in self.kratos_props.keys():
                     property_range = group
 
                 dst.CreateNewElement(
                     particle_type,
                     element_id,
                     [self.uuid_to_id_node_map[particle.uid]],
-                    self.kratos_properties[property_range]
+                    self.kratos_props[property_range]
                 )
 
         # If they belong to a different group, add them
