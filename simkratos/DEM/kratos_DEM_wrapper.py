@@ -70,6 +70,41 @@ class DEMWrapper(KratosWrapper):
             ]
         }
 
+        self.properties_dictionary = {
+            "PARTICLE_DENSITY": [
+                CUBA.DENSITY,
+                KRTSDEM.PARTICLE_DENSITY
+            ],
+            "YOUNG_MODULUS": [
+                CUBA.YOUNG_MODULUS,
+                KRTS.YOUNG_MODULUS
+            ],
+            "POISSON_RATIO": [
+                CUBA.POISSON_RATIO,
+                KRTS.POISSON_RATIO
+            ],
+            "PARTICLE_FRICTION": [
+                CUBA.FRICTION_COEFFICIENT,
+                KRTSDEM.PARTICLE_FRICTION
+            ],
+            "PARTICLE_COHESION": [
+                None,
+                KRTSDEM.PARTICLE_COHESION
+            ],
+            "ROLLING_FRICTION": [
+                CUBA.ROLLING_FRICTION,
+                KRTSDEM.PARTICLE_COHESION
+            ],
+            "DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME": [
+                None,
+                KRTSDEM.PARTICLE_COHESION
+            ],
+            "DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME": [
+                None,
+                KRTSDEM.PARTICLE_COHESION
+            ]
+        }
+
         # Set DEM parameters
         self.solver_strategy = SolverStrategy
         self.creator_destructor = KRTSDEM.ParticleCreatorDestructor()
@@ -129,66 +164,27 @@ class DEMWrapper(KratosWrapper):
                 data, node, "EXTERNAL_APPLIED_FORCE"
             )
 
-    def _setMeshData(self):
-        " This probably needs to be done throug configuration"
+    def setDefaultElementData(self, propertyContainer):
+        propertyContainer.SetValue(KRTSDEM.PARTICLE_DENSITY, 2500.0)
+        propertyContainer.SetValue(KRTS.YOUNG_MODULUS, 1.0e5)
+        propertyContainer.SetValue(KRTS.POISSON_RATIO, 0.20)
+        propertyContainer.SetValue(KRTSDEM.PARTICLE_FRICTION, 0.99)
+        propertyContainer.SetValue(KRTSDEM.PARTICLE_COHESION, 0.0)
+        propertyContainer.SetValue(KRTS.PARTICLE_MATERIAL, 1)
+        propertyContainer.SetValue(KRTSDEM.ROLLING_FRICTION, 0.99)
 
-        cLawString = "DEM_KDEM"
-        dLawString = "DEM_D_Hertz_viscous_Coulomb"
-
-        self.SP[CUBA.DENSITY] = 2500.0
-        self.SP[CUBA.YOUNG_MODULUS] = 1.0e5
-        self.SP[CUBA.POISSON_RATIO] = 0.20
-        self.SP[CUBA.ROLLING_FRICTION] = 0.01
-
-        self.PARTICLE_FRICTION = 0.99
-        self.PARTICLE_COHESION = 0.0
-        self.LN_OF_RESTITUTION_COEFF = -1.6094379124341003
-        self.PARTICLE_MATERIAL = 1
-        self.WALL_FRICTION = 0.3
-        self.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME = cLawString
-        self.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME = dLawString
-
-    def setElementData(self):
-        self.element_properties.SetValue(
-            KRTSDEM.PARTICLE_DENSITY,
-            self.SP[CUBA.DENSITY]
-        )
-        self.element_properties.SetValue(
-            KRTS.YOUNG_MODULUS,
-            self.SP[CUBA.YOUNG_MODULUS]
-        )
-        self.element_properties.SetValue(
-            KRTS.POISSON_RATIO,
-            self.SP[CUBA.POISSON_RATIO]
-        )
-        self.element_properties.SetValue(
-            KRTSDEM.PARTICLE_FRICTION,
-            self.PARTICLE_FRICTION
-        )
-        self.element_properties.SetValue(
-            KRTSDEM.PARTICLE_COHESION,
-            self.PARTICLE_COHESION
-        )
-        # self.element_properties.SetValue(
-        #     KRTSDEM.LN_OF_RESTITUTION_COEFF,
-        #     self.LN_OF_RESTITUTION_COEFF
-        # )
-        self.element_properties.SetValue(
-            KRTS.PARTICLE_MATERIAL,
-            self.PARTICLE_MATERIAL
-        )
-        self.element_properties.SetValue(
-            KRTSDEM.ROLLING_FRICTION,
-            self.SP[CUBA.ROLLING_FRICTION]
-        )
-        self.element_properties.SetValue(
+        propertyContainer.SetValue(
             KRTSDEM.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME,
-            self.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME
+            "DEM_KDEM"
         )
-        self.element_properties.SetValue(
+        propertyContainer.SetValue(
             KRTSDEM.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME,
-            self.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME
+            "DEM_D_Hertz_viscous_Coulomb"
         )
+
+    def setProperties(self, material, propertyContainer):
+        for propertyName in self.properties_dictionary:
+            self.setProperty(material.data, propertyContainer, propertyName)
 
     def setConditionData(self):
         cmesh = self.get_dataset("RigidFacePart")
@@ -249,19 +245,13 @@ class DEMWrapper(KratosWrapper):
         # ###################### #
 
         # Prepare properties
-        self.element_properties = KRTS.Properties(0)
-        self.condition_properties = KRTS.Properties(1)
+        self.kratos_properties = {0: KRTS.Properties(0)}
+        properties_array = KRTS.PropertiesArray()
 
-        element_properties_array = KRTS.PropertiesArray()
+        properties_array.append(self.kratos_properties[0])
 
-        self._setMeshData()
-        self.setElementData()
-
-        element_properties_array.append(self.element_properties)
-        # solid_properties.append(self.condition_properties)
-
-        self.spheres_model_part.SetProperties(element_properties_array)
-        # self.rigid_face_model_part.SetProperties(solid_properties)
+        self.spheres_model_part.SetProperties(properties_array)
+        self.setDefaultElementData(properties_array[0])
 
         # Prepare variables
         self.solver.AddAdditionalVariables(
@@ -334,23 +324,6 @@ class DEMWrapper(KratosWrapper):
         # Initialize the solver
         self.solver.Initialize()
 
-        # Constructing the inlet and initializing it
-        # if (DEM_parameters.dem_inlet_option):
-        #     self.DEM_inlet = DEM_Inlet(self.DEM_inlet_model_part)
-        #     self.DEM_inlet.InitializeDEM_Inlet(
-        #         self.spheres_model_part,
-        #         self.creator_destructor,
-        #         self.solver.continuum_type
-        #     )
-
-        # Enable this
-        # self.DEMFEMProcedures = DEM_procedures.DEMFEMProcedures(
-        #     DEM_parameters,
-        #     self.graphs_path,
-        #     self.spheres_model_part,
-        #     self.rigid_face_model_part
-        # )
-
     def run(self):
         """ Run a step of the wrapper """
 
@@ -382,6 +355,17 @@ class DEMWrapper(KratosWrapper):
                     particles, self.spheres_model_part,
                     group, self.particle_type
                 )
+
+                if(CUBA.MATERIAL in particles.data):
+                    material = cuds.get_by_name(particles.data[CUBA.MATERIAL])
+                    model_properties = self.spheres_model_part.GetProperties()
+
+                    if meshNumber not in self.kratos_properties.keys():
+                        self.kratos_properties[meshNumber] = KRTS.Properties(meshNumber)
+                        model_properties[meshNumber] = self.kratos_properties[meshNumber]
+                        self.setDefaultElementData(model_properties[meshNumber])
+
+                    self.setProperties(material, model_properties[meshNumber])
 
                 meshDict[particles.name] = meshNumber
                 meshNumber += 1

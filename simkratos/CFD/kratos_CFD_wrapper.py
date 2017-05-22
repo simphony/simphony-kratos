@@ -263,8 +263,7 @@ class CFDWrapper(KratosWrapper):
             self.SolverSettings
         )
 
-        self.element_properties = KRTS.Properties(0)
-        self.condition_properties = KRTS.Properties(0)
+        self.kratos_properties = {0: KRTS.Properties(0)}
 
     def run(self):
         """ Run a step of the wrapper """

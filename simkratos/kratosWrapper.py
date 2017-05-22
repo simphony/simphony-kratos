@@ -46,10 +46,10 @@ class KratosWrapper(ABCModelingEngine):
 
         """
 
-        # Uid <-> KratosId mapping
         if use_internal_interface is False:
             raise Exception('Kratos wrappers cannot be File-io based')
 
+        # Uid <-> KratosId mapping
         self.id_to_uuid_node_map = {}
         self.uuid_to_id_node_map = {}
         self.id_to_uuid_element_map = {}
@@ -323,6 +323,31 @@ class KratosWrapper(ABCModelingEngine):
                     pair[2 + i],
                     data[pair[0]][0 + i]
                 )
+
+    def setProperty(self, data, propertyContainer, variable):
+        """ Updates a kratos property with a simphony material
+        variable
+
+        Parameters
+        ----------
+        data: DataContainer
+            The data container where the source is located
+
+        propertyContainer: Kratos property container
+            Destination of the data
+
+        variable: Enum of kratos variables
+            Identifier of the variable to be updated
+        """
+
+        pair = self.properties_dictionary[variable]
+        if(pair[0] is not None):
+            if pair[0] not in data.keys():
+                data[pair[0]] = 0
+            propertyContainer.SetValue(
+                pair[1],
+                data[pair[0]]
+            )
 
     def updateForwardDicc(self):
         """ Updates the internal mapping of the wrapper
@@ -602,11 +627,15 @@ class KratosWrapper(ABCModelingEngine):
 
                 element_id = self.uuid_to_id_element_map[element.uid]
 
+                property_range = 0
+                if group in self.kratos_properties.keys():
+                    property_range = group
+
                 dst.CreateNewElement(
                     element_type,
                     element_id,
                     [self.uuid_to_id_node_map[p] for p in element.points],
-                    self.element_properties
+                    self.kratos_properties[property_range]
                 )
 
         # If they belong to a different group, add them
@@ -711,11 +740,15 @@ class KratosWrapper(ABCModelingEngine):
 
                 element_id = self.uuid_to_id_element_map[particle.uid]
 
+                property_range = 0
+                if group in self.kratos_properties.keys():
+                    property_range = group
+
                 dst.CreateNewElement(
                     particle_type,
                     element_id,
                     [self.uuid_to_id_node_map[particle.uid]],
-                    self.element_properties
+                    self.kratos_properties[property_range]
                 )
 
         # If they belong to a different group, add them
