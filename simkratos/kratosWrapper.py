@@ -670,11 +670,15 @@ class KratosWrapper(ABCModelingEngine):
 
                 condition_id = self.uuid_to_id_condition_map[condition.uid]
 
+                property_range = 0
+                if group in self.kratos_props.keys():
+                    property_range = group
+
                 dst.CreateNewCondition(
                     condition_type,
                     condition_id,
                     [self.uuid_to_id_node_map[p] for p in condition.points],
-                    self.condition_properties
+                    self.kratos_props[property_range]
                 )
 
         # If they belong to a different group, add them
