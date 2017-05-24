@@ -430,6 +430,7 @@ class KratosWrapper(ABCModelingEngine):
 
                 # iterate over the correct data
                 point.data = DataContainer(data)
+                point.coordinates = (node.X, node.Y, node.Z)
 
                 dst.update([point])
 
@@ -550,6 +551,7 @@ class KratosWrapper(ABCModelingEngine):
                 )
 
                 particle.data = DataContainer(data)
+                particle.coordinates = (node.X, node.Y, node.Z)
 
                 dst.update([particle])
 
