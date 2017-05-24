@@ -93,7 +93,7 @@ class DEMWrapper(KratosWrapper):
             ],
             "ROLLING_FRICTION": [
                 CUBA.ROLLING_FRICTION,
-                KRTSDEM.PARTICLE_COHESION
+                KRTSDEM.ROLLING_FRICTION
             ],
             "DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME": [
                 None,
