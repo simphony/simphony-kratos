@@ -67,6 +67,10 @@ class DEMWrapper(KratosWrapper):
                 KRTSDEM.EXTERNAL_APPLIED_FORCE_X,
                 KRTSDEM.EXTERNAL_APPLIED_FORCE_Y,
                 KRTSDEM.EXTERNAL_APPLIED_FORCE_Z
+            ],
+            "COHESIVE_GROUP": [
+                None,
+                KRTSDEM.COHESIVE_GROUP
             ]
         }
 
@@ -143,6 +147,7 @@ class DEMWrapper(KratosWrapper):
             self.getSolutionStepVariable1D(data, node, "NODAL_MASS")
             self.getSolutionStepVariable3D(data, node, "VELOCITY")
             self.getSolutionStepVariable3D(data, node, "DISPLACEMENT")
+            self.getSolutionStepVariable1D(data, node, "COHESIVE_GROUP")
             self.getSolutionStepVariable3D(
                 data, node, "EXTERNAL_APPLIED_FORCE"
             )
@@ -160,6 +165,7 @@ class DEMWrapper(KratosWrapper):
             self.setSolutionStepVariable1D(data, node, "NODAL_MASS")
             self.setSolutionStepVariable3D(data, node, "VELOCITY")
             self.setSolutionStepVariable3D(data, node, "DISPLACEMENT")
+            self.setSolutionStepVariable1D(data, node, "COHESIVE_GROUP")
             self.setSolutionStepVariable3D(
                 data, node, "EXTERNAL_APPLIED_FORCE"
             )
@@ -263,6 +269,10 @@ class DEMWrapper(KratosWrapper):
             KRTSDEM.EXTERNAL_APPLIED_FORCE
         )
 
+        self.spheres_model_part.AddNodalSolutionStepVariable(
+            KRTSDEM.COHESIVE_GROUP
+        )
+
         self.procedures.solver = self.solver
 
         self.procedures.AddCommonVariables(
@@ -355,6 +365,9 @@ class DEMWrapper(KratosWrapper):
                     particles, self.spheres_model_part,
                     group, self.particle_type
                 )
+
+                for node in self.spheres_model_part.Nodes:
+                    node.SetSolutionStepValue(KRTSDEM.COHESIVE_GROUP, 1)
 
                 if(CUBA.MATERIAL in particles.data):
                     material = cuds.get_by_name(particles.data[CUBA.MATERIAL])
