@@ -98,29 +98,38 @@ def generate_fibers(smp_particles, smp_conditions, smp_materials, smp_pe):
     data = DataContainer()
     data[CUBA.RADIUS] = 1e-5
 
+    fiberCoords = [
+        (0.1166666666666666685, 0.5083333333333333037, 0.5166666666666666075),
+        (0.1499999999999999944, 0.5250000000000000222, 0.5500000000000000444),
+        (0.1833333333333333481, 0.5416666666666667407, 0.5833333333333332593),
+        (0.2166666666666666741, 0.5583333333333333481, 0.6166666666666666963),
+        (0.2500000000000000000, 0.5749999999999999556, 0.6499999999999999112),
+        (0.2833333333333333259, 0.5916666666666665630, 0.6833333333333333481)
+    ]
+
     fibers.add([
         SParticle(
-            coordinates=(0.001166666666666666685, 0.005083333333333333037, 0.005166666666666666075),
+            coordinates=fiberCoords[0],
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=(0.001499999999999999944, 0.005250000000000000222, 0.005500000000000000444),
+            coordinates=fiberCoords[1],
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=(0.001833333333333333481, 0.005416666666666667407, 0.005833333333333332593),
+            coordinates=fiberCoords[2],
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=(0.002166666666666666741, 0.005583333333333333481, 0.006166666666666666963),
+            coordinates=fiberCoords[3],
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=(0.002500000000000000000, 0.005749999999999999556, 0.006499999999999999112),
+            coordinates=fiberCoords[4],
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=(0.002833333333333333259, 0.005916666666666665630, 0.006833333333333333481),
+            coordinates=fiberCoords[5],
             data=DataContainer(data),
         )
     ])
