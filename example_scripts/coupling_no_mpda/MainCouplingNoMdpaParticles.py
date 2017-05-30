@@ -20,7 +20,7 @@ from simkratos.CFD.kratos_CFD_utils import CFD_Utils
 
 def simple_coupling(cuds, particles_dataset_name):
     viscosity = 1.0e-3
-    something_shaddy = 6.0
+    stokes_constant = 6.0
     particle_dataset = cuds.get_by_name(name=particles_dataset_name)
 
     for particle in particle_dataset.iter(item_type=CUBA.PARTICLES):
@@ -30,7 +30,7 @@ def simple_coupling(cuds, particles_dataset_name):
         rel_vel = p_data[CUBA.RELATIVE_VELOCITY]
         radius = p_data[CUBA.RADIUS]
 
-        factor = something_shaddy * math.pi * viscosity * radius
+        factor = stokes_constant * math.pi * viscosity * radius
 
         external_force = [factor * (x - y) for x, y in zip(rel_vel, vel)]
 
@@ -44,11 +44,11 @@ def generate_particles(smp_particles, smp_conditions, smp_materials, smp_pe):
 
     # Fill the data ( particle )
     data = DataContainer()
-    data[CUBA.RADIUS] = 0.05
+    data[CUBA.RADIUS] = 5e-5
 
     particles.add([
         SParticle(
-            coordinates=(0.2, 0.4, 0.4),
+            coordinates=(0.002, 0.004, 0.004),
             data=DataContainer(data),
         )
     ])
@@ -56,18 +56,15 @@ def generate_particles(smp_particles, smp_conditions, smp_materials, smp_pe):
     material = api.Material(name='material_' + particles.name)
     materialData = material.data
 
-    # con_law = "DEM_KDEM"
-    # dis_law = "DEM_D_Hertz_viscous_Coulomb"
-
-    materialData[CUBA.DENSITY] = 2500.0
+    materialData[CUBA.DENSITY] = 950.0
     materialData[CUBA.YOUNG_MODULUS] = 35e9
     materialData[CUBA.POISSON_RATIO] = 0.20
     materialData[CUBA.FRICTION_COEFFICIENT] = 0.5773502691896257
     # materialData[CUBA.PARTICLE_COHESION] = 0.0
     materialData[CUBA.RESTITUTION_COEFFICIENT] = 0.02
     materialData[CUBA.ROLLING_FRICTION] = 0.01
-    # materialData[CUBA.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] = con_law
-    # materialData[CUBA.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] = dis_law
+    # materialData[CUBA.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] = "DEM_KDEMFabric"
+    # materialData[CUBA.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] = "DEM_D_Hertz_viscous_Coulomb"
     # materialData[CUBA.CONTACT_TAU_ZERO] = 25
     # materialData[CUBA.CONTACT_SIGMA_MIN] = 5
     # materialData[CUBA.CONTACT_INTERNAL_FRICC] = 1
@@ -99,40 +96,31 @@ def generate_fibers(smp_particles, smp_conditions, smp_materials, smp_pe):
 
     # Fill the data ( fiber )
     data = DataContainer()
-    data[CUBA.RADIUS] = 0.025
-
-    fiberCoords = [
-        (0.1166666666666666685, 0.5083333333333333037, 0.5166666666666666075),
-        (0.1499999999999999944, 0.5250000000000000222, 0.5500000000000000444),
-        (0.1833333333333333481, 0.5416666666666667407, 0.5833333333333332593),
-        (0.2166666666666666741, 0.5583333333333333481, 0.6166666666666666963),
-        (0.2500000000000000000, 0.5749999999999999556, 0.6499999999999999112),
-        (0.2833333333333333259, 0.5916666666666665630, 0.6833333333333333481)
-    ]
+    data[CUBA.RADIUS] = 1e-5
 
     fibers.add([
         SParticle(
-            coordinates=fiberCoords[0],
+            coordinates=(0.001166666666666666685, 0.005083333333333333037, 0.005166666666666666075),
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=fiberCoords[1],
+            coordinates=(0.001499999999999999944, 0.005250000000000000222, 0.005500000000000000444),
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=fiberCoords[2],
+            coordinates=(0.001833333333333333481, 0.005416666666666667407, 0.005833333333333332593),
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=fiberCoords[3],
+            coordinates=(0.002166666666666666741, 0.005583333333333333481, 0.006166666666666666963),
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=fiberCoords[4],
+            coordinates=(0.002500000000000000000, 0.005749999999999999556, 0.006499999999999999112),
             data=DataContainer(data),
         ),
         SParticle(
-            coordinates=fiberCoords[5],
+            coordinates=(0.002833333333333333259, 0.005916666666666665630, 0.006833333333333333481),
             data=DataContainer(data),
         )
     ])
@@ -140,10 +128,7 @@ def generate_fibers(smp_particles, smp_conditions, smp_materials, smp_pe):
     material = api.Material(name='material_' + fibers.name)
     materialData = material.data
 
-    # con_law = "DEM_KDEMFabric"
-    # dis_law = "DEM_D_Hertz_viscous_Coulomb"
-
-    materialData[CUBA.DENSITY] = 2500.0
+    materialData[CUBA.DENSITY] = 1050.0
     materialData[CUBA.YOUNG_MODULUS] = 1.0e9
     materialData[CUBA.POISSON_RATIO] = 0.20
     materialData[CUBA.FRICTION_COEFFICIENT] = 0.9999999999999999
@@ -151,8 +136,8 @@ def generate_fibers(smp_particles, smp_conditions, smp_materials, smp_pe):
     materialData[CUBA.RESTITUTION_COEFFICIENT] = 0.02
     materialData[CUBA.ROLLING_FRICTION] = 0.01
     # materialData[CUBA.FABRIC_COEFFICIENT] = 0.1
-    # materialData[CUBA.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] = con_law
-    # materialData[CUBA.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] = dis_law
+    # materialData[CUBA.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] = "DEM_KDEMFabric"
+    # materialData[CUBA.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] = "DEM_D_Hertz_viscous_Coulomb"
     # materialData[CUBA.CONTACT_TAU_ZERO] = 25
     # materialData[CUBA.CONTACT_SIGMA_MIN] = 5
     # materialData[CUBA.CONTACT_INTERNAL_FRICC] = 1
@@ -197,8 +182,8 @@ CFDitime.final = 0.0125  # 1 Kratos Timesteps
 # Integration time for the particle solver
 DEMitime = api.IntegrationTime(name="DEM_Integration_time")
 DEMitime.time = 0.0001
-DEMitime.step = 0.005
-DEMitime.final = 0.00125  # 5 Kratos Timesteps
+DEMitime.step = 5e-5
+DEMitime.final = 0.0125  # 5 Kratos Timesteps
 
 COUiTime = api.IntegrationTime(name="COU_Inetegration_time")
 
@@ -252,7 +237,7 @@ simDEM = Simulation(cuds, "KRATOS_DEM", engine_interface=True)
 simPRO = Simulation(cuds, "KRATOS_PRO", engine_interface=True)
 simGID = Simulation(cuds, "KRATOS_GID", engine_interface=True)
 
-for step in xrange(0, 100):
+for step in xrange(0, 10):
 
     # Set interval times
     CFDitime.final = 0.0125 * (step + 1)  # 5 Kratos Timesteps
@@ -266,6 +251,7 @@ for step in xrange(0, 100):
     # Run the CFD
     simCFD.run()
 
+for step in xrange(0, 100):
     # Projects the velocity from the fluid to the particles
     simPRO.run()
 
@@ -276,7 +262,7 @@ for step in xrange(0, 100):
     # Make sure the timestep between wrappers are consistent
     COUiTime.time = 0.0125 * (step + 0)
     COUiTime.step = DEMitime.step
-    COUiTime.final = DEMitime.final
+    COUiTime.final = 0.0125 * (step + 0) + COUiTime.step * 10
 
     # Run the DEM
     simDEM.run()

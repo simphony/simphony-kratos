@@ -398,6 +398,7 @@ class DEMWrapper(KratosWrapper):
             raise Exception("More than one integration time")
 
         iTime = [it for it in cuds.iter(item_type=CUBA.INTEGRATION_TIME)][0]
+        print(iTime.name)
 
         self.dt = iTime.step
 
@@ -407,10 +408,6 @@ class DEMWrapper(KratosWrapper):
 
         # Solve
         while self.time < self.final:
-
-            self.dt = self.spheres_model_part.ProcessInfo.GetValue(
-                KRTS.DELTA_TIME
-            )
 
             iTime.step = self.dt
 
