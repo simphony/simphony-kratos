@@ -63,8 +63,10 @@ def generate_particles(smp_particles, smp_conditions, smp_materials, smp_pe):
     # materialData[CUBA.PARTICLE_COHESION] = 0.0
     materialData[CUBA.RESTITUTION_COEFFICIENT] = 0.02
     materialData[CUBA.ROLLING_FRICTION] = 0.01
-    # materialData[CUBA.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] = "DEM_KDEMFabric"
-    # materialData[CUBA.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] = "DEM_D_Hertz_viscous_Coulomb"
+    # materialData[CUBA.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] = \
+    # "DEM_KDEMFabric"
+    # materialData[CUBA.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] = \
+    # "DEM_D_Hertz_viscous_Coulomb"
     # materialData[CUBA.CONTACT_TAU_ZERO] = 25
     # materialData[CUBA.CONTACT_SIGMA_MIN] = 5
     # materialData[CUBA.CONTACT_INTERNAL_FRICC] = 1
@@ -145,8 +147,10 @@ def generate_fibers(smp_particles, smp_conditions, smp_materials, smp_pe):
     materialData[CUBA.RESTITUTION_COEFFICIENT] = 0.02
     materialData[CUBA.ROLLING_FRICTION] = 0.01
     # materialData[CUBA.FABRIC_COEFFICIENT] = 0.1
-    # materialData[CUBA.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] = "DEM_KDEMFabric"
-    # materialData[CUBA.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] = "DEM_D_Hertz_viscous_Coulomb"
+    # materialData[CUBA.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME] = \
+    # "DEM_KDEMFabric"
+    # materialData[CUBA.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME] = \
+    # "DEM_D_Hertz_viscous_Coulomb"
     # materialData[CUBA.CONTACT_TAU_ZERO] = 25
     # materialData[CUBA.CONTACT_SIGMA_MIN] = 5
     # materialData[CUBA.CONTACT_INTERNAL_FRICC] = 1
