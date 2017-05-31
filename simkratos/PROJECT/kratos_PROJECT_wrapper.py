@@ -198,39 +198,39 @@ class PROJECTWrapper(KratosWrapper):
         self.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME = dLawString
 
     def setElementData(self):
-        self.element_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTSDEM.PARTICLE_DENSITY,
             self.SP[CUBA.DENSITY]
         )
-        self.element_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTS.YOUNG_MODULUS,
             self.SP[CUBA.YOUNG_MODULUS]
         )
-        self.element_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTS.POISSON_RATIO,
             self.SP[CUBA.POISSON_RATIO]
         )
-        self.element_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTSDEM.PARTICLE_FRICTION,
             self.PARTICLE_FRICTION
         )
-        self.element_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTSDEM.PARTICLE_COHESION,
             self.PARTICLE_COHESION
         )
-        self.element_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTS.PARTICLE_MATERIAL,
             self.PARTICLE_MATERIAL
         )
-        self.element_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTSDEM.ROLLING_FRICTION,
             self.SP[CUBA.ROLLING_FRICTION]
         )
-        self.element_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTSDEM.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME,
             self.DEM_CONTINUUM_CONSTITUTIVE_LAW_NAME
         )
-        self.element_properties.SetValue(
+        self.kratos_props.SetValue(
             KRTSDEM.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME,
             self.DEM_DISCONTINUUM_CONSTITUTIVE_LAW_NAME
         )
@@ -311,8 +311,10 @@ class PROJECTWrapper(KratosWrapper):
 
     def initialize(self):
         # Prepare properties
-        self.element_properties = KRTS.Properties(0)
-        self.condition_properties = KRTS.Properties(1)
+        self.kratos_props = {
+            0: KRTS.Properties(0),
+            1: KRTS.Properties(1)
+        }
 
         self.fluid_model_part = KRTS.ModelPart("Fluid")
         self.spheres_model_part = KRTS.ModelPart("Particles")

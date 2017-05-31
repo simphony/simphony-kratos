@@ -327,8 +327,10 @@ class GIDWrapper(KratosWrapper):
         cuds = self.get_cuds()
 
         # Prepare properties
-        self.element_properties = KRTS.Properties(0)
-        self.condition_properties = KRTS.Properties(1)
+        self.kratos_props = {
+            0: KRTS.Properties(0),
+            1: KRTS.Properties(1)
+        }
 
         self.fluid_model_part = KRTS.ModelPart("Fluid")
         self.spheres_model_part = KRTS.ModelPart("Particles")
