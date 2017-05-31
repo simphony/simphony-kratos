@@ -69,7 +69,7 @@ class DEMWrapper(KratosWrapper):
                 KRTSDEM.EXTERNAL_APPLIED_FORCE_Z
             ],
             "COHESIVE_GROUP": [
-                None,
+                CUBA.COHESIVE_GROUP,
                 KRTSDEM.COHESIVE_GROUP
             ]
         }
@@ -365,9 +365,6 @@ class DEMWrapper(KratosWrapper):
                     particles, self.spheres_model_part,
                     group, self.particle_type
                 )
-
-                for node in self.spheres_model_part.Nodes:
-                    node.SetSolutionStepValue(KRTSDEM.COHESIVE_GROUP, 1)
 
                 if(CUBA.MATERIAL in particles.data):
                     material = cuds.get_by_name(particles.data[CUBA.MATERIAL])

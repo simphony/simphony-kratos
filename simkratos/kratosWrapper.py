@@ -403,10 +403,6 @@ class KratosWrapper(ABCModelingEngine):
 
         for node in src.GetNodes(group):
 
-            data = {}
-
-            self.getNodalData(data, node, src.Name)
-
             point_uid = None
 
             if node.Id in self.id_to_uuid_node_map.keys():
@@ -415,6 +411,10 @@ class KratosWrapper(ABCModelingEngine):
             hasNode = point_uid is not None and dst.has(point_uid)
 
             if not hasNode:
+
+                data = {}
+                self.getNodalData(data, node, src.Name)
+                
                 point = SPoint(
                     coordinates=(node.X, node.Y, node.Z),
                     data=DataContainer(data),
@@ -426,9 +426,14 @@ class KratosWrapper(ABCModelingEngine):
                 self.id_to_uuid_node_map[node.Id] = pid[0]
 
             else:
-                point = dst.get(uid=self.id_to_uuid_node_map[node.Id])
 
-                # iterate over the correct data
+                point = dst.get(
+                    uid=self.id_to_uuid_node_map[node.Id]
+                )
+
+                data = point.data
+                self.getNodalData(data, node, src.Name)
+
                 point.data = DataContainer(data)
                 point.coordinates = (node.X, node.Y, node.Z)
 
@@ -526,13 +531,12 @@ class KratosWrapper(ABCModelingEngine):
 
         for node in src.GetNodes(group):
 
-            data = {}
-
-            self.getNodalData(data, node, src.Name)
-
             particle_uid = None
 
             if node.Id not in self.id_to_uuid_node_map:
+
+                data = {}
+                self.getNodalData(data, node, src.Name)
 
                 particle = SParticle(
                     coordinates=(node.X, node.Y, node.Z),
@@ -549,6 +553,9 @@ class KratosWrapper(ABCModelingEngine):
                 particle = dst.get(
                     uid=self.id_to_uuid_node_map[node.Id]
                 )
+
+                data = particle.data
+                self.getNodalData(data, node, src.Name)
 
                 particle.data = DataContainer(data)
                 particle.coordinates = (node.X, node.Y, node.Z)
